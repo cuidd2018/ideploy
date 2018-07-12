@@ -23,11 +23,11 @@ import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
 /**
  * @author: code4china
- * @description:
+ * @description: 应用全局配置
  * @date: Created in 13:43 2018/6/21
  */
 @Configuration
-public class DeployWebConfigure {
+public class ApplicationConfigure {
 
     @Bean
     public PropertySourcesPlaceholderConfigurer propertyConfigurer() {
@@ -41,7 +41,7 @@ public class DeployWebConfigure {
     @ConditionalOnMissingBean(InternalResourceViewResolver.class)
     public InternalResourceViewResolver defaultViewResolver() {
         InternalResourceViewResolver resolver = new InternalResourceViewResolver();
-        resolver.setPrefix("/WEB-INF/jsp");
+        resolver.setPrefix("/WEB-INF/jsp/");
         resolver.setSuffix(".jsp");
         return resolver;
     }

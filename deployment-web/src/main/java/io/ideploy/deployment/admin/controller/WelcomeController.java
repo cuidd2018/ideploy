@@ -127,5 +127,11 @@ public class WelcomeController {
         return "exception";
     }
 
+    @RequestMapping("/exception.xhtml")
+    @AllowAnonymous
+    public String  exceptionMsg(HttpServletRequest request, HttpServletResponse response){
+        return "exception";
+    }
+
 
 }

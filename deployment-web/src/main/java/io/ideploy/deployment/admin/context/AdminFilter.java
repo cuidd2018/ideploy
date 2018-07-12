@@ -1,8 +1,10 @@
 package io.ideploy.deployment.admin.context;
 
 import io.ideploy.deployment.common.util.IpAddressUtils;
+import javax.servlet.annotation.WebFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 import org.springframework.web.util.UrlPathHelper;
 
 import javax.servlet.*;
@@ -15,6 +17,8 @@ import java.util.Set;
  * 管理系统的 filter
  * @author ten 2015/10/6.
  */
+@Component
+@WebFilter(urlPatterns = { "/*" },filterName = "adminFilter")
 public class AdminFilter implements Filter {
 
     private static final Logger logger = LoggerFactory.getLogger(AdminFilter.class);

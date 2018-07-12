@@ -13,7 +13,7 @@ import org.springframework.core.io.support.ResourcePatternResolver;
 
 /**
  * @author: code4china
- * @description:
+ * @description: 数据源配置
  * @date: Created in 14:37 2018/7/10
  */
 @Configuration
@@ -24,6 +24,7 @@ public class DatasourceConfigure {
     public SqlSessionFactoryBean sqlSessionFactory(DataSource dataSource,  ResourcePatternResolver resolver) throws Exception {
         SqlSessionFactoryBean sqlSessionFactory = new SqlSessionFactoryBean();
         sqlSessionFactory.setDataSource(dataSource);
+        sqlSessionFactory.setConfigLocation(resolver.getResource("classpath:mybatis-config.xml"));
         sqlSessionFactory.setMapperLocations(resolver.getResources("classpath:/mybatis/**/*.xml"));
         return sqlSessionFactory;
     }

@@ -1,6 +1,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page import="io.ideploy.deployment.admin.websocket.request.WebSocketRequestType" %>
-<%@ page import="com.ibeiliao.deployment.cfg.EncryptionPropertyPlaceholderConfigurer" %>
+<%@ page import="io.ideploy.deployment.cfg.EncryptionPropertyPlaceholderConfigurer" %>
 <%@ page import="io.ideploy.deployment.admin.enums.ServerStrategy" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <html xmlns="http://www.w3.org/1999/xhtml">

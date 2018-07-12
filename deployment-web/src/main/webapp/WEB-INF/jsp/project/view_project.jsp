@@ -1,4 +1,4 @@
-<%@ page import="com.ibeiliao.deployment.common.enums.ModuleType" %>
+<%@ page import="io.ideploy.deployment.common.enums.ModuleType" %>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <html xmlns="http://www.w3.org/1999/xhtml">

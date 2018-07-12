@@ -1,0 +1,11 @@
+*.iml
+.DS_Store
+target/
+.classpath
+.project
+*.ipr
+*.iws
+.idea
+passport-impl/disconf/
+.settings/
+*/.settings/

@@ -1,8 +1,8 @@
-<%@ page import="com.ibeiliao.deployment.common.enums.ModuleType" %>
-<%@ page import="com.ibeiliao.deployment.common.enums.ModuleRepoType" %>
-<%@ page import="com.ibeiliao.deployment.common.Constants" %>
-<%@ page import="com.ibeiliao.deployment.cfg.Configuration" %>
-<%@ page import="com.ibeiliao.deployment.common.util.JvmArgUtil" %>
+<%@ page import="io.ideploy.deployment.common.enums.ModuleType" %>
+<%@ page import="io.ideploy.deployment.common.enums.ModuleRepoType" %>
+<%@ page import="io.ideploy.deployment.common.Constants" %>
+<%@ page import="io.ideploy.deployment.cfg.Configuration" %>
+<%@ page import="io.ideploy.deployment.common.util.JvmArgUtil" %>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <html xmlns="http://www.w3.org/1999/xhtml">

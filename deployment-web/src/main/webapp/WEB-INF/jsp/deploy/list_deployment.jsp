@@ -1,6 +1,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ page import="com.ibeiliao.deployment.common.enums.DeployStatus" %>
-<%@ page import="com.ibeiliao.deployment.common.enums.DeployResult" %>
+<%@ page import="io.ideploy.deployment.common.enums.DeployStatus" %>
+<%@ page import="io.ideploy.deployment.common.enums.DeployResult" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
