@@ -1,12 +1,11 @@
 package io.ideploy.deployment.admin.configure;
 
 import com.alibaba.druid.pool.DruidDataSource;
-import io.ideploy.deployment.admin.vo.config.DbConfigVO;
+import io.ideploy.deployment.admin.configure.vo.DbConfigVO;
 import io.ideploy.deployment.datasource.MyBatisDao;
 import javax.sql.DataSource;
 import org.mybatis.spring.SqlSessionFactoryBean;
 import org.mybatis.spring.annotation.MapperScan;
-import org.mybatis.spring.mapper.MapperScannerConfigurer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.support.ResourcePatternResolver;

@@ -104,7 +104,7 @@ public class AdminContext {
      * 清除cookie
      */
     public static void clearCookie(HttpServletResponse response) {
-        WebCookie mc = new WebCookie(DOMAIN, true);
+        WebCookie mc = new WebCookie(DOMAIN, false);
         mc.setCookie(response, COOKIE_ID_NAME, "", 0);
         mc.setCookie(response, COOKIE_SIGN, "", 0);
     }

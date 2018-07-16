@@ -24,17 +24,27 @@
                     <form class="form-horizontal">
                         <div class="box-body">
                             <div class="form-group">
-                                <label class="col-sm-2 control-label">邮箱</label>
+                                <label class="col-sm-2 control-label">账号</label>
 
                                 <div class="col-sm-10">
-                                    <input type="text" class="form-control" id="account" placeholder="Email" value="">
+                                    <input type="text" class="form-control" id="account" placeholder="账号" value="">
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label class="col-sm-2 control-label">密码</label>
 
                                 <div class="col-sm-10">
-                                    <input type="password" class="form-control" id="password" placeholder="Password">
+                                    <input type="password" class="form-control" id="password" placeholder="密码">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label">用户</label>
+
+                                <div class="col-sm-10 control" style="padding-top:5px;line-height: 27px ">
+                                    普通
+                                    <input type="radio" id="loginType1" name="loginType" value="0" checked="checked" /> &nbsp;&nbsp;
+                                    LDAP
+                                    <input type="radio" id="loginType2" name="loginType" value="1" />
                                 </div>
                             </div>
                         </div>
@@ -91,7 +101,7 @@
         }
 
 
-        $.post("/admin/login.do", {account: $("#account").val(), password: $("#password").val()},
+        $.post("/admin/login.do", {account: $("#account").val(), password: $("#password").val(), loginType: $("input[name='loginType']").val()},
             function (data) {
                 if (data.code == 1) {
                     window.location.href = "/admin/welcome.xhtml";

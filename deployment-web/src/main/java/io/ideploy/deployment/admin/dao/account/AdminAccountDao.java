@@ -83,9 +83,10 @@ public interface AdminAccountDao {
 	/**
 	 * 根据账户查询管理员信息
 	 * @param account 账户
+     * @param accountType 账户类型 0-普通， 1-ldap
 	 * @return AdminAccountPO
      */
-	AdminAccountPO getByAccount(@Param("account") String account);
+	AdminAccountPO getByAccount(@Param("account") String account,@Param("accountType")int accountType);
 
 	List<AdminAccountPO> getByAccountIds(@Param("accountIds")List<Long> accountIds);
 }

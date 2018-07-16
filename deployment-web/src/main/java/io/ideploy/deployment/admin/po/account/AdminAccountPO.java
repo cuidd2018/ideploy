@@ -30,6 +30,9 @@ public class AdminAccountPO implements Serializable {
 	/** 账户 */
 	private String account;
 
+	/** 账号类型 0-普通 1-LDAP **/
+	private int accountType;
+
 	/** 真实姓名 */
 	private String realname = "";
 

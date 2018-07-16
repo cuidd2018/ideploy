@@ -1,4 +1,4 @@
-package io.ideploy.deployment.admin.vo.config;
+package io.ideploy.deployment.admin.configure.vo;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;

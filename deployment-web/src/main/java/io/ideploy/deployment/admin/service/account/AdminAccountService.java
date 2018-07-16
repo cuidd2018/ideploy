@@ -1,5 +1,6 @@
 package io.ideploy.deployment.admin.service.account;
 
+import io.ideploy.deployment.admin.enums.AccountType;
 import io.ideploy.deployment.admin.vo.account.AccountRoleRelation;
 import io.ideploy.deployment.admin.vo.account.AdminAccount;
 
@@ -109,7 +110,7 @@ import java.util.Set;
 	 * @param account
 	 * @return
 	 */
-	AdminAccount getByAccount(String account);
+	AdminAccount getByAccount(String account, AccountType accountType);
 
 	/**
 	 * 根据帐号ids 查找账户

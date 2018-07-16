@@ -58,7 +58,7 @@
 
 	<!-- 根据账户名称获取账户信息 -->
 	<select id="getByAccount" resultType="io.ideploy.deployment.admin.po.account.AdminAccountPO" parameterType="Map">
-		select * from t_account where account = #{account}
+		select * from t_account where account = #{account} and account_type = #{accountType}
 	</select>
 
 	<select id="getByAccountIds" resultType="io.ideploy.deployment.admin.po.account.AdminAccountPO" parameterType="Map">

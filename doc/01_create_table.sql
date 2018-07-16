@@ -29,7 +29,8 @@ DROP TABLE IF EXISTS `t_account`;
 CREATE TABLE `t_account` (
   `uid` bigint(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
   `password` varchar(64) NOT NULL COMMENT '密码',
-  `account` varchar(50) NOT NULL COMMENT '贝聊帐号',
+  `account_type` tinyint(4) NOT NULL DEFAULT '0' COMMENT '0-普通帐号，1-ldap帐号',
+  `account` varchar(50) NOT NULL COMMENT '帐号ID',
   `operator` int(11) NOT NULL DEFAULT '0' COMMENT '操作人id',
   `realname` varchar(50) NOT NULL COMMENT '真名',
   `mobile_no` varchar(20) NOT NULL DEFAULT '' COMMENT '电话号码',
@@ -37,7 +38,8 @@ CREATE TABLE `t_account` (
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `account_status` tinyint(4) NOT NULL DEFAULT '1' COMMENT '用户状态，1-正常,2-冻结',
   `default_data` tinyint(2) NOT NULL DEFAULT '0' COMMENT '是否是基本用户( 可以理解为是否是管理员)，0-不是，1-是,不可以删除',
-  PRIMARY KEY (`uid`)
+   UNIQUE KEY `uniq_key_account_accountType` (`account`,`account_type`),
+   PRIMARY KEY (`uid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='用户表';
 
 -- ----------------------------

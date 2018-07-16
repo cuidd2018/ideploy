@@ -27,6 +27,9 @@ public class AdminAccount implements Serializable {
 	/** 用户ID */
 	private long uid;
 
+	/** 账号类型，0-普通账号，1-LDAP **/
+	private int accountType;
+
 	/** 账户名称 **/
 	private String account;
 
@@ -77,7 +80,15 @@ public class AdminAccount implements Serializable {
 		return uid;
 	}
 
-	public void setRealname(String realname) {
+    public int getAccountType() {
+        return accountType;
+    }
+
+    public void setAccountType(int accountType) {
+        this.accountType = accountType;
+    }
+
+    public void setRealname(String realname) {
 		this.realname = realname;
 	}
 

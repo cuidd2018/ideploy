@@ -1,5 +1,6 @@
 package io.ideploy.deployment.admin.service.account.impl;
 
+import io.ideploy.deployment.admin.enums.AccountType;
 import org.apache.commons.collections.CollectionUtils;
 import io.ideploy.deployment.admin.dao.account.AccountAppRelationDao;
 import io.ideploy.deployment.admin.dao.account.AccountRoleRelationDao;
@@ -266,8 +267,8 @@ public class AdminAccountServiceImpl implements AdminAccountService {
 	}
 
 	@Override
-	public AdminAccount getByAccount(String account) {
-		AdminAccountPO po = adminAccountDao.getByAccount(account);
+	public AdminAccount getByAccount(String account, AccountType accountType) {
+		AdminAccountPO po = adminAccountDao.getByAccount(account, accountType.getValue());
 		if(po != null){
 			return po2dto(po);
 		}

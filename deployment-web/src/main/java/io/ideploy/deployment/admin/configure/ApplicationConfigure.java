@@ -1,15 +1,11 @@
 package io.ideploy.deployment.admin.configure;
 
-import com.alibaba.druid.pool.DruidDataSource;
-import io.ideploy.deployment.admin.vo.config.DbConfigVO;
-import io.ideploy.deployment.admin.vo.config.RedisConfVO;
+import io.ideploy.deployment.admin.configure.vo.RedisConfVO;
 import io.ideploy.deployment.common.util.redis.Redis;
 import io.ideploy.deployment.common.util.redis.RedisFactory;
 import io.ideploy.deployment.encrypt.DefaultAesEncoder;
 import io.ideploy.deployment.encrypt.ValueEncoder;
 import io.ideploy.deployment.encrypt.ValueEncoderFactory;
-import javax.sql.DataSource;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

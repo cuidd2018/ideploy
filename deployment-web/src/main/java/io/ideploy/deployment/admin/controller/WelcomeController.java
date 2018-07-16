@@ -5,12 +5,15 @@ import io.ideploy.deployment.admin.common.RestResult;
 import io.ideploy.deployment.admin.context.AdminContext;
 import io.ideploy.deployment.admin.context.AdminLoginUser;
 import io.ideploy.deployment.admin.context.AppConstants;
+import io.ideploy.deployment.admin.enums.AccountType;
 import io.ideploy.deployment.admin.service.account.AdminAccountService;
+import io.ideploy.deployment.admin.service.account.LdapAccountService;
 import io.ideploy.deployment.admin.utils.resource.MenuResource;
 import io.ideploy.deployment.admin.vo.account.AdminAccount;
 import io.ideploy.deployment.base.ApiCode;
 import io.ideploy.deployment.common.util.ParameterUtil;
 import io.ideploy.deployment.encrypt.ValueEncoder;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +43,8 @@ public class WelcomeController {
     @Autowired
     AdminAccountService adminAccountService;
 
+    @Autowired
+    LdapAccountService ldapAccountService;
 
     /**
      * 登录界面
@@ -75,12 +80,20 @@ public class WelcomeController {
     @MenuResource("授权登录")
     @AllowAnonymous
     @ResponseBody
-    public RestResult login(HttpServletRequest request, HttpServletResponse response, String account, String password){
+    public RestResult login(HttpServletRequest request, HttpServletResponse response, String account, String password, short loginType){
 
         ParameterUtil.assertNotBlank(account, "账户不能为空");
         ParameterUtil.assertNotBlank(password, "密码不能为空");
 
-        AdminAccount adminAccount = adminAccountService.getByAccount(account);
+        AccountType accountType= AccountType.from(loginType);
+        AdminAccount adminAccount = null;
+        if(accountType == AccountType.SYSTEM_USER) {
+            adminAccount = adminAccountService.getByAccount(account, accountType);
+        }
+        else{
+            adminAccount = ldapAccountService.login(account, password);
+        }
+
         if (adminAccount == null){
             return new RestResult(ApiCode.FAILURE, "帐号不存在");
         }
