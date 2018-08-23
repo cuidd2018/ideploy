@@ -48,7 +48,7 @@ public class AnsibleCommand extends LocalCommand {
     @Override
     public CommandResult exec(String[] cmdArray) {
 
-        //logger.info("ansible 命令：" + StringUtils.join(cmdArray, " "));
+        logger.info("ansible 命令：" + StringUtils.join(cmdArray, " "));
         return super.exec(addAnsibleArguments(cmdArray));
     }
 

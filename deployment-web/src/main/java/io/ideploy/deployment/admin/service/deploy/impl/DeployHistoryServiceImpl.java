@@ -925,7 +925,7 @@ public class DeployHistoryServiceImpl implements DeployHistoryService {
         private boolean needCompile() {
             boolean doCompile = (deployHistory.getForceCompile() == Constants.TRUE);
             if (!doCompile) {
-                // 检查OSS文件是否还存在，如果不在要重新编译
+                // 检查编译结果文件是否还存在，如果不在要重新编译
                 ProjectFileStorage projectFileStorage = ProjectFileStorageFactory.getInstance();
                 String filename = getSaveFileName();
                 doCompile = !projectFileStorage.exists(filename);

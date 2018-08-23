@@ -9,7 +9,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 <meta content="telephone=no,email=no" name="format-detection" />
 <link rel="apple-touch-fullscreen" content="YES" />
-<title>贝聊</title>
+<title>IDeploy</title>
 <style type="text/css">
 p {
 	font-size: 12px;

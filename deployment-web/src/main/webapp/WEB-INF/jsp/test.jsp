@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <%@ include file="/include/meta.html"%>
-    <title>欢迎进入贝聊平台管理系统</title>
+    <title>欢迎进入IDeploy平台管理系统</title>
 </head>
 
 <body class="skin-blue sidebar-mini">

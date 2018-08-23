@@ -44,7 +44,7 @@
 							<label class="col-md-2 control-label">帐号</label>
 							<div class="col-md-3">
 								<input class="form-control" type="text" id="account"
-									   name="account" title="贝聊帐号" placeholder="贝聊帐号"
+									   name="account" title="IDeploy帐号" placeholder="IDeploy帐号"
 									   maxlength="30" data-minlength="2" required="true">
 								<input type="hidden" name="uid" id="uid" value="0"/>
 							</div>

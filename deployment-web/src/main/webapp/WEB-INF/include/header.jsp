@@ -8,9 +8,9 @@
     <!-- Logo -->
     <a href="/admin/welcome.xhtml" class="logo">
         <!-- mini logo for sidebar mini 50x50 pixels -->
-        <span class="logo-mini"><b>贝</b>聊</span>
+        <%--<span class="logo-mini"><b>贝</b>聊</span>--%>
         <!-- logo for regular state and mobile devices -->
-        <span class="logo-lg"><b>贝聊</b>BL</span>
+        <span class="logo-lg"><b>IDeploy</b>发布</span>
     </a>
 
     <!-- Header Navbar -->
