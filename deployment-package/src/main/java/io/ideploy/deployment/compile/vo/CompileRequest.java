@@ -17,6 +17,11 @@ public class CompileRequest {
      */
     private String compileShell;
 
+    /***
+     * 是否空模块工程
+     */
+    private int moduleEmpty;
+
     /**
      * module名称
      */
@@ -218,5 +223,13 @@ public class CompileRequest {
 
     public void setLanguage(String language) {
         this.language = language;
+    }
+
+    public int getModuleEmpty() {
+        return moduleEmpty;
+    }
+
+    public void setModuleEmpty(int moduleEmpty) {
+        this.moduleEmpty = moduleEmpty;
     }
 }

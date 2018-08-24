@@ -2,17 +2,23 @@ package io.ideploy.deployment.admin.service.account.impl;
 
 import com.alibaba.fastjson.JSON;
 import io.ideploy.deployment.admin.configure.vo.LdapConfigVO;
+import io.ideploy.deployment.admin.constant.DeployConstant;
+import io.ideploy.deployment.admin.dao.account.AccountRoleRelationDao;
 import io.ideploy.deployment.admin.dao.account.AdminAccountDao;
 import io.ideploy.deployment.admin.enums.AccountType;
+import io.ideploy.deployment.admin.po.account.AccountRoleRelationPO;
 import io.ideploy.deployment.admin.po.account.AdminAccountPO;
 import io.ideploy.deployment.admin.service.account.LdapAccountService;
 import io.ideploy.deployment.admin.vo.account.AdminAccount;
 import io.ideploy.deployment.common.util.VOUtil;
+import java.util.Date;
 import java.util.Hashtable;
 import javax.annotation.PostConstruct;
 import javax.naming.Context;
 import javax.naming.NamingEnumeration;
 import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
+import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchControls;
 import javax.naming.directory.SearchResult;
 import javax.naming.ldap.Control;
@@ -23,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * @author: code4china
@@ -40,6 +47,9 @@ public class LdapAccountServiceImpl implements LdapAccountService{
     @Autowired
     private AdminAccountDao adminAccountDao;
 
+    @Autowired
+    private AccountRoleRelationDao accountRoleRelationDao;
+
     /***
      * ldap操作基本变量
      * @return
@@ -49,7 +59,7 @@ public class LdapAccountServiceImpl implements LdapAccountService{
         env.put(Context.INITIAL_CONTEXT_FACTORY,ldapConfigVO.getFactory());
         env.put(Context.PROVIDER_URL,ldapConfigVO.getUrl());
         env.put(Context.SECURITY_AUTHENTICATION,"simple");
-        env.put(Context.SECURITY_PROTOCOL, "ssl");
+        /*env.put(Context.SECURITY_PROTOCOL, "ssl");*/
         return env;
     }
 
@@ -145,6 +155,9 @@ public class LdapAccountServiceImpl implements LdapAccountService{
                 return VOUtil.from(po, AdminAccount.class);
             }
 
+            /*** 初始化ldap账号资料到发布系统 ***/
+            po= createAccount(ldapId, searchResult);
+            return VOUtil.from(po, AdminAccount.class);
 
         }catch (Exception e){
             logger.error("登录ldap异常，message:{},ldapId:{},password.length:{}",
@@ -155,5 +168,44 @@ public class LdapAccountServiceImpl implements LdapAccountService{
             closeContext(verifyContext);
         }
         return null;
+    }
+
+    @Transactional
+    private AdminAccountPO createAccount(String ldapId, SearchResult searchResult){
+        AdminAccountPO po= new AdminAccountPO();
+        po.setAccount(ldapId);
+        po.setAccountStatus(AdminAccount.NOMAL);
+        po.setAccountType(AccountType.LDAP_USER.getValue());
+        po.setMobileNo("");
+        po.setPassword("");
+        po.setRealname(resolveAttr(searchResult, "displayname", "未知用户"));
+        po.setOperator(1);
+        po.setLastModify(new Date());
+        po.setCreateTime(new Date());
+        adminAccountDao.save(po);
+
+        AccountRoleRelationPO relation = new AccountRoleRelationPO();
+        relation.setUid(po.getUid());
+        relation.setRoleId(DeployConstant.DEFAULT_ROLE_ID);
+        logger.info("添加用户角色关系，uid: {}, roleId: {}", po.getUid(), DeployConstant.DEFAULT_ROLE_ID);
+        accountRoleRelationDao.save(relation);
+        return po;
+    }
+
+    private String resolveAttr(SearchResult searchResult, String attrName, String defaultValue){
+        if(searchResult == null){
+            return  defaultValue;
+        }
+        try {
+            Attributes attributes = searchResult.getAttributes();
+            Attribute attr = null;
+            if (attributes != null && (attr = attributes.get(attrName)) != null) {
+                String result = String.valueOf(attr.get());
+                return result;
+            }
+        }catch (Exception e){
+            logger.error("attrName:{}", attrName,  e);
+        }
+        return defaultValue;
     }
 }

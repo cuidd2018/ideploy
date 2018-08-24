@@ -25,7 +25,7 @@ public class LdapAccountServiceImplTest {
 
     @Test
     public void testLogin(){
-        ldapAccountService.login("lidongyao", "123321456");
+        ldapAccountService.login("code4china", "123321456");
     }
 
 }

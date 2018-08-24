@@ -4,8 +4,8 @@
 <mapper namespace="io.ideploy.deployment.admin.dao.account.AdminAccountDao">
 
 	<!-- 新增 -->
-	<insert id="save" parameterType="io.ideploy.deployment.admin.po.account.AdminAccountPO" useGeneratedKeys="false" >
-		insert into t_account (account,password,realname,operator,account_status,mobile_no,default_data,last_modify,create_time) values (#{account},#{password},#{realname},#{operator},#{accountStatus},#{mobileNo},#{defaultData},#{lastModify},#{createTime})
+	<insert id="save" parameterType="io.ideploy.deployment.admin.po.account.AdminAccountPO" useGeneratedKeys="true" keyProperty="uid">
+		insert into t_account (account,account_type,password,realname,operator,account_status,mobile_no,default_data,last_modify,create_time) values (#{account},#{accountType},#{password},#{realname},#{operator},#{accountStatus},#{mobileNo},#{defaultData},#{lastModify},#{createTime})
 	</insert>
 
 	<!-- 根据主键，删除数据 -->

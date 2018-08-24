@@ -261,8 +261,9 @@ CREATE TABLE `t_project_env` (
 DROP TABLE IF EXISTS `t_project_module`;
 CREATE TABLE `t_project_module` (
   `module_id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
-  `module_name_zh` varchar(40) NOT NULL COMMENT '模块中文名称',
-  `module_name` varchar(80) NOT NULL COMMENT '模块名称',
+  `module_empty` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否空模块工程，1代表空模块工程 0代表多模块工程',
+  `module_name_zh` varchar(40) NOT NULL DEFAULT '' COMMENT '模块中文名称',
+  `module_name` varchar(80) NOT NULL DEFAULT '' COMMENT '模块名称',
   `module_type` tinyint(4) NOT NULL DEFAULT '1' COMMENT '模块类型，1代表web项目 2代表dubbo服务',
   `src_path` varchar(200) NOT NULL DEFAULT '' COMMENT 'SVN上的目录，比如 service-impl/target/*.jar',
   `pre_shell` varchar(500) NOT NULL DEFAULT '' COMMENT '发布前执行的shell',

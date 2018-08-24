@@ -17,7 +17,7 @@
                 <!-- Horizontal Form -->
                 <div class="box box-info">
                     <div class="box-header with-border">
-                        <h3 class="box-title">登录</h3>
+                        <h3 class="box-title"><b>IDeploy</b>登录</h3>
                     </div>
                     <!-- /.box-header -->
                     <!-- form start -->
@@ -42,9 +42,9 @@
 
                                 <div class="col-sm-10 control" style="padding-top:5px;line-height: 27px ">
                                     普通
-                                    <input type="radio" id="loginType1" name="loginType" value="0" checked="checked" /> &nbsp;&nbsp;
+                                    <input type="radio"  name="loginType" value="0" /> &nbsp;&nbsp;
                                     LDAP
-                                    <input type="radio" id="loginType2" name="loginType" value="1" />
+                                    <input type="radio"  name="loginType" value="1" checked="checked"/>
                                 </div>
                             </div>
                         </div>
@@ -101,7 +101,7 @@
         }
 
 
-        $.post("/admin/login.do", {account: $("#account").val(), password: $("#password").val(), loginType: $("input[name='loginType']").val()},
+        $.post("/admin/login.do", {account: $("#account").val(), password: $("#password").val(), loginType: $('input:radio[name="loginType"]:checked').val()},
             function (data) {
                 if (data.code == 1) {
                     window.location.href = "/admin/welcome.xhtml";

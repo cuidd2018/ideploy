@@ -10,7 +10,7 @@ import org.springframework.context.annotation.PropertySource;
  * @date: Created in 15:43 2018/7/10
  */
 @Configuration
-@PropertySource("app.properties")
+@PropertySource({"${server.config.path}"})
 @ConfigurationProperties(prefix = "redis")
 public class RedisConfVO {
 

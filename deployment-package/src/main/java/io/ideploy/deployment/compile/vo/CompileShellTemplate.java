@@ -108,6 +108,7 @@ public class CompileShellTemplate {
     private void replaceCompileTplArgs() {
         String logFileDir = "/tmp/" + compileRequest.getEnv() + "_" + shortModuleName + "_shell.log";
         logger.info("log file: " + logFileDir);
+
         compileTplContent = compileTplContent.replaceAll(CompileTplArgs.LOG_FILE_DIR, logFileDir);
 
         compileTplContent = compileTplContent.replaceAll(CompileTplArgs.MODULE_ERR_LOG, getMvnTargetProjectDir() + shortModuleName + "_err.log");
@@ -136,6 +137,13 @@ public class CompileShellTemplate {
                 + "/" + tagName;
 
         String checkoutShell = buildCheckoutShell(tagName, checkoutDir);
+        if(compileRequest.getModuleEmpty() == 1){
+            logger.info("空模块工程，生成辅助子模块：{}", checkoutDir + "/" + compileRequest.getModuleName());
+            /***
+             * 空模块工程，创造一个默认的模块
+             */
+            checkoutShell = buildCheckoutShell(tagName, checkoutDir + "/" + compileRequest.getModuleName());
+        }
 
         compileTplContent = compileTplContent
                 .replaceAll(CompileTplArgs.BRANCH_DIR, checkoutDir)

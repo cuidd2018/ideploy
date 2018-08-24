@@ -6,6 +6,8 @@ import io.ideploy.deployment.common.util.redis.RedisFactory;
 import io.ideploy.deployment.encrypt.DefaultAesEncoder;
 import io.ideploy.deployment.encrypt.ValueEncoder;
 import io.ideploy.deployment.encrypt.ValueEncoderFactory;
+import java.io.File;
+import java.net.URL;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,13 +27,6 @@ import org.springframework.web.servlet.view.InternalResourceViewResolver;
 @Configuration
 public class ApplicationConfigure {
 
-    @Bean
-    public PropertySourcesPlaceholderConfigurer propertyConfigurer() {
-        ClassPathResource resource = new ClassPathResource("app.properties");
-        PropertySourcesPlaceholderConfigurer propertyPlaceholderConfigurer = new PropertySourcesPlaceholderConfigurer();
-        propertyPlaceholderConfigurer.setLocation(resource);
-        return propertyPlaceholderConfigurer;
-    }
 
     @Bean
     @ConditionalOnMissingBean(InternalResourceViewResolver.class)
@@ -91,4 +86,5 @@ public class ApplicationConfigure {
     public Redis redis(RedisFactory redisFactory, RedisConfVO redisConfVO){
         return redisFactory.initRedis(redisConfVO.getSingleServer());
     }
+
 }

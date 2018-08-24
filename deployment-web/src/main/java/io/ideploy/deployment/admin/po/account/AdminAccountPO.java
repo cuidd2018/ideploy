@@ -139,4 +139,12 @@ public class AdminAccountPO implements Serializable {
 	public void setPassword(String password) {
 		this.password = password;
 	}
+
+    public int getAccountType() {
+        return accountType;
+    }
+
+    public void setAccountType(int accountType) {
+        this.accountType = accountType;
+    }
 }

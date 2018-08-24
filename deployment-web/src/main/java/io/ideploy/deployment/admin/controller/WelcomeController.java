@@ -98,7 +98,8 @@ public class WelcomeController {
             return new RestResult(ApiCode.FAILURE, "帐号不存在");
         }
 
-        if (!Objects.equals(valueEncoder.encode(password), adminAccount.getPassword())) {
+        if (accountType == AccountType.SYSTEM_USER &&
+                !Objects.equals(valueEncoder.encode(password), adminAccount.getPassword())) {
             return new RestResult(ApiCode.FAILURE, "帐号密码不正确");
         }
 

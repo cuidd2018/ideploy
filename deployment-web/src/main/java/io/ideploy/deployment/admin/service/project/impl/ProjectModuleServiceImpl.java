@@ -120,7 +120,9 @@ public class ProjectModuleServiceImpl implements ProjectModuleService {
     private void validateModule(ProjectModule projectModule) {
         Assert.notNull(projectModule, "参数不能为null");
         Assert.isTrue(StringUtils.isNotBlank(projectModule.getModuleNameZh()), "模块名称不能为空");
-        Assert.isTrue(StringUtils.isNotBlank(projectModule.getModuleName()), "模块名称不能为空");
+        if(projectModule.getModuleEmpty() == 0) {
+            Assert.isTrue(StringUtils.isNotBlank(projectModule.getModuleName()), "模块名称不能为空");
+        }
         if (projectModule.getModuleType() != ModuleType.STATIC.getValue()) {
             Assert.hasText(projectModule.getRestartShell(), "请输入restart shell");
         }

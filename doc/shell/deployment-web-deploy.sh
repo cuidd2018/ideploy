@@ -23,18 +23,18 @@ fi
 echo "编译完成"
 
 # 迁移jar包
-if [ -f "/data/project/ideploy/deployment-log/" ];then
-  rm -f /data/project/ideploy/deployment-log/
+if [ -f "/data/project/ideploy/deployment-web/" ];then
+  rm -f /data/project/ideploy/deployment-web/
 fi
-mkdir -p /data/project/ideploy/deployment-log/
-cp /data/temp/ideploy/deployment-log/target/deployment-log.jar /data/project/ideploy/deployment-log
+mkdir -p /data/project/ideploy/deployment-web/
+cp /data/temp/ideploy/deployment-web/target/deployment-web.jar /data/project/ideploy/deployment-web
 
 # 3.重启
 echo "开始部署....."
 killTimes=3
 # 循环kill -15 3次，否则直接kill -9 
 echo "开始停止tomcat....."
-pId=$(ps -ef | grep deployment-log.jar | grep -v grep | awk '{print $2}')
+pId=$(ps -ef | grep deployment-web.jar | grep -v grep | awk '{print $2}')
 while [ $killTimes -ge 0 ]; do
 	ps -ax | awk '{ print $1 }' | grep -e "^$pId$"
         if [ $? -ne 0 ]; then
@@ -62,8 +62,8 @@ export JAVA_OPTS="$JAVA_OPTS"
 echo "开始启动...."
 
 #启动
-cd /data/project/ideploy/deployment-log/
-java $JAVA_OPTS -jar /data/project/ideploy/deployment-log/deployment-log.jar>app.log 2>&1 &
+cd /data/project/ideploy/deployment-web/
+java $JAVA_OPTS -jar /data/project/ideploy/deployment-web/deployment-web.jar>app.log 2>&1 &
 
 #删除临时目录
 rm -rf /data/temp/ideploy

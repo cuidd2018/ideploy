@@ -21,6 +21,9 @@ public class ProjectModule implements Serializable {
 	/** moduleId */
 	private int moduleId;
 
+	/** 空模块工程 1-没有子模块 0-有子模块工程 **/
+	private int moduleEmpty;
+
 	/** 模块中文名称 */
 	private String moduleNameZh;
 
@@ -106,7 +109,15 @@ public class ProjectModule implements Serializable {
 		return moduleId;
 	}
 
-	public void setModuleNameZh(String moduleNameZh) {
+    public int getModuleEmpty() {
+        return moduleEmpty;
+    }
+
+    public void setModuleEmpty(int moduleEmpty) {
+        this.moduleEmpty = moduleEmpty;
+    }
+
+    public void setModuleNameZh(String moduleNameZh) {
 		this.moduleNameZh = moduleNameZh;
 	}
 

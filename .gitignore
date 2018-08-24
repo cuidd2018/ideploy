@@ -6,6 +6,5 @@ target/
 *.ipr
 *.iws
 .idea
-passport-impl/disconf/
 .settings/
 */.settings/

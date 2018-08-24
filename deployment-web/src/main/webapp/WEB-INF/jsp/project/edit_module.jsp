@@ -86,9 +86,8 @@
                                         <div class="col-md-1"></div>
                                         <div class="col-md-1 text-right">
                                             <select class="form-control" id="repoType">
-                                                <option value=""></option>
                                                 <option value="<%=ModuleRepoType.SVN.getValue()%>">SVN</option>
-                                                <option value="<%=ModuleRepoType.GIT.getValue()%>">GIT</option>
+                                                <option value="<%=ModuleRepoType.GIT.getValue()%>" selected="selected">GIT</option>
                                             </select>
                                         </div>
                                         <div class="col-md-6">
@@ -104,10 +103,16 @@
                                 <div class="row">
                                     <div class="form-group">
                                         <label class="col-md-2 control-label text-right">模块</label>
-                                        <div class="col-md-6">
+                                        <div class="col-md-5">
                                             <input type="text" name="moduleName" id="moduleName" class="form-control"
                                                    value=""
                                                    placeholder="项目里的module名称，比如xxxx-impl"/>
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="checkbox">
+                                                <label><input type="checkbox" name="moduleEmpty" id="moduleEmpty" value="1" onclick="chooseModuleEmpty(this)">
+                                                    空模块工程</label>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -829,8 +834,16 @@
                 globalEnvs = moduleDetail.envs;
                 if (projectModule) {
                     $('#moduleId').val(projectModule.moduleId);
-                    $('#moduleNameZh').val(projectModule.moduleNameZh);
-                    $('#moduleName').val(projectModule.moduleName);
+                    if(projectModule.moduleEmpty == '0') {
+                      $('#moduleNameZh').val(projectModule.moduleNameZh);
+                      $('#moduleName').val(projectModule.moduleName);
+                      $('#moduleEmpty').attr('checked', false);
+                    }
+                    else {
+                      $('#moduleNameZh').val('');
+                      $('#moduleName').val('');
+                      $('#moduleEmpty').attr('checked', false);
+                    }
                     $("input[name='moduleType'][value='" + projectModule.moduleType + "']").prop("checked", true);
                     $('#repoUrl').val(projectModule.repoUrl);
                     $('#srcPath').val(projectModule.srcPath);
@@ -898,6 +911,7 @@
 
     function buildModuleBaseInfo(projectModule) {
         projectModule.moduleId = $('#moduleId').val();
+        projectModule.moduleEmpty = $('#moduleEmpty').is(':checked') ? 1 : 0;
         projectModule.projectId = $('#projectId').val();
         projectModule.moduleNameZh = $('#moduleNameZh').val().trim();
         projectModule.moduleName = $('#moduleName').val().trim();
@@ -1051,6 +1065,11 @@
     // 校验参数
     function validateForm() {
         var message = "";
+        if($("#moduleEmpty").checked == false) {
+          if ($("#moduleName").val() == '') {
+            message = 'module名称不能为空';
+          }
+        }
         if ($("#moduleNameZh").val() == '') {
             message = '模块名称不能为空';
         }
@@ -1060,9 +1079,7 @@
         if ($("#svnCheckoutDir").val() == '') {
             message = 'svn/git 地址不能为空';
         }
-        if ($("#moduleName").val() == '') {
-            message = 'module名称不能为空';
-        }
+
         if ($("#svnAccount").val() == '') {
             message = 'svn/git帐号不能为空';
         }
@@ -1293,6 +1310,16 @@
             _valueObj = null;
             $('#serverListDiv').hide();
         }
+    }
+
+    function chooseModuleEmpty(obj) {
+      if(obj.checked){
+        $("#moduleName").val("");
+        $("#moduleName").attr("disabled", true);
+      }else{
+        $("#moduleName").attr("disabled", false);
+      }
+
     }
 </script>
 </body>

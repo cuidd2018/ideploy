@@ -36,6 +36,11 @@ public class TransferRequest {
      */
     private String moduleName;
 
+    /***
+     * 是否空模块工程
+     */
+    private int moduleEmpty;
+
     /**
      * 环境
      */
@@ -230,5 +235,13 @@ public class TransferRequest {
 
     public void setRollBackDeployId(int rollBackDeployId) {
         this.rollBackDeployId = rollBackDeployId;
+    }
+
+    public int getModuleEmpty() {
+        return moduleEmpty;
+    }
+
+    public void setModuleEmpty(int moduleEmpty) {
+        this.moduleEmpty = moduleEmpty;
     }
 }

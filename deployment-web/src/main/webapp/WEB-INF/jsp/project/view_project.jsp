@@ -124,6 +124,15 @@
                                     </div>
                                 </div>
                             </div>
+
+                            <div class="row">
+                                <div class="form-group">
+                                    <label class="col-md-2 control-label text-right">工程结构</label>
+                                    <div class="col-md-10" id="moduleEmpty">
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="row">
                                 <div class="form-group">
                                     <label class="col-md-2 control-label text-right">pre deploy</label>
@@ -332,6 +341,12 @@
                 }
                 if (module.moduleType == <%=ModuleType.SERVICE.getValue()%>) {
                     moduleTypeName = "<%=ModuleType.SERVICE.getName()%>";
+                }
+                if('1' == module.moduleEmpty){
+                  $("#moduleEmpty").html('空模块工程');
+                }
+                else{
+                  $("#moduleEmpty").html('多模块工程');
                 }
                 $("#moduleType").html(moduleTypeName);
                 $('#moduleNameDiv').html(module.moduleName + '(' + module.moduleNameZh + ')');
