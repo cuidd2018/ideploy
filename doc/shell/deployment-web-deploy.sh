@@ -33,7 +33,7 @@ if [ -f "${DEPLOY_DIR}" ];then
   rm -f ${DEPLOY_DIR}
 fi
 mkdir -p ${DEPLOY_DIR}
-cp ${TEMP_DIR}/deployment-web/target/deployment-web.jar ${DEPLOY_DIR}
+cp ${TEMP_DIR}/deployment-web/target/deployment-web.war ${DEPLOY_DIR}
 
 # 3.重启
 echo "开始部署....."
@@ -69,7 +69,7 @@ echo "开始启动...."
 
 #启动
 cd ${DEPLOY_DIR}
-java $JAVA_OPTS -jar ${DEPLOY_DIR}/deployment-web.jar>app.log 2>&1 &
+java $JAVA_OPTS -jar ${DEPLOY_DIR}/deployment-web.war>app.log 2>&1 &
 
 #删除临时目录
 rm -rf ${TEMP_DIR}
