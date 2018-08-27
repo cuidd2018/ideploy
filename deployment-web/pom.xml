@@ -10,7 +10,7 @@
   </parent>
 
   <artifactId>deployment-web</artifactId>
-  <packaging>jar</packaging>
+  <packaging>war</packaging>
   <name>deployment-web</name>
   <description>发布系统管理界面</description>
 
