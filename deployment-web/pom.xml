@@ -51,6 +51,10 @@
           <artifactId>commons-io</artifactId>
           <groupId>commons-io</groupId>
         </exclusion>
+        <exclusion>
+          <artifactId>javax.el</artifactId>
+          <groupId>org.glassfish.web</groupId>
+        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
@@ -191,12 +195,6 @@
       <groupId>jstl</groupId>
       <artifactId>jstl</artifactId>
       <version>1.2</version>
-    </dependency>
-
-    <dependency>
-      <groupId>javax.el</groupId>
-      <artifactId>javax.el-api</artifactId>
-      <version>3.0.0</version>
     </dependency>
 
     <dependency>

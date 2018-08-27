@@ -38,7 +38,13 @@
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-validator</artifactId>
 			<version>${hibernate.validator.version}</version>
-		</dependency>
+      <exclusions>
+        <exclusion>
+          <artifactId>javax.el</artifactId>
+          <groupId>org.glassfish.web</groupId>
+        </exclusion>
+      </exclusions>
+    </dependency>
 		<dependency>
 			<groupId>org.aspectj</groupId>
 			<artifactId>aspectjweaver</artifactId>
