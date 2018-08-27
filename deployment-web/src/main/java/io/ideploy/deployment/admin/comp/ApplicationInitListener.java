@@ -26,7 +26,6 @@ public class ApplicationInitListener implements ApplicationListener<ContextRefre
     private PushStepLogToClientThread pushStepLogToClientThread = null;
 
 
-
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
 
@@ -40,8 +39,6 @@ public class ApplicationInitListener implements ApplicationListener<ContextRefre
 
 
         logger.info("各线程初始化完成");
-        // 触发配置加载
-        logger.info("oss bucket: " + Configuration.getOssBucket() + ", endpoint: " + Configuration.getOssEndpoint());
     }
 
     @PreDestroy

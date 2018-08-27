@@ -109,9 +109,6 @@ public abstract class AbstractCompiler {
         if (!result.isCompileSuccess()) {
             return;
         }
-        //executeOssScript();
-
-        //writeStep("编译打包步骤完成，success: " + result.isCompileSuccess());
     }
 
     /**
@@ -188,36 +185,6 @@ public abstract class AbstractCompiler {
         pushLogService.writeStep(historyId, message);
     }
 
-    private void executeOssScript() {
-        // 传递 OSS file key (发布的historyId) 给 python脚本
-        // python脚本接收的参数 :
-        //[file_path/文件全路径]  [save_name/保存至oss的key名称] [access_key_id] [access_key_secret] [endpoint] [bucket]
-
-
-        logger.info("compileSaveFileName : " + saveFileName);
-        String ossShell = "python " + getScriptServerDir() + OSS_SCRIPT_NAME + " " +
-                result.getCompiledFileName() + " " +
-                saveFileName + " " +
-                Configuration.getOssAccessKeyId() + " " +
-                Configuration.getOssAccessSecret() + " " +
-                Configuration.getOssEndpoint() + " " +
-                Configuration.getOssBucket() + " ";
-        // 添加删除文件
-        ossShell = ossShell + " && rm -rf " + result.getCompiledFileName();
-        String[] args = {"-i", Configuration.getAnsibleHostFile(), "all", "-m", "shell", "-a",
-                ossShell};
-        AnsibleCommandResult ansibleResult = CommandUtil.execAnsible(args);
-        boolean execOssScriptSuccess = (ansibleResult.getSuccessType() == DeployResult.SUCCESS);
-
-        result.setCompileSuccess(execOssScriptSuccess);
-        if (!execOssScriptSuccess) {
-            logger.error("执行oss脚本失败, {}", ansibleResult.getErrorMessage());
-            writeStep("上传文件到OSS失败！");
-        } else {
-            result.setSaveFileName(saveFileName);
-            writeStep("上传文件到OSS成功");
-        }
-    }
 
     protected String getScriptServerDir() {
         return Configuration.getCompileServerScriptDir() + request.getEnv() + "/" + request.getProjectName() + "/" + shortModuleName + "/";

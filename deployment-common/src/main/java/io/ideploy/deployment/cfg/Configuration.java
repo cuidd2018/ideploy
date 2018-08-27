@@ -41,22 +41,6 @@ public class Configuration {
         return config.getString("compile.server.ansible.host.file");
     }
 
-    public static String getOssAccessKeyId() {
-        return config.getString("oss.server.accessKeyId");
-    }
-
-    public static String getOssAccessSecret() {
-        return config.getString("oss.server.accessKeySecret");
-    }
-
-    public static String getOssBucket() {
-        return config.getString("oss.server.bucket");
-    }
-
-    public static String getOssEndpoint() {
-        return config.getString("oss.server.endpoint");
-    }
-
     /**
      * 打包服务器checkout项目的路径
      * @return

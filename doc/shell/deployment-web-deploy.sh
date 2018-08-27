@@ -3,17 +3,23 @@
 #
 . /etc/profile
 
+TEMP_DIR=/data0/temp/ideploy
+DEPLOY_DIR=/data0/project/ideploy/deployment-web
+
+#JAVA_OPTS="-Dlog4j.configuration=file:/data0/log4j.properties"
+#JAVA_OPTS="${JAVA_OPTS} -Dspring.config.location=/data0/application.properties"
+
 # 1. checkout 代码
-rm -rf /data/temp/ideploy
+rm -rf $TEMP_DIR
 echo "开始checkout代码"
-git clone https://github.com/oldDiverInGZ/ideploy.git /data/temp/ideploy/ > /dev/null
+git clone https://github.com/oldDiverInGZ/ideploy.git $TEMP_DIR > /dev/null
 
 if [ $? -ne 0 ]; then
 	echo "checkout代码失败"
 	exit 1
 fi
 # 2.开始编译
-cd /data/temp/ideploy/
+cd $TEMP_DIR
 echo "开始编译代码"
 mvn -P=dev -Dmaven.test.skip=true -U clean install > complie.log 2>&1
 if [ $? -ne 0 ]; then
@@ -23,17 +29,17 @@ fi
 echo "编译完成"
 
 # 迁移jar包
-if [ -f "/data/project/ideploy/deployment-web/" ];then
-  rm -f /data/project/ideploy/deployment-web/
+if [ -f "${DEPLOY_DIR}" ];then
+  rm -f ${DEPLOY_DIR}
 fi
-mkdir -p /data/project/ideploy/deployment-web/
-cp /data/temp/ideploy/deployment-web/target/deployment-web.jar /data/project/ideploy/deployment-web
+mkdir -p ${DEPLOY_DIR}
+cp ${TEMP_DIR}/deployment-web/target/deployment-web.jar ${DEPLOY_DIR}
 
 # 3.重启
 echo "开始部署....."
 killTimes=3
 # 循环kill -15 3次，否则直接kill -9 
-echo "开始停止tomcat....."
+echo "开始停止进程....."
 pId=$(ps -ef | grep deployment-web.jar | grep -v grep | awk '{print $2}')
 while [ $killTimes -ge 0 ]; do
 	ps -ax | awk '{ print $1 }' | grep -e "^$pId$"
@@ -62,10 +68,10 @@ export JAVA_OPTS="$JAVA_OPTS"
 echo "开始启动...."
 
 #启动
-cd /data/project/ideploy/deployment-web/
-java $JAVA_OPTS -jar /data/project/ideploy/deployment-web/deployment-web.jar>app.log 2>&1 &
+cd ${DEPLOY_DIR}
+java $JAVA_OPTS -jar ${DEPLOY_DIR}/deployment-web.jar>app.log 2>&1 &
 
 #删除临时目录
-rm -rf /data/temp/ideploy
+rm -rf ${TEMP_DIR}
 
 echo "启动完成"
