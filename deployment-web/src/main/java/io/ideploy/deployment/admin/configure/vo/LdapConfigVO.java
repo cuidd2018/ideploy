@@ -10,7 +10,7 @@ import org.springframework.context.annotation.PropertySource;
  * @date: Created in 23:24 2018/7/12
  */
 @Configuration
-@PropertySource({"${server.config.path}"})
+@PropertySource({"application.properties"})
 @ConfigurationProperties(prefix = "ldap")
 public class LdapConfigVO {
 

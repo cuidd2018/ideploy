@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
  * @date: Created in 14:28 2018/6/21
  */
 @Configuration
-@PropertySource({"${server.config.path}"})
+@PropertySource({"application.properties"})
 @ConfigurationProperties(prefix = "jdbc")
 public class DbConfigVO {
 

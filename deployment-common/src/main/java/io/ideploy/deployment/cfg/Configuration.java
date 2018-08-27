@@ -19,7 +19,8 @@ public class Configuration {
 
     static {
         try {
-            config = new PropertiesConfiguration("app.properties");
+            config = new PropertiesConfiguration("application.properties");
+            System.out.println();
         } catch (ConfigurationException e) {
             logger.error("初始化服务器配置文件失败");
         }
