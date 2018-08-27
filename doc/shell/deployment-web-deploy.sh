@@ -40,7 +40,7 @@ echo "开始部署....."
 killTimes=3
 # 循环kill -15 3次，否则直接kill -9 
 echo "开始停止进程....."
-pId=$(ps -ef | grep deployment-web.jar | grep -v grep | awk '{print $2}')
+pId=$(ps -ef | grep deployment-web.war | grep -v grep | awk '{print $2}')
 while [ $killTimes -ge 0 ]; do
 	ps -ax | awk '{ print $1 }' | grep -e "^$pId$"
         if [ $? -ne 0 ]; then
