@@ -36,7 +36,7 @@ killTimes=3
 echo "开始停止tomcat....."
 pId=$(ps -ef | grep deployment-log.jar | grep -v grep | awk '{print $2}')
 while [ $killTimes -ge 0 ]; do
-	ps -ax | awk '{ print $1 }' | grep -e "^$pId$"
+	ps ax | awk '{ print $1 }' | grep -e "^$pId$"
         if [ $? -ne 0 ]; then
 		break
 	fi
@@ -46,7 +46,7 @@ while [ $killTimes -ge 0 ]; do
           sleep 10
         fi
 	# 强kill
-	ps -ax | awk '{ print $1 }' | grep -e "^$pId$"
+	ps ax | awk '{ print $1 }' | grep -e "^$pId$"
 	if [ $? -ne 0 ]; then
 		    sleep 10
 		else 
