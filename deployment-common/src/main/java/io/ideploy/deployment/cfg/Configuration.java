@@ -1,7 +1,9 @@
 package io.ideploy.deployment.cfg;
 
+import java.io.File;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,8 +21,22 @@ public class Configuration {
 
     static {
         try {
-            config = new PropertiesConfiguration("application.properties");
-            System.out.println();
+            /** application.properties的位置可以通过环境变量传递 **/
+            String configPath= System.getProperty("spring.config.location");
+            if(StringUtils.isNotBlank(configPath)){
+                File tmpConfigFile= new File(configPath);
+                if(tmpConfigFile.isFile() && tmpConfigFile.exists()){
+                    configPath=tmpConfigFile.getAbsolutePath();
+                }
+                else {
+                    configPath=null;
+                }
+            }
+            if(StringUtils.isBlank(configPath)){
+                configPath= "application.properties";
+            }
+            /** 加入配置解析 **/
+            config = new PropertiesConfiguration(configPath);
         } catch (ConfigurationException e) {
             logger.error("初始化服务器配置文件失败");
         }
