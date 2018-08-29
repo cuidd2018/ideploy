@@ -1,9 +1,17 @@
 package io.ideploy.deployment.cmd;
 
 import com.google.common.collect.Lists;
+import io.ideploy.deployment.base.ApiCode;
 import io.ideploy.deployment.common.enums.DeployResult;
+import io.ideploy.deployment.exception.ServiceException;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.regex.Pattern;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +20,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.List;
+import org.springframework.util.Assert;
 
 /**
  * 功能：命令工具类
@@ -39,6 +48,7 @@ public class CommandUtil {
         result.setErrorMessage(commandResult.getErrorMessage());
         return result;
     }
+
 
     /**
      * 批量 ping 服务器

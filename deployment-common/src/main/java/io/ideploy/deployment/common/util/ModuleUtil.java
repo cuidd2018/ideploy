@@ -26,6 +26,8 @@ public class ModuleUtil {
      */
     private static final String MAIN_CLASS_PATTERN = "([A-Za-z0-9_$]{1,40}\\.?)+";
 
+    private static final String JAR_BOOT_PATTERN = "([A-Za-z0-9_$]{1,40}\\.?)+.*jar$";
+
     /**
      * 获得缩短后的模块名.
      * 比如模块名 可能是 /services/xxx-impl，截取 xxx-impl 返回
@@ -43,6 +45,10 @@ public class ModuleUtil {
 
     public static boolean isMainClass(String restartShell) {
         return (restartShell != null && restartShell.trim().matches(MAIN_CLASS_PATTERN));
+    }
+
+    public static boolean isJarBoot(String restartShell){
+        return (restartShell != null && restartShell.trim().matches(JAR_BOOT_PATTERN));
     }
 
     public static String getProjectDir(String projectNo) {

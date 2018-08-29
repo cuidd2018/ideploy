@@ -103,16 +103,10 @@
                                 <div class="row">
                                     <div class="form-group">
                                         <label class="col-md-2 control-label text-right">模块</label>
-                                        <div class="col-md-5">
+                                        <div class="col-md-6">
                                             <input type="text" name="moduleName" id="moduleName" class="form-control"
                                                    value=""
                                                    placeholder="项目里的module名称，比如xxxx-impl"/>
-                                        </div>
-                                        <div class="col-md-2">
-                                            <div class="checkbox">
-                                                <label><input type="checkbox" name="moduleEmpty" id="moduleEmpty" value="1" onclick="chooseModuleEmpty(this)">
-                                                    空模块工程</label>
-                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -157,10 +151,11 @@
 
                             </div>
                             <div class="form-group">
-                                <label>重启服务脚本或服务的Main Class：</label><br/>
-                                比如: com.alibaba.dubbo.container.Main<br/>
-                                <%--或者类似: &#36;{targetDir}/env/shell/service.sh restart XX<br/>--%>
-                                /usr/local/resinpro/bin/resin.sh restart<br/>
+                                <label>服务启动入口：</label><br/>
+                                比如: <br/>
+                                /usr/local/resinpro/bin/resin.sh restart (脚本启动)<br/>
+                                com.alibaba.dubbo.container.Main (main主类启动)<br/>
+                                pay-order-impl*.jar (SpringBoot Jar启动)<br/>
                                 <textarea class="form-control" id="restartShell"
                                           placeholder="com.alibaba.dubbo.container.Main" onblur="showJvmArgs()"
                                           onkeypress="changeRestartShell()"></textarea>
@@ -696,6 +691,12 @@
                     $('#projectId').val(projectId);
                     $('#projectName').text(project.projectName);
                     $('#projectManagerName').text(project.managerName);
+                    if(project.structureType == 1){
+                      $('#moduleName').val(project.projectNo);
+                      $('#moduleNameZh').val(project.projectNo);
+                      $("#moduleName").attr("disabled", true);
+                      $("#moduleNameZh").attr("disabled", true);
+                    }
                 }
                 var serverGroups = moduleDetail.serverGroups;
                 globalEnvs = moduleDetail.envs;
@@ -828,22 +829,18 @@
                     $('#projectName').text(project.projectName);
                     $('#projectManagerName').text(project.managerName);
                     $('#viewProjectLink').prop('href', '/admin/project/viewProject.xhtml?projectId=' + project.projectId);
+                  if(project.structureType == 1){
+                    $("#moduleName").attr("disabled", true);
+                    $("#moduleNameZh").attr("disabled", true);
+                  }
                 }
 
                 var projectModule = moduleDetail.projectModule;
                 globalEnvs = moduleDetail.envs;
                 if (projectModule) {
                     $('#moduleId').val(projectModule.moduleId);
-                    if(projectModule.moduleEmpty == '0') {
-                      $('#moduleNameZh').val(projectModule.moduleNameZh);
-                      $('#moduleName').val(projectModule.moduleName);
-                      $('#moduleEmpty').attr('checked', false);
-                    }
-                    else {
-                      $('#moduleNameZh').val('');
-                      $('#moduleName').val('');
-                      $('#moduleEmpty').attr('checked', false);
-                    }
+                    $('#moduleNameZh').val(projectModule.moduleNameZh);
+                    $('#moduleName').val(projectModule.moduleName);
                     $("input[name='moduleType'][value='" + projectModule.moduleType + "']").prop("checked", true);
                     $('#repoUrl').val(projectModule.repoUrl);
                     $('#srcPath').val(projectModule.srcPath);
@@ -911,7 +908,6 @@
 
     function buildModuleBaseInfo(projectModule) {
         projectModule.moduleId = $('#moduleId').val();
-        projectModule.moduleEmpty = $('#moduleEmpty').is(':checked') ? 1 : 0;
         projectModule.projectId = $('#projectId').val();
         projectModule.moduleNameZh = $('#moduleNameZh').val().trim();
         projectModule.moduleName = $('#moduleName').val().trim();
@@ -1065,11 +1061,7 @@
     // 校验参数
     function validateForm() {
         var message = "";
-        if($("#moduleEmpty").checked == false) {
-          if ($("#moduleName").val() == '') {
-            message = 'module名称不能为空';
-          }
-        }
+
         if ($("#moduleNameZh").val() == '') {
             message = '模块名称不能为空';
         }

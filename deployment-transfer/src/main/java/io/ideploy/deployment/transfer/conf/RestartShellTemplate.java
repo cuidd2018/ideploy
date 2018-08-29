@@ -58,10 +58,17 @@ public class RestartShellTemplate {
             // 1. 初始化基础参数
             String restartShell = StringUtils.trimToEmpty(request.getRestartShell());
             if (ModuleUtil.isMainClass(restartShell)) {
-
+                startupTplContents=startupTplContents.replaceAll(StartupTplArgs.MAIN_CLASS, request.getRestartShell())
+                        .replaceAll(StartupTplArgs.JVM_ARGS, request.getJvmArgs());
                 writer.write(startupTplContents);
-
-            } else {
+            }
+            else if(ModuleUtil.isJarBoot(restartShell)){
+                startupTplContents=startupTplContents.replaceAll(StartupTplArgs.MAIN_CLASS, request.getRestartShell())
+                        .replaceAll(StartupTplArgs.JVM_ARGS, request.getJvmArgs())
+                        .replaceAll(StartupTplArgs.JAR_ARGS, "-jar");
+                writer.write(startupTplContents);
+            }
+            else {
                 writer.write("#!/bin/bash\n");
                 writer.write("source /etc/profile\n");
                 if (isStop) {
@@ -87,8 +94,6 @@ public class RestartShellTemplate {
                 + shortModuleName + "/" + shortModuleName + ".pid";
         startupTplContents = startupTplContents
                 .replaceAll(StartupTplArgs.PROJECT_DIR, projectDir)
-                .replaceAll(StartupTplArgs.MAIN_CLASS, request.getRestartShell())
-                .replaceAll(StartupTplArgs.JVM_ARGS, request.getJvmArgs())
                 .replaceAll(StartupTplArgs.MODULE_NAME, shortModuleName)
                 .replaceAll(StartupTplArgs.MODULE_PID_FILE, modulePidFile);
     }

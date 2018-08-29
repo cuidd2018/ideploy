@@ -7,5 +7,5 @@
         Anything you want
     </div>
     <!-- Default to the left -->
-    <strong>Copyright &copy; 2015 <a href="http://www.ibeiliao.com" target="_blank">www.ibeiliao.com </a>.</strong> All rights reserved.
+    <strong>Copyright &copy; 2018 <a href="http://www.ideploy.io" target="_blank">www.ideploy.io </a>.</strong> All rights reserved.
 </footer>

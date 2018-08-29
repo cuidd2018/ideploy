@@ -109,15 +109,15 @@ public abstract class AbstractTransferService {
                 result.setDownloadFileName(file.getAbsolutePath());
 
             } catch (Exception e) {
-                result.setFailLog("下载OSS文件报错, 文件名是 :" + request.getSaveFileName());
+                result.setFailLog("下载编译结果文件报错, 文件名是 :" + request.getSaveFileName());
                 result.setSuccessType(DeployResult.FAILURE);
-                logger.error("下载OSS文件报错 : {}", request.getSaveFileName(), e);
+                logger.error("下载编译结果文件报错 : {}", request.getSaveFileName(), e);
             }
         }
     }
 
     private File buildDownloadFile() {
-        String downloadDir = Configuration.getOssFileDownloadDir() + request.getEnv() + "/";
+        String downloadDir = Configuration.getComplieDownloadDir() + request.getEnv() + "/";
         File dir = new File(downloadDir);
         if (!dir.exists()) {
             dir.mkdirs();

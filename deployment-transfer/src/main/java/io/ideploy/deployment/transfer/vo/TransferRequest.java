@@ -39,7 +39,7 @@ public class TransferRequest {
     /***
      * 是否空模块工程
      */
-    private int moduleEmpty;
+    private int structureType;
 
     /**
      * 环境
@@ -237,11 +237,11 @@ public class TransferRequest {
         this.rollBackDeployId = rollBackDeployId;
     }
 
-    public int getModuleEmpty() {
-        return moduleEmpty;
+    public int getStructureType() {
+        return structureType;
     }
 
-    public void setModuleEmpty(int moduleEmpty) {
-        this.moduleEmpty = moduleEmpty;
+    public void setStructureType(int structureType) {
+        this.structureType = structureType;
     }
 }

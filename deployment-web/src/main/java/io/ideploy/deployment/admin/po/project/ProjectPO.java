@@ -30,6 +30,9 @@ public class ProjectPO implements Serializable {
 	/** 项目名称，全局唯一，不能重名 */
 	private String projectName;
 
+	/** 工程结构 **/
+	private int structureType;
+
 	/** 项目管理员ID */
 	private long managerId;
 
@@ -123,4 +126,11 @@ public class ProjectPO implements Serializable {
 		return programLanguage;
 	}
 
+    public int getStructureType() {
+        return structureType;
+    }
+
+    public void setStructureType(int structureType) {
+        this.structureType = structureType;
+    }
 }

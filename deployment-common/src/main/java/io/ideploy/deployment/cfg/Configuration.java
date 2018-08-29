@@ -98,12 +98,12 @@ public class Configuration {
         return config.getString("compile.server.log.collect.url");
     }
 
-    /**
-     * oss文件下载的路径
+    /***
+     * 下载编译包到本地路径
      * @return
      */
-    public static String getOssFileDownloadDir() {
-        return config.getString("oss.file.download.dir");
+    public static String getComplieDownloadDir(){
+        return config.getString("complie.download.dir");
     }
 
     /**
@@ -202,7 +202,8 @@ public class Configuration {
     }
 
     /**
-     * 编译服务器的IP
+     * 编译服务器的IP，
+     * TODO IP变成集群列表，使用英文逗号隔开
      * @return
      */
     public static String getCompileServerIp() {
@@ -215,5 +216,21 @@ public class Configuration {
      */
     public static String getCompileServerSshPort() {
         return config.getString("compile.server.ssh.port");
+    }
+
+    /***
+     * websocket链接地址
+     * @return
+     */
+    public static String getWebsocketUrl(){
+        return config.getString("websocket.url");
+    }
+
+    /***
+     * 保存服务器shell日志记录接口
+     * @return
+     */
+    public static String getDeploySaveShellLogDir(){
+        return config.getString("deployment.save.shell.log.url");
     }
 }

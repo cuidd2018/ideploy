@@ -1,5 +1,6 @@
 package io.ideploy.deployment.log.utils;
 
+import io.ideploy.deployment.cfg.Configuration;
 import io.ideploy.deployment.cfg.EncryptionPropertyPlaceholderConfigurer;
 import org.springframework.stereotype.Component;
 
@@ -18,7 +19,7 @@ public class LogSyncConfig {
     /**
      * 同步shell日志的url
      */
-    private String syncShellLogUrl = EncryptionPropertyPlaceholderConfigurer.getConfig("deployment.save.shell.log.url");
+    private String syncShellLogUrl = Configuration.getDeploySaveShellLogDir();
 
     /**
      * 同步shell的后台发送线程数

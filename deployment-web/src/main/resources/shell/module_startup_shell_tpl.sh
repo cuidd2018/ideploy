@@ -13,11 +13,12 @@ profile=${PROJ_PROFILE}
 #### 需要运行的 Main类全路径；以及参数
 BASE_DIR=${PROJECT_DIR}
 _RUNCLASS=${MAIN_CLASS}
+JAR_OPT=${JAR_ARGS}
 JAVA_OPTS="${JVM_ARGS}"
 RUN_DIR=${BASE_DIR}/${MODULE_NAME}
-RUN_JAR=
 RUN_LIBS=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar:$JRE_HOME/lib/rt.jar:$RUN_DIR/*
 model=${MODULE_NAME}
+
 
 #### 运行java的基本参数："java 启动参数 classpath"
 CLASSPATH=$RUN_LIBS
@@ -25,6 +26,15 @@ _RUNJAVA="$JAVA_HOME/bin/java $JAVA_OPTS -cp $CLASSPATH"
 SERVICE_PID=${MODULE_PID_FILE}
 touch ${SERVICE_PID}
 chmod a+w ${SERVICE_PID}
+
+
+#springboot JAR启动方式
+if [ -n $JAR_OPT ]; then
+  _RUNCLASS=`find $RUN_DIR -name $_RUNCLASS`
+  JAVA_OPTS="${JAR_OPT} ${JAVA_OPTS}"
+  _RUNJAVA="$JAVA_HOME/bin/java $JAVA_OPTS "
+fi
+
 # 启动脚本的方法
 start() {
   #### 如果PID文件存在，那么尝试：

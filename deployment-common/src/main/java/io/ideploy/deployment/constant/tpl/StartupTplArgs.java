@@ -27,6 +27,10 @@ public interface StartupTplArgs {
      */
     String JVM_ARGS = "\\$\\{JVM_ARGS\\}";
     /**
+     * jar参数
+     */
+    String JAR_ARGS = "\\$\\{JAR_ARGS\\}";
+    /**
      * 模块名称
      */
     String MODULE_NAME = "\\$\\{MODULE_NAME\\}";

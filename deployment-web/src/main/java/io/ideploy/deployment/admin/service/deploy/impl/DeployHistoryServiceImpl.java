@@ -969,7 +969,7 @@ public class DeployHistoryServiceImpl implements DeployHistoryService {
             compileRequest.setHistoryId(deployHistory.getHistoryId());
 
             compileRequest.setCompileShell(module.getCompileShell());
-            if(module.getModuleEmpty() == 0) {
+            if(project.getStructureType() == 0) {
                 compileRequest.setModuleName(module.getModuleName());
             }
             else{
@@ -977,7 +977,7 @@ public class DeployHistoryServiceImpl implements DeployHistoryService {
                  * 空模块工程，使用工程代号作为名字
                  */
                 compileRequest.setModuleName(project.getProjectNo());
-                compileRequest.setModuleEmpty(module.getModuleEmpty());
+                compileRequest.setStructureType(project.getStructureType());
             }
             compileRequest.setProjectName(project.getProjectNo());
             compileRequest.setEnv(envName);
@@ -1002,14 +1002,14 @@ public class DeployHistoryServiceImpl implements DeployHistoryService {
             TransferRequest request = new TransferRequest();
             request.setHistoryId(deployHistory.getHistoryId());
             request.setSaveFileName(getSaveFileName());
-            if(module.getModuleEmpty() == 0) {
+            if(project.getStructureType() == 0) {
                 request.setModuleName(deployHistory.getModuleName());
             }
             else{
                 /***
                  * 空模块工程特殊处理
                  */
-                request.setModuleEmpty(module.getModuleEmpty());
+                request.setStructureType(project.getStructureType());
                 request.setModuleName(project.getProjectNo());
             }
             request.setEnv(envName);

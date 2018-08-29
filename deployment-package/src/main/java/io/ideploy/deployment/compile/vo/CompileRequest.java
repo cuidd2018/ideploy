@@ -20,7 +20,7 @@ public class CompileRequest {
     /***
      * 是否空模块工程
      */
-    private int moduleEmpty;
+    private int structureType;
 
     /**
      * module名称
@@ -225,11 +225,11 @@ public class CompileRequest {
         this.language = language;
     }
 
-    public int getModuleEmpty() {
-        return moduleEmpty;
+    public int getStructureType() {
+        return structureType;
     }
 
-    public void setModuleEmpty(int moduleEmpty) {
-        this.moduleEmpty = moduleEmpty;
+    public void setStructureType(int structureType) {
+        this.structureType = structureType;
     }
 }

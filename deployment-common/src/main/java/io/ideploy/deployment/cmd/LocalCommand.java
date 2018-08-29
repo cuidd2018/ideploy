@@ -1,6 +1,7 @@
 package io.ideploy.deployment.cmd;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,6 +35,8 @@ public class LocalCommand implements Command {
     public CommandResult exec(String[] cmdArray) {
         CommandResult result = new CommandResult();
         try {
+            logger.info("LocalCommand.exec 命令：" + StringUtils.join(cmdArray, " "));
+
             process = Runtime.getRuntime().exec(cmdArray);
 
 

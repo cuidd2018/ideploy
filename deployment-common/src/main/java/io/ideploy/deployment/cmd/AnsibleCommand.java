@@ -48,8 +48,37 @@ public class AnsibleCommand extends LocalCommand {
     @Override
     public CommandResult exec(String[] cmdArray) {
 
-        logger.info("ansible 命令：" + StringUtils.join(cmdArray, " "));
-        return super.exec(addAnsibleArguments(cmdArray));
+        AnsibleArgs ansibleArgs= new AnsibleArgs(cmdArray);
+        List<CommandResult> cmdResultList= new ArrayList<>();
+        if(ansibleArgs.resolveLocalArgs() != null){
+            CommandResult commandResult= super.exec(addAnsibleArguments(ansibleArgs.resolveLocalArgs()));
+            cmdResultList.add(commandResult);
+        }
+        if(ansibleArgs.resolveRemoteArgs() != null){
+            CommandResult commandResult= super.exec(addAnsibleArguments(ansibleArgs.resolveRemoteArgs()));
+            cmdResultList.add(commandResult);
+        }
+        return mergeCmdResult(cmdResultList);
+    }
+
+    private CommandResult mergeCmdResult(List<CommandResult> cmdResultList){
+        CommandResult commandResult= new CommandResult();
+        String message= "";
+        String errorMessage= "";
+        boolean success= true;
+        int exitValue=0;
+
+        for(CommandResult cmdResult: cmdResultList){
+            message+= String.format("{host:%s,message:%s}", cmdResult.getHost(), cmdResult.getMessage());
+            errorMessage+= String.format("{host:%s,errorMessage:%s}", cmdResult.getHost(), cmdResult.getErrorMessage());
+            success= success&&cmdResult.isSuccess();
+            exitValue|= cmdResult.getExitValue();
+        }
+        commandResult.setSuccess(success);
+        commandResult.setMessage(message);
+        commandResult.setErrorMessage(errorMessage);
+        commandResult.setExitValue(exitValue);
+        return commandResult;
     }
 
     public int getFork() {

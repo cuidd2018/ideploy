@@ -3,6 +3,7 @@ package io.ideploy.deployment.storage.impl;
 import io.ideploy.deployment.cfg.Configuration;
 import io.ideploy.deployment.cmd.CommandResult;
 import io.ideploy.deployment.cmd.LocalCommand;
+import io.ideploy.deployment.common.util.IpAddressUtils;
 import io.ideploy.deployment.storage.FileStorageUtil;
 import io.ideploy.deployment.storage.ProjectFileStorage;
 import org.apache.commons.lang3.StringUtils;
@@ -33,6 +34,14 @@ public class LocalFileStorage implements ProjectFileStorage {
             // 2. 如果没有，scp 编译服务器 /data/storage/filename 到本地
             doDownload(filename, file);
         }
+        else if(!file.exists()){
+            /** 下载文件夹有临时文件，部署目录没有问题 **/
+            LocalCommand localCommand  = new LocalCommand();
+            File destFile = new File(FileStorageUtil.getLocalFileStorageName(filename));
+            String[] cpShell = {"cp", "-rf", destFile.getAbsolutePath(), file.getAbsolutePath()};
+            CommandResult result = localCommand.exec(cpShell);
+            logger.info("复制文件到发布目录结果：{}", result.isSuccess());
+        }
     }
 
     @Override
@@ -52,6 +61,18 @@ public class LocalFileStorage implements ProjectFileStorage {
     private boolean doDownload(String filename, File file) {
         String destFile = FileStorageUtil.getLocalFileStorageName(filename);
 
+        String compileServerIp= Configuration.getCompileServerIp();
+        /*** 编译服务器在本地 ***/
+        if(IpAddressUtils.isLocalIP(compileServerIp)){
+            logger.info("编译服务器在本地:{}，直接cp文件 " + compileServerIp);
+            LocalCommand localCommand  = new LocalCommand();
+            String[] cpShell = {"cp", "-rf", destFile, file.getAbsolutePath()};
+            CommandResult result= localCommand.exec(cpShell);
+            logger.info("本地服务器下载文件: " + result.isSuccess());
+            return result.isSuccess();
+        }
+
+        /*** 编译服务器在远程 ***/
         String[] scpShell = {"scp", "-P" + Configuration.getCompileServerSshPort(),
                 "web@" + Configuration.getCompileServerIp() + ":" + destFile, file.getAbsolutePath()};
 

@@ -220,6 +220,7 @@ DROP TABLE IF EXISTS `t_project`;
 CREATE TABLE `t_project` (
   `project_id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
   `project_name` varchar(60) NOT NULL COMMENT '项目名称，全局唯一，不能重名',
+  `structure_type` tinyint(4) NOT NULL DEFAULT '0' COMMENT '工程结构类型，1空模块工程 0多模块工程',
   `manager_id` int(11) NOT NULL COMMENT '项目管理员ID',
   `manager_name` varchar(40) NOT NULL DEFAULT '' COMMENT '管理员名称',
   `manager_email` varchar(60) NOT NULL DEFAULT '' COMMENT '管理员email',
@@ -261,7 +262,6 @@ CREATE TABLE `t_project_env` (
 DROP TABLE IF EXISTS `t_project_module`;
 CREATE TABLE `t_project_module` (
   `module_id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
-  `module_empty` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否空模块工程，1代表空模块工程 0代表多模块工程',
   `module_name_zh` varchar(40) NOT NULL DEFAULT '' COMMENT '模块中文名称',
   `module_name` varchar(80) NOT NULL DEFAULT '' COMMENT '模块名称',
   `module_type` tinyint(4) NOT NULL DEFAULT '1' COMMENT '模块类型，1代表web项目 2代表dubbo服务',

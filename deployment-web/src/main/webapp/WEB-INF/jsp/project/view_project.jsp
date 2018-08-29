@@ -74,7 +74,7 @@
                         </div>
                         <div class="box-footer">
                             <div class="text-center">
-                                <button class="btn btn-warning"
+                                <button class="btn btn-warning" id="addModule"
                                         type="button" onclick="addModule()">新增模块
                                 </button>
                             </div>
@@ -121,14 +121,6 @@
                                 <div class="form-group">
                                     <label class="col-md-2 control-label text-right">类型</label>
                                     <div class="col-md-10" id="moduleType">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="form-group">
-                                    <label class="col-md-2 control-label text-right">工程结构</label>
-                                    <div class="col-md-10" id="moduleEmpty">
                                     </div>
                                 </div>
                             </div>
@@ -261,6 +253,9 @@
                     if (projectDetail.modules) {
                         $(".moduleName").css("color", "black");
                         viewModule(projectDetail.modules[0].moduleId);
+                        if(projectDetail.project.structureType == 1 && projectDetail.modules.length > 0){
+                          $("#addModule").attr("disabled", true);
+                        }
                     }
                 } else {
                     BootstrapDialog.alert(json.message);
@@ -341,12 +336,6 @@
                 }
                 if (module.moduleType == <%=ModuleType.SERVICE.getValue()%>) {
                     moduleTypeName = "<%=ModuleType.SERVICE.getName()%>";
-                }
-                if('1' == module.moduleEmpty){
-                  $("#moduleEmpty").html('空模块工程');
-                }
-                else{
-                  $("#moduleEmpty").html('多模块工程');
                 }
                 $("#moduleType").html(moduleTypeName);
                 $('#moduleNameDiv').html(module.moduleName + '(' + module.moduleNameZh + ')');

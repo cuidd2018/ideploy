@@ -25,7 +25,7 @@ if [ $webProjectFlag -eq 1 ]; then
 fi
 
 #内网地址
-inner_ip=$(/sbin/ifconfig -a |egrep -A 1 'enp3s0|eth0' |tail -n 1|grep  -Po "(\d+\.){3}\d+"|head -n 1)
+inner_ip=$(/sbin/ifconfig -a |egrep -A 1 'enp3s0|eth0|en0' |tail -n 1| awk '{print $2}')
 
 if [ "$deployType" != "restart" ];then
     ${PYTHON_COLLECT_LOG}
@@ -83,7 +83,7 @@ decompressModule() {
     cd ${MODULE_DIR}
     ls |grep -v ${PID_FILE} | xargs rm -rf
     cd ..
-    tar zxvf ${MODULE_TAR_FILE}
+    tar -zxvf ${MODULE_TAR_FILE} >/dev/null 2>&1
     decompressResult=$?
     if [ $decompressResult -ne 0 ]; then
         logDeploy "解压失败"

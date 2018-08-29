@@ -85,6 +85,7 @@
                                             <th>ID</th>
                                             <th>项目名称</th>
                                             <th>语言</th>
+                                            <th>工程结构</th>
                                             <th>负责人</th>
                                             <th>参与者</th>
                                             <th>创建时间</th>
@@ -101,6 +102,13 @@
                                                     <a href="/admin/project/viewProject.xhtml?projectId={{value.projectId}}">{{value.projectName}}
                                                         ({{value.projectNo}})</a></td>
                                                 <td>{{value.programLanguage}}</td>
+                                                <td>
+                                                    {{if value.structureType == 0}}
+                                                    多模块
+                                                    {{else}}
+                                                    空模块
+                                                    {{/if}}
+                                                </td>
                                                 <td>{{value.managers}}</td>
                                                 <td>{{value.joinerNames}}</td>
                                                 <td>{{formatDateTime value.createTime}}</td>
@@ -151,6 +159,17 @@
                                         <input class="form-control" type="text" id="projectNo"
                                                name="projectNo" title="代号" placeholder="唯一值，新增后不允许修改"
                                                maxlength="30">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-md-2 control-label">工程结构</label>
+                                    <div class="col-md-10">
+                                        <div class="radio">
+                                            <label><input type="radio" name="structureType" value="0" checked="checked" >多模块
+                                            </label>
+                                            <label><input type="radio" name="structureType" value="1" >空模块
+                                            </label>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="form-group">
