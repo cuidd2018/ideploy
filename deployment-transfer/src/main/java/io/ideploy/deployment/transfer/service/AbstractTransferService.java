@@ -117,7 +117,7 @@ public abstract class AbstractTransferService {
     }
 
     private File buildDownloadFile() {
-        String downloadDir = Configuration.getComplieDownloadDir() + request.getEnv() + "/";
+        String downloadDir = Configuration.getWebDownloadDir() + request.getEnv() + "/";
         File dir = new File(downloadDir);
         if (!dir.exists()) {
             dir.mkdirs();
@@ -137,8 +137,8 @@ public abstract class AbstractTransferService {
             return;
         }
 
-        String shellUploadDir = Configuration.getAnsibleUploadShellDir() + request.getProjectName() + "/" + shortModuleName + "/";
-        String serverUploadDir = Configuration.getAnsibleUploadFileDir() + request.getProjectName() + "/" + shortModuleName + "/";
+        String shellUploadDir = Configuration.getServerShellDir() + request.getProjectName() + "/" + shortModuleName + "/";
+        String serverUploadDir = Configuration.getServerFileDir() + request.getProjectName() + "/" + shortModuleName + "/";
 
         List<String> needBuildDirs = Lists.newArrayList("mkdir -p " + shellUploadDir, "mkdir -p " + serverUploadDir);
 
@@ -264,7 +264,7 @@ public abstract class AbstractTransferService {
     }
 
     protected   String getScriptServerDir() {
-        return Configuration.getAnsibleUploadShellDir() + request.getProjectName() + "/" + shortModuleName + "/";
+        return Configuration.getServerShellDir() + request.getProjectName() + "/" + shortModuleName + "/";
     }
 
     public boolean isNewDeploy() {

@@ -52,7 +52,7 @@ public class ModuleUtil {
     }
 
     public static String getProjectDir(String projectNo) {
-        return Configuration.getAnsibleUploadFileDir() + projectNo + "/";
+        return Configuration.getServerFileDir() + projectNo + "/";
     }
 
     /**
@@ -63,7 +63,7 @@ public class ModuleUtil {
      * @return
      */
     public static String getModuleDir(String projectNo, String shortModuleName) {
-        return Configuration.getAnsibleUploadFileDir() + projectNo + "/" + shortModuleName + "/";
+        return Configuration.getServerFileDir() + projectNo + "/" + shortModuleName + "/";
     }
 
     /**
@@ -74,7 +74,7 @@ public class ModuleUtil {
      * @return
      */
     public static String getModuleConfDir(String projectNo, String shortModuleName) {
-        return Configuration.getAnsibleUploadConfDir() + projectNo + "/" + shortModuleName + "/";
+        return Configuration.getServerConfDir() + projectNo + "/" + shortModuleName + "/";
     }
 
     /**

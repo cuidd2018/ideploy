@@ -100,7 +100,7 @@ public class StaticTransferService extends AbstractTransferService {
             return;
         }
         logger.info("开始传输OSS文件到目标服务器");
-        String serverUploadDir = Configuration.getAnsibleUploadFileDir() + request.getProjectName() + "/";
+        String serverUploadDir = Configuration.getServerFileDir() + request.getProjectName() + "/";
 
         String hostFilePath = generateHostFile();
 

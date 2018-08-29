@@ -189,13 +189,13 @@ public class DeployShellTemplate {
 
         String deployLogPath = "/tmp/deploy_" + shortModuleName + ".log";
 
-        String moduleErrLogPath = Configuration.getAnsibleUploadFileDir() + request.getProjectName() + "/" + shortModuleName + "_err.log";
+        String moduleErrLogPath = Configuration.getServerFileDir() + request.getProjectName() + "/" + shortModuleName + "_err.log";
 
         deployTplContents = deployTplContents.replaceAll(DeployTplArgs.MODULE_NAME, shortModuleName);
 
         deployTplContents = deployTplContents.replaceAll(DeployTplArgs.ENV, request.getEnv());
 
-        deployTplContents = deployTplContents.replaceAll(DeployTplArgs.BASE_PROJECT_DIR, Configuration.getAnsibleUploadFileDir());
+        deployTplContents = deployTplContents.replaceAll(DeployTplArgs.BASE_PROJECT_DIR, Configuration.getServerFileDir());
 
         if (request.getResinConf() != null) {
             // 域名为空的，统一采用resin.xml
@@ -245,8 +245,8 @@ public class DeployShellTemplate {
         //项目备份目录 针对静态项目
         String projectBackupPath = Configuration.getServerBackupFileDir() + request.getProjectName() + "/";
 
-        String needBackupModuleDir = Configuration.getAnsibleUploadFileDir() + request.getProjectName() + "/" + shortModuleName;
-        String needBackupProjectDir = Configuration.getAnsibleUploadFileDir() + request.getProjectName() ;
+        String needBackupModuleDir = Configuration.getServerFileDir() + request.getProjectName() + "/" + shortModuleName;
+        String needBackupProjectDir = Configuration.getServerFileDir() + request.getProjectName() ;
 
         deployTplContents = deployTplContents
                 .replaceAll(DeployTplArgs.BACKUP_DIR, absoluteBackupPath)
@@ -277,7 +277,7 @@ public class DeployShellTemplate {
     }
 
     private String getScriptServerDir() {
-        return Configuration.getAnsibleUploadShellDir() + request.getProjectName() + "/" + shortModuleName + "/";
+        return Configuration.getServerShellDir() + request.getProjectName() + "/" + shortModuleName + "/";
     }
 
     private String buildCollectLogShell(String deployLogPath) {

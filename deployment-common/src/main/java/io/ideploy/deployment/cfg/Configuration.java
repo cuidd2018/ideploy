@@ -46,8 +46,8 @@ public class Configuration {
      * 上传Shell文件到服务器的目的路径
      * @return
      */
-    public static String getAnsibleUploadShellDir() {
-        return config.getString("ansible.upload.shell.dir");
+    public static String getServerShellDir() {
+        return config.getString("server.shell.dir");
     }
 
     /**
@@ -99,11 +99,11 @@ public class Configuration {
     }
 
     /***
-     * 下载编译包到本地路径
+     * 发布系统deployment-web下载编译包到本地路径
      * @return
      */
-    public static String getComplieDownloadDir(){
-        return config.getString("complie.download.dir");
+    public static String getWebDownloadDir(){
+        return config.getString("web.download.dir");
     }
 
     /**
@@ -118,16 +118,16 @@ public class Configuration {
      * ansible 上传项目打包好的文件到目标服务器的路径
      * @return
      */
-    public static String getAnsibleUploadFileDir() {
-        return config.getString("ansible.upload.file.dir");
+    public static String getServerFileDir() {
+        return config.getString("server.file.dir");
     }
 
     /**
-     * 项目配置文件所在目录
+     * 项目配置文件所在业务服务器目录
      * @return
      */
-    public static String getAnsibleUploadConfDir() {
-        return config.getString("ansible.upload.conf.dir");
+    public static String getServerConfDir() {
+        return config.getString("server.conf.dir");
     }
 
     /**

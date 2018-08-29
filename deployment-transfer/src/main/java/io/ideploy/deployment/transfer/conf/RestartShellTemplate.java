@@ -89,8 +89,8 @@ public class RestartShellTemplate {
     }
 
     private void replaceStartupTplArgs() {
-        String projectDir = Configuration.getAnsibleUploadFileDir() + request.getProjectName() + "/";
-        String modulePidFile = Configuration.getAnsibleUploadFileDir() + request.getProjectName() + "/"
+        String projectDir = Configuration.getServerFileDir() + request.getProjectName() + "/";
+        String modulePidFile = Configuration.getServerFileDir() + request.getProjectName() + "/"
                 + shortModuleName + "/" + shortModuleName + ".pid";
         startupTplContents = startupTplContents
                 .replaceAll(StartupTplArgs.PROJECT_DIR, projectDir)
