@@ -1,7 +1,6 @@
 package io.ideploy.deployment.log.utils;
 
 import io.ideploy.deployment.cfg.Configuration;
-import io.ideploy.deployment.cfg.EncryptionPropertyPlaceholderConfigurer;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
