@@ -25,7 +25,7 @@ import java.util.List;
  * @author jingyesi   17/1/25
  */
 @Controller
-@RequestMapping("/log")
+@RequestMapping("/admin/log")
 public class CollectLogController {
 
 
