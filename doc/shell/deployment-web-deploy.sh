@@ -9,6 +9,9 @@ DEPLOY_DIR=/data0/project/ideploy/deployment-web
 #JAVA_OPTS="-Dlog4j.configuration=file:/data0/log4j.properties"
 #JAVA_OPTS="${JAVA_OPTS} -Dspring.config.location=/data0/application.properties"
 
+#解决SecureRandom卡顿问题
+JAVA_OPTS="-Djava.security.egd=file:/dev/./urandom"
+
 # 1. checkout 代码
 rm -rf $TEMP_DIR
 echo "开始checkout代码"
@@ -69,7 +72,7 @@ echo "开始启动...."
 
 #启动
 cd ${DEPLOY_DIR}
-java $JAVA_OPTS -jar ${DEPLOY_DIR}/deployment-web.war>app.log 2>&1 &
+nohup java $JAVA_OPTS -jar ${DEPLOY_DIR}/deployment-web.war>/dev/null 2>deployment-web-err.log &
 
 #删除临时目录
 rm -rf ${TEMP_DIR}

@@ -1,7 +1,13 @@
 package io.ideploy.deployment.common.util;
 
 import com.google.common.base.Charsets;
+import com.google.common.collect.Lists;
 import com.google.common.io.Files;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,25 +64,43 @@ public class ShellTemplateFileUtil {
 
     static {
         try {
-            String shellDir = ShellTemplateFileUtil.class.getResource("/").getPath() + "shell/";
+            javaCompileShellTpl = loadShellTpl("module_compile_shell_tpl_java.sh");
 
-            javaCompileShellTpl = Files.readLines(new File(shellDir + "module_compile_shell_tpl_java.sh"), Charsets.UTF_8);
+            staticCompileShellTpl = loadShellTpl("module_compile_shell_tpl_static.sh");
 
-            staticCompileShellTpl = Files.readLines(new File(shellDir + "module_compile_shell_tpl_static.sh"), Charsets.UTF_8);
+            staticInJavaCompileShellTpl = loadShellTpl("module_compile_shell_tpl_staticInJava.sh");
 
-            staticInJavaCompileShellTpl = Files.readLines(new File(shellDir + "module_compile_shell_tpl_staticInJava.sh"), Charsets.UTF_8);
+            javaDeployShellTpl = loadShellTpl("module_deploy_shell_tpl_java.sh");
 
-            javaDeployShellTpl = Files.readLines(new File(shellDir + "module_deploy_shell_tpl_java.sh"), Charsets.UTF_8);
+            staticDeployShellTpl = loadShellTpl("module_deploy_shell_tpl_static.sh");
 
-            staticDeployShellTpl = Files.readLines(new File(shellDir + "module_deploy_shell_tpl_static.sh"), Charsets.UTF_8);
+            staticInJavaDeployShellTpl = loadShellTpl("module_deploy_shell_tpl_staticJava.sh");
 
-            staticInJavaDeployShellTpl = Files.readLines(new File(shellDir + "module_deploy_shell_tpl_staticJava.sh"), Charsets.UTF_8);
-
-            startupShellTpl = Files.readLines(new File(shellDir + "module_startup_shell_tpl.sh"), Charsets.UTF_8);
-
-        } catch (IOException e) {
+            startupShellTpl = loadShellTpl("module_startup_shell_tpl.sh");
+        } catch (Exception e) {
             logger.error("初始化模板文件失败, {}", e);
         }
+    }
+
+    private static List<String> loadShellTpl(String shellTplName){
+        List<String> lines= new ArrayList<>();
+        InputStream input = null;
+        BufferedReader br= null;
+        try{
+            input= ShellTemplateFileUtil.class.getClassLoader().getResourceAsStream("/resources/shell/"+ shellTplName);
+            br= new BufferedReader(new InputStreamReader(input, Charsets.UTF_8));
+            String line= null;
+            while ((line= br.readLine())!= null){
+                lines.add(line);
+            }
+        }catch (Exception e){
+            logger.error("loadShellTpl异常，shellTplName:{}", shellTplName, e);
+            return null;
+        }finally {
+            IOUtils.closeQuietly(br);
+            IOUtils.closeQuietly(input);
+        }
+        return lines;
     }
 
     /**

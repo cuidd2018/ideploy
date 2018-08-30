@@ -63,7 +63,7 @@ echo "开始启动...."
 
 #启动
 cd /data/project/ideploy/deployment-log/
-java $JAVA_OPTS -jar /data/project/ideploy/deployment-log/deployment-log.jar>app.log 2>&1 &
+nohup java $JAVA_OPTS -jar /data/project/ideploy/deployment-log/deployment-log.jar>/dev/null 2>deployment-log-err.log &
 
 #删除临时目录
 rm -rf /data/temp/ideploy
