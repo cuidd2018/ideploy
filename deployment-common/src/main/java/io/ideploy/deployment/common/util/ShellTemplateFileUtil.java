@@ -77,6 +77,8 @@ public class ShellTemplateFileUtil {
             staticInJavaDeployShellTpl = loadShellTpl("module_deploy_shell_tpl_staticJava.sh");
 
             startupShellTpl = loadShellTpl("module_startup_shell_tpl.sh");
+
+            logger.info("ShellTemplateFileUtil 加载shell模板完成");
         } catch (Exception e) {
             logger.error("初始化模板文件失败, {}", e);
         }
@@ -87,7 +89,7 @@ public class ShellTemplateFileUtil {
         InputStream input = null;
         BufferedReader br= null;
         try{
-            input= ShellTemplateFileUtil.class.getClassLoader().getResourceAsStream("/resources/shell/"+ shellTplName);
+            input= ShellTemplateFileUtil.class.getClassLoader().getResourceAsStream("shell/"+ shellTplName);
             br= new BufferedReader(new InputStreamReader(input, Charsets.UTF_8));
             String line= null;
             while ((line= br.readLine())!= null){
