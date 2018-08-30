@@ -76,7 +76,8 @@ start() {
     fi
   fi
     echo "starting ${MODULE_NAME}........."
-    exec $_RUNJAVA $_RUNCLASS $_RUNPARAM $* >/dev/null 2>&1 &
+    _ERR_LOG_FILE="${MODULE_NAME}-err.log"
+    nohup $_RUNJAVA $_RUNCLASS $_RUNPARAM $* >/dev/null 2>${_ERR_LOG_FILE} &
     if [ ! -z "$SERVICE_PID" ]; then
       echo $! > "$SERVICE_PID"
     fi

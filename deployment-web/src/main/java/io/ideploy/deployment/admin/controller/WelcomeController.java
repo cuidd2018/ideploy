@@ -11,6 +11,7 @@ import io.ideploy.deployment.admin.service.account.LdapAccountService;
 import io.ideploy.deployment.admin.utils.resource.MenuResource;
 import io.ideploy.deployment.admin.vo.account.AdminAccount;
 import io.ideploy.deployment.base.ApiCode;
+import io.ideploy.deployment.common.CallResult;
 import io.ideploy.deployment.common.util.ParameterUtil;
 import io.ideploy.deployment.encrypt.ValueEncoder;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -91,7 +92,11 @@ public class WelcomeController {
             adminAccount = adminAccountService.getByAccount(account, accountType);
         }
         else{
-            adminAccount = ldapAccountService.login(account, password);
+            CallResult<AdminAccount> callResult = ldapAccountService.login(account, password);
+            if(callResult.isFailue()){
+                return new RestResult(ApiCode.FAILURE, callResult.getMessage());
+            }
+            adminAccount= callResult.getObject();
         }
 
         if (adminAccount == null){

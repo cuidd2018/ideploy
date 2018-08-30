@@ -10,6 +10,8 @@ import io.ideploy.deployment.admin.po.account.AccountRoleRelationPO;
 import io.ideploy.deployment.admin.po.account.AdminAccountPO;
 import io.ideploy.deployment.admin.service.account.LdapAccountService;
 import io.ideploy.deployment.admin.vo.account.AdminAccount;
+import io.ideploy.deployment.base.ApiCode;
+import io.ideploy.deployment.common.CallResult;
 import io.ideploy.deployment.common.util.VOUtil;
 import java.util.Date;
 import java.util.Hashtable;
@@ -59,6 +61,8 @@ public class LdapAccountServiceImpl implements LdapAccountService{
         env.put(Context.INITIAL_CONTEXT_FACTORY,ldapConfigVO.getFactory());
         env.put(Context.PROVIDER_URL,ldapConfigVO.getUrl());
         env.put(Context.SECURITY_AUTHENTICATION,"simple");
+        env.put("com.sun.jndi.ldap.connect.timeout", "1000"); //ldap连接超时，单位毫秒
+        env.put("com.sun.jndi.ldap.read.timeout", "1000"); //读超时，单位毫秒
         /*env.put(Context.SECURITY_PROTOCOL, "ssl");*/
         return env;
     }
@@ -124,12 +128,12 @@ public class LdapAccountServiceImpl implements LdapAccountService{
 
 
     @Override
-    public AdminAccount login(String ldapId, String password) {
+    public CallResult<AdminAccount> login(String ldapId, String password) {
         LdapContext ldapContext= createContext();
         if(ldapContext == null){
             logger.warn("连接ldap服务失败，ldapId:{},password.length:{}",
                     ldapId, StringUtils.length(password));
-            return null;
+            return CallResult.make(ApiCode.FAILURE, "ldap服务异常");
         }
 
         LdapContext verifyContext= null;
@@ -137,7 +141,7 @@ public class LdapAccountServiceImpl implements LdapAccountService{
             SearchResult searchResult= searchAccount(ldapContext, ldapId);
             if(searchResult == null){
                 logger.warn("ldapId:{} 不存在", ldapId);
-                return null;
+                return CallResult.make(ApiCode.FAILURE, "账号不存在");
             }
             String userDN= searchResult.getName()+ ","+ ldapConfigVO.getBaseDN();
 
@@ -152,12 +156,12 @@ public class LdapAccountServiceImpl implements LdapAccountService{
             AdminAccountPO po= adminAccountDao.getByAccount(ldapId, AccountType.LDAP_USER.getValue());
             if(po != null){
                 //TODO 异步刷新用户ldap资料
-                return VOUtil.from(po, AdminAccount.class);
+                return CallResult.make(VOUtil.from(po, AdminAccount.class));
             }
 
             /*** 初始化ldap账号资料到发布系统 ***/
             po= createAccount(ldapId, searchResult);
-            return VOUtil.from(po, AdminAccount.class);
+            return CallResult.make(VOUtil.from(po, AdminAccount.class));
 
         }catch (Exception e){
             logger.error("登录ldap异常，message:{},ldapId:{},password.length:{}",
@@ -167,7 +171,7 @@ public class LdapAccountServiceImpl implements LdapAccountService{
             closeContext(ldapContext);
             closeContext(verifyContext);
         }
-        return null;
+        return CallResult.make(ApiCode.FAILURE,"ldap未知错误");
     }
 
     @Transactional
