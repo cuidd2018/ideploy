@@ -19,11 +19,11 @@ public class FileCompressUtil {
 
     private static final Logger logger  = LoggerFactory.getLogger(FileCompressUtil.class);
 
-    public static boolean archive(List<String> filePaths, String tarFilePath) {
+    public static boolean archive(List<FileResource> fileResources, String tarFilePath) {
         try {
             TarArchiveOutputStream tao = new TarArchiveOutputStream(new FileOutputStream(tarFilePath));
-            for (String filePath : filePaths) {
-                archiveSingleFile(new File(filePath), tao);
+            for (FileResource fileResource : fileResources) {
+                archiveSingleFile(fileResource, tao);
             }
             return  true;
         } catch (IOException e) {
@@ -32,14 +32,14 @@ public class FileCompressUtil {
         return false;
     }
 
-    private static void archiveSingleFile(File file, TarArchiveOutputStream taos) throws IOException{
+    private static void archiveSingleFile(FileResource fileResource, TarArchiveOutputStream taos) throws IOException{
         BufferedInputStream bis = null;
         try {
-            TarArchiveEntry entry = new TarArchiveEntry(file.getName());
-            entry.setSize(file.length());
+            TarArchiveEntry entry = new TarArchiveEntry(fileResource.getFileName());
+            entry.setSize(fileResource.getInputStream().available());
             taos.putArchiveEntry(entry);
 
-            bis = new BufferedInputStream(new FileInputStream(file));
+            bis = new BufferedInputStream(fileResource.getInputStream());
             int count;
             byte data[] = new byte[1024];
             while ((count = bis.read(data, 0, 1024)) != -1) {

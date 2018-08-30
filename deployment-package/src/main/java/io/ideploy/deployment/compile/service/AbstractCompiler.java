@@ -7,6 +7,7 @@ import io.ideploy.deployment.cmd.AnsibleCommandResult;
 import io.ideploy.deployment.cmd.CommandUtil;
 import io.ideploy.deployment.common.enums.DeployResult;
 import io.ideploy.deployment.common.util.FileCompressUtil;
+import io.ideploy.deployment.common.util.FileResource;
 import io.ideploy.deployment.common.util.ModuleUtil;
 import io.ideploy.deployment.compile.vo.CompileRequest;
 import io.ideploy.deployment.compile.vo.CompileResult;
@@ -137,17 +138,25 @@ public abstract class AbstractCompiler {
         long beginTime = System.currentTimeMillis();
 
         writeStep("传输编译相关脚本到服务器");
+
+        List<FileResource> fileResources= new ArrayList<>();
         //1.日志收集脚本
-        String logFilePath = JavaCompiler.class.getResource("/").getPath() + "shell/" + LOG_SCRIPT_NAME;
+        //String logFilePath = JavaCompiler.class.getResource("/").getPath() + "shell/" + LOG_SCRIPT_NAME;
+        fileResources.add(FileResource.war("shell/" + LOG_SCRIPT_NAME));
+
         //2.编译脚本
         String compileShellFilePath = generateCompileShell();
-        //3.oss脚本
-        String ossScriptFilePath = JavaCompiler.class.getResource("/").getPath() + "shell/" + OSS_SCRIPT_NAME;
+        fileResources.add(FileResource.file(compileShellFilePath));
 
-        ArrayList<String> allScriptFilePath = Lists.newArrayList(logFilePath, compileShellFilePath, ossScriptFilePath);
+        //3.oss脚本
+        //String ossScriptFilePath = JavaCompiler.class.getResource("/").getPath() + "shell/" + OSS_SCRIPT_NAME;
+        fileResources.add(FileResource.war("shell/" + OSS_SCRIPT_NAME));
+
+        //ArrayList<String> allScriptFilePath = Lists.newArrayList(logFilePath, compileShellFilePath, ossScriptFilePath);
         String tarFilePath = FileUtils.getTempDirectoryPath() + "/" + request.getEnv() + "_" + shortModuleName + ".tar";
 
-        boolean tarResult = FileCompressUtil.archive(allScriptFilePath, tarFilePath);
+
+        boolean tarResult = FileCompressUtil.archive(fileResources, tarFilePath);
         result.setCompileSuccess(tarResult);
 
         if (tarResult) {

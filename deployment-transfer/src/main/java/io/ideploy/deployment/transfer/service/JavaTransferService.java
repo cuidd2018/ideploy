@@ -5,6 +5,7 @@ import io.ideploy.deployment.cfg.Configuration;
 import io.ideploy.deployment.common.enums.DeployResult;
 import io.ideploy.deployment.common.enums.ModuleType;
 import io.ideploy.deployment.common.util.FileCompressUtil;
+import io.ideploy.deployment.common.util.FileResource;
 import io.ideploy.deployment.common.util.JvmArgUtil;
 import io.ideploy.deployment.common.util.ModuleUtil;
 import io.ideploy.deployment.transfer.conf.DeployShellTemplate;
@@ -13,6 +14,7 @@ import io.ideploy.deployment.transfer.conf.RestartShellTemplate;
 import io.ideploy.deployment.transfer.enums.DeployType;
 import io.ideploy.deployment.transfer.vo.ModuleConf;
 import io.ideploy.deployment.transfer.vo.TransferRequest;
+import java.util.ArrayList;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -84,25 +86,29 @@ public class JavaTransferService extends AbstractTransferService {
 
     private void transferAllScript2Server() {
         logger.info("开始传输脚本到目标服务器");
+
+        List<FileResource> fileResources= new ArrayList<>();
+
         //1.日志脚本
-        String logFilePath = JavaTransferService.class.getResource("/").getPath() + "shell/" + LOG_SCRIPT_NAME;
+        //String logFilePath = JavaTransferService.class.getResource("/").getPath() + "shell/" + LOG_SCRIPT_NAME;
+        fileResources.add(FileResource.war("shell/" + LOG_SCRIPT_NAME));
+
         //2.dubbo 启动脚本
         String dubboStartupShellPath = generateModuleRestartShell();
+        if (StringUtils.isNotBlank(dubboStartupShellPath)) {
+            fileResources.add(FileResource.file(dubboStartupShellPath));
+        }
+
         //3.发布脚本
         String shellFilePath = generateShellFile();
+        fileResources.add(FileResource.file(shellFilePath));
 
         if (checkIsAllFail()) {
             return;
         }
 
-        List<String> allScriptLocalPath = Lists.newArrayList(logFilePath, shellFilePath);
-        //3.dubbo 启动脚本
-        if (StringUtils.isNotBlank(dubboStartupShellPath)) {
-            allScriptLocalPath.add(dubboStartupShellPath);
-        }
-
         String taredFilePath = FileUtils.getTempDirectoryPath() + "/transfer_" + shortModuleName + ".tar";
-        boolean localTarResult = FileCompressUtil.archive(allScriptLocalPath, taredFilePath);
+        boolean localTarResult = FileCompressUtil.archive(fileResources, taredFilePath);
 
         unTarShell2Server(taredFilePath, localTarResult);
 
@@ -215,7 +221,11 @@ public class JavaTransferService extends AbstractTransferService {
     private String tarResinAndOss(List<String> resinConfFiles) {
         resinConfFiles.add(result.getDownloadFileName());
         String tarFilePath = FileUtils.getTempDirectoryPath() + "/" + getOssResinTarFile();
-        boolean tarResult = FileCompressUtil.archive(resinConfFiles, tarFilePath);
+        List<FileResource> fileResources= new ArrayList<>();
+        for(String resinConfFile: resinConfFiles){
+            fileResources.add(FileResource.file(resinConfFile));
+        }
+        boolean tarResult = FileCompressUtil.archive(fileResources, tarFilePath);
         if (tarResult) {
             return tarFilePath;
         } else {
