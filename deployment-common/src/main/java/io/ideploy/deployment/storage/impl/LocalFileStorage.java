@@ -1,7 +1,10 @@
 package io.ideploy.deployment.storage.impl;
 
 import io.ideploy.deployment.cfg.Configuration;
+import io.ideploy.deployment.cmd.AnsibleCommand;
+import io.ideploy.deployment.cmd.AnsibleCommandResult;
 import io.ideploy.deployment.cmd.CommandResult;
+import io.ideploy.deployment.cmd.CommandUtil;
 import io.ideploy.deployment.cmd.LocalCommand;
 import io.ideploy.deployment.common.util.IpAddressUtils;
 import io.ideploy.deployment.storage.FileStorageUtil;
@@ -73,13 +76,17 @@ public class LocalFileStorage implements ProjectFileStorage {
         }
 
         /*** 编译服务器在远程 ***/
-        String[] scpShell = {"scp", "-P" + Configuration.getCompileServerSshPort(),
-                "web@" + Configuration.getCompileServerIp() + ":" + destFile, file.getAbsolutePath()};
+        /*String[] scpShell = {"scp", "-P" + Configuration.getCompileServerSshPort(),
+                "web@" + Configuration.getCompileServerIp() + ":" + destFile, };
 
         LocalCommand localCommand  = new LocalCommand();
         CommandResult result = localCommand.exec(scpShell);
         logger.info("SCP命令是：" + StringUtils.join(scpShell, " "));
-        logger.info("scp结果: " + result.isSuccess());
+        logger.info("scp结果: " + result.isSuccess());*/
+        logger.info("ansible下载编译文件到本地");
+        String[] args = {"-i", Configuration.getAnsibleHostFile(), "all", "-m", "fetch", "-a",  "src=" + file.getAbsolutePath() + " dest=" + destFile + " flat=yes"};
+        AnsibleCommandResult result= CommandUtil.execAnsible(args);
+        logger.info("ansible下载文件结果:{}", result.isSuccess());
         return result.isSuccess();
     }
 }
