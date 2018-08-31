@@ -201,23 +201,6 @@ public class Configuration {
         return config.getString("compile.server.storage.dir");
     }
 
-    /**
-     * 编译服务器的IP，
-     * TODO IP变成集群列表，使用英文逗号隔开
-     * @return
-     */
-    public static String getCompileServerIp() {
-        return config.getString("compile.server.ip");
-    }
-
-    /**
-     * ssh端口
-     * @return
-     */
-    public static String getCompileServerSshPort() {
-        return config.getString("compile.server.ssh.port");
-    }
-
     /***
      * websocket链接地址
      * @return

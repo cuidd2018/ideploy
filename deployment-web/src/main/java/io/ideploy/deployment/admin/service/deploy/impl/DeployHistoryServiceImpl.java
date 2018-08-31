@@ -539,7 +539,8 @@ public class DeployHistoryServiceImpl implements DeployHistoryService {
 
     private void checkProjectAuthorization(DeploymentOrder order) {
         // 检查用户对此项目是否有权限
-        if (!projectAccountRelationService.hasRelation(order.getAccountId(), order.getProjectId())) {
+        if (!projectAccountRelationService.hasRelation(order.getAccountId(), order.getProjectId())
+                || !adminAccountService.isSuperAdmin(order.getAccountId())) {
             throw new IllegalStateException("你没有权限发布此项目");
         }
     }

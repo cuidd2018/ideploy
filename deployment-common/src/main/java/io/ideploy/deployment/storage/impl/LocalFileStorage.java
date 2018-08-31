@@ -35,7 +35,7 @@ public class LocalFileStorage implements ProjectFileStorage {
     public void download(String filename, File file) {
         // 1. 判断本地有没有文件
         if (!isFileExist(filename)) {
-            // 2. 如果没有，scp 编译服务器 /data/storage/filename 到本地
+            // 2. 如果没有，下载编译服务器 /data/storage/filename 到本地
             doDownload(filename, file);
         }
     }
@@ -59,13 +59,6 @@ public class LocalFileStorage implements ProjectFileStorage {
 
         logger.info("ansible下载编译文件到本地");
         String[] args = {"-i", Configuration.getAnsibleHostFile(), "all", "-m", "fetch", "-a",  "src=" + destFile + " dest=" + file.getAbsolutePath() + " flat=yes"};
-
-        String compileServerIp= Configuration.getCompileServerIp();
-        /*** 编译服务器在本地 ***/
-        if(IpAddressUtils.isLocalIP(compileServerIp)){
-            args=Arrays.copyOf(args, args.length + 1);
-            args[args.length]="remote_src=False";
-        }
         AnsibleCommandResult result= CommandUtil.execAnsible(args);
         logger.info("ansible下载文件结果:{}", result.isSuccess());
         return result.isSuccess();
