@@ -264,6 +264,7 @@ public class CompileShellTemplate {
         compileShell = compileShell.replaceAll("\\$\\{" + ModuleUserShellArgs.ENV + "}", compileRequest.getEnv());
         // 2. 逐条处理
         String[] userCompileShellList = compileShell.split("\n");
+        String mvnCpFinalShell = "";
         for (String shell : userCompileShellList) {
             if (StringUtils.isBlank(shell)) {
                 continue;
@@ -274,13 +275,20 @@ public class CompileShellTemplate {
             } else {
                 // 判断是否是是复制, 改为 yes 2>/dev/null | cp 实现拷贝覆盖(2>/dev/null 是为了忽略yes的错误信息)
                 if (shell.startsWith("cp ") && !shell.contains("/dev/null")) {
-                    compileTplContent = compileTplContent.replaceAll(MVN_CP_SHELL, shell.replace("cp ", "yes 2>/dev/null | cp "));
+                    //compileTplContent = compileTplContent.replaceAll(MVN_CP_SHELL, shell.replace("cp ", "yes 2>/dev/null | cp "));
+                    mvnCpFinalShell += shell.replace("cp ", "yes 2>/dev/null | cp ")+"\n";
                 }
-                if (shell.startsWith("cp ") && shell.contains("/dev/null")) {
-                    compileTplContent = compileTplContent.replaceAll(MVN_CP_SHELL, shell);
+                /*else if (shell.startsWith("cp ") && shell.contains("/dev/null")) {
+                    //compileTplContent = compileTplContent.replaceAll(MVN_CP_SHELL, shell);
+                    mvnCpFinalShell += shell+"\n";
+                }
+                */else{
+                    mvnCpFinalShell += shell + "\n";
                 }
             }
         }
+        compileTplContent = compileTplContent.replaceAll(MVN_CP_SHELL, mvnCpFinalShell);
+
         // 3. mvn 日志
         String compileLogPath = Configuration.getCompileLogDir() + compileRequest.getEnv() + "/" + compileRequest.getProjectName()
                 + "/" + shortModuleName + ".log";
