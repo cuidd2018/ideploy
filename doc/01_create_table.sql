@@ -337,6 +337,7 @@ CREATE TABLE `t_server` (
   `server_id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
   `server_name` varchar(100) NOT NULL COMMENT '主键',
   `ip` varchar(40) NOT NULL COMMENT 'ip地址',
+  `shell_args` varchar(1024) NOT NULL DEFAULT '' COMMENT '当前进程特定shell启动参数',
   `create_time` datetime NOT NULL COMMENT '创建时间',
   `group_id` int(11) NOT NULL COMMENT '所在的服务器组',
   PRIMARY KEY (`server_id`),

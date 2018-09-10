@@ -448,99 +448,36 @@
         </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
 
-    <%--添加服务器模态窗口--%>
+    <!-- 添加服务器模态窗口 -->
     <div class="modal" id="addServerModel">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
                             aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">添加服务器</h4>
+                    <h4 class="modal-title">添加服务器IP</h4>
                 </div>
-                <div class="modal-body">
-                    <div class="row">
-
-                        <input type="hidden" id="currentServerId"/>
-
-                        <form class="form-horizontal col-md-12">
-
-                            <div class="form-group">
-                                <label class="control-label col-sm-2"> 名称1: </label>
-                                <div class="col-md-4">
-                                    <input type="text" id="serverName1" value="" class="form-control" maxlength="45"
-                                           onfocus="loadAllServers(this,false)" onkeyup="filterServer(this,false)"
-                                           onblur="hideServerList(event)"/>
-                                </div>
-                                <label class="control-label col-sm-2"> IP1: </label>
-                                <div class="col-md-4">
-                                    <input type="text" id="serverIP1" value="" class="form-control" maxlength="45"
-                                           onfocus="loadAllServers(this,true)" onkeyup="filterServer(this,true)"
-                                           onblur="hideServerList(event)"/>
-                                </div>
-                            </div>
-
-                            <div class="form-group moreIp">
-                                <label class="control-label col-sm-2"> 名称2: </label>
-                                <div class="col-md-4">
-                                    <input type="text" id="serverName2" value="" class="form-control" placeholder="可以不填"
-                                           maxlength="45" onfocus="loadAllServers(this)" onkeyup="filterServer(this)"
-                                           onblur="hideServerList(event)"/>
-                                </div>
-                                <label class="control-label col-sm-2"> IP2: </label>
-                                <div class="col-md-4">
-                                    <input type="text" id="serverIP2" value="" class="form-control" placeholder="可以不填"
-                                           maxlength="45" onfocus="loadAllServers(this)" onkeyup="filterServer(this)"
-                                           onblur="hideServerList(event)"/>
-                                </div>
-                            </div>
-                            <div class="form-group moreIp">
-                                <label class="control-label col-sm-2"> 名称3: </label>
-                                <div class="col-md-4">
-                                    <input type="text" id="serverName3" value="" class="form-control" placeholder="可以不填"
-                                           maxlength="45" onfocus="loadAllServers(this)" onkeyup="filterServer(this)"
-                                           onblur="hideServerList(event)"/>
-                                </div>
-                                <label class="control-label col-sm-2"> IP3: </label>
-                                <div class="col-md-4">
-                                    <input type="text" id="serverIP3" value="" class="form-control" placeholder="可以不填"
-                                           maxlength="45" onfocus="loadAllServers(this)" onkeyup="filterServer(this)"
-                                           onblur="hideServerList(event)"/>
-                                </div>
-                            </div>
-                            <div class="form-group moreIp">
-                                <label class="control-label col-sm-2"> 名称4: </label>
-                                <div class="col-md-4">
-                                    <input type="text" id="serverName4" value="" class="form-control" placeholder="可以不填"
-                                           maxlength="45" onfocus="loadAllServers(this)" onkeyup="filterServer(this)"
-                                           onblur="hideServerList(event)"/>
-                                </div>
-                                <label class="control-label col-sm-2"> IP4: </label>
-                                <div class="col-md-4">
-                                    <input type="text" id="serverIP4" value="" class="form-control" placeholder="可以不填"
-                                           maxlength="45" onfocus="loadAllServers(this)" onkeyup="filterServer(this)"
-                                           onblur="hideServerList(event)"/>
-                                </div>
-                            </div>
-                            <div class="form-group moreIp">
-                                <label class="control-label col-sm-2"> 名称5: </label>
-                                <div class="col-md-4">
-                                    <input type="text" id="serverName5" value="" class="form-control" placeholder="可以不填"
-                                           maxlength="45" onfocus="loadAllServers(this)" onkeyup="filterServer(this)"
-                                           onblur="hideServerList(event)"/>
-                                </div>
-                                <label class="control-label col-sm-2"> IP5: </label>
-                                <div class="col-md-4">
-                                    <input type="text" id="serverIP5" value="" class="form-control" placeholder="可以不填"
-                                           maxlength="45" onfocus="loadAllServers(this)" onkeyup="filterServer(this)"
-                                           onblur="hideServerList(event)"/>
-                                </div>
-                            </div>
-                        </form>
+                <div class="modal-body form-horizontal">
+                    <input type="hidden" id="currentServerId" />
+                    <div class="form-group">
+                        <label class="col-md-2 control-label">实例名称</label>
+                        <div class="col-md-10">
+                            <input class="form-control" type="text" id="serverName" name="serverName" title="实例名称" placeholder="实例名称（唯一值）" maxlength="60">
+                        </div>
                     </div>
-
-
+                    <div class="form-group">
+                        <label class="col-md-2 control-label">实例IP</label>
+                        <div class="col-md-10">
+                            <input class="form-control" type="text" id="serverIP" name="serverIP" title="实例IP" placeholder="实例IP" maxlength="60">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-2 control-label">shell参数</label>
+                        <div class="col-md-10">
+                            <input class="form-control" type="text" id="shellArgs" name="shellArgs" title="实例shell启动参数" placeholder="当前ip特定shell启动参数（可为空）" maxlength="60">
+                        </div>
+                    </div>
                 </div>
-
                 <div class="modal-footer">
                     <div class="col-md-3"></div>
                     <div class="col-md-2">
@@ -554,9 +491,10 @@
                         </button>
                     </div>
                 </div>
-            </div><!-- /.modal-content -->
-        </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
+            </div>
+        </div>
+    </div>
+
 
     <div id="serverListDiv" class="dropdown-menu"
          style="z-index:10000;display:none;width:300px;height:240px;overflow:scroll;border:1px solid #3c8dbc;">
@@ -772,10 +710,12 @@
                 var serverHtml = "";
                 for (var j in group.servers) {
                     var serverId = "oldServer_" + group.servers[j].serverId;
+                    var shellArgs = group.servers[j].shellArgs?group.servers[j].shellArgs:"";
                     serverHtml = serverHtml + "<div style='margin-top: 10px;' class='row oldServer' data-serverId='" + group.servers[j].serverId +
                         "' data-serverName='" + group.servers[j].serverName +
                         "' data-groupId='" + group.servers[j].groupId +
                         "' data-serverIp='" + group.servers[j].ip +
+                        "' data-shellArgs='" + shellArgs +
                         "' id='" + serverId + "'>" +
                         "<div class='col-xs-6'>" + group.servers[j].serverName + "(" + group.servers[j].ip + ")</div>" +
                         "<div class='col-xs-3'><a  onclick='javascript:deleteServer(" + "\"" + serverId + "\"" + ");return false;' href='#' >删除</a></div>" +
@@ -990,6 +930,7 @@
                 var server = {};
                 server.serverName = $(this).attr("data-servername");
                 server.ip = $(this).attr("data-serverip");
+                server.shellArgs=$(this).attr("data-shellArgs");
                 servers.push(server);
             });
             $("#" + serverId).children(".oldServer").each(function () {
@@ -998,6 +939,7 @@
                 server.groupId = $(this).attr("data-groupId");
                 server.serverName = $(this).attr("data-servername");
                 server.ip = $(this).attr("data-serverip");
+                server.shellArgs=$(this).attr("data-shellArgs");
                 servers.push(server);
             });
             group.servers = servers;
@@ -1145,37 +1087,39 @@
     }
     //创建服务器
     function addServer() {
-
         var currentServerId = $("#currentServerId").val();
-
         if (currentServerId) {
-            var serverIP = $.trim($("#serverIP1").val());
-            var serverName = $.trim($("#serverName1").val());
+            var serverIP = $.trim($("#serverIP").val());
+            var serverName = $.trim($("#serverName").val());
+            var shellArgs = $.trim($("#shellArgs").val());
             if (serverIP && serverName) {
                 $("#" + currentServerId).attr("data-serverName", serverName);
                 $("#" + currentServerId).attr("data-serverIP", serverIP);
+                $("#" + currentServerId).attr("data-shellArgs", shellArgs);
                 $("#" + currentServerId).children("div").first().text(serverName + "(" + serverIP + ")");
                 $("#addServerModel").modal('hide');
-                $("#serverIP1").val('');
-                $("#serverName1").val('');
+                $("#serverIP").val('');
+                $("#serverName").val('');
+                $("#shellArgs").val('');
+                $("#currentServerId").val('');
             } else {
                 BootstrapDialog.alert('请输入完整的IP和名称, ip: ' + serverIP + ', 名称: ' + serverName);
             }
         } else if (checkServerNameAndIP()) {
-            for (var i = 1; i <= 5; i++) {
-                var serverIP = $.trim($("#serverIP" + i).val());
-                var serverName = $.trim($("#serverName" + i).val());
-                if (serverIP && serverName) {
-                    var serverId = "newServer_" + (new Date()).getTime();
-                    var serverHtml = "<div style='margin-top: 10px;' class='row newServer' data-serverName='" + serverName + "' data-serverIp='" + serverIP + "' id='" + serverId + "'>" +
-                        "<div class='col-xs-6'>" + serverName + "(" + serverIP + ")</div>" +
-                        "<div class='col-xs-3'><a  onclick='javascript:deleteServer(" + "\"" + serverId + "\"" + ");return false;' href='#' >删除</a></div>" +
-                        "<div class='col-xs-3'><a onclick='javascript:editServer(" + "\"" + serverId + "\"" + ");return false;' href='#' >编辑</a></div>" +
-                        "</div>";
-                    $("#groupContent").children(".active").children("div").first().before(serverHtml);
-                    $("#serverIP" + i).val('');
-                    $("#serverName" + i).val('');
-                }
+            var serverIP = $.trim($("#serverIP").val());
+            var serverName = $.trim($("#serverName").val());
+            var shellArgs = $.trim($("#shellArgs").val());
+            if (serverIP && serverName) {
+                var serverId = "newServer_" + (new Date()).getTime();
+                var serverHtml = "<div style='margin-top: 10px;' class='row newServer' data-serverName='" + serverName + "' data-serverIp='" + serverIP + "' data-shellArgs='" + shellArgs + "' id='" + serverId + "'>" +
+                    "<div class='col-xs-6'>" + serverName + "(" + serverIP + ")</div>" +
+                    "<div class='col-xs-3'><a  onclick='javascript:deleteServer(" + "\"" + serverId + "\"" + ");return false;' href='#' >删除</a></div>" +
+                    "<div class='col-xs-3'><a onclick='javascript:editServer(" + "\"" + serverId + "\"" + ");return false;' href='#' >编辑</a></div>" +
+                    "</div>";
+                $("#groupContent").children(".active").children("div").first().before(serverHtml);
+                $("#serverIP").val('');
+                $("#serverName").val('');
+                $("#shellArgs").val('');
             }
             $("#addServerModel").modal('hide');
         }
@@ -1184,14 +1128,12 @@
     }
 
     function checkServerNameAndIP() {
-        for (var i = 1; i <= 5; i++) {
-            var serverIP = $.trim($("#serverIP" + i).val());
-            var serverName = $.trim($("#serverName" + i).val());
-            if ((serverIP == '' && serverName != '')
-                || (serverIP != '' && serverName == '')) {
-                BootstrapDialog.alert('请输入完整的IP和名称, ip: ' + serverIP + ", 名称: " + serverName);
-                return false;
-            }
+        var serverIP = $.trim($("#serverIP").val());
+        var serverName = $.trim($("#serverName").val());
+        if ((serverIP == '' && serverName != '')
+            || (serverIP != '' && serverName == '')) {
+            BootstrapDialog.alert('请输入完整的IP和名称, ip: ' + serverIP + ", 名称: " + serverName);
+            return false;
         }
         return true;
     }
@@ -1235,12 +1177,15 @@
         $(".moreIp").hide();
         $("#addServerModel").modal('show');
         $("#currentServerId").val(serverId);
-        $("#serverName1").val($("#" + serverId).attr("data-serverName"));
-        $("#serverIP1").val($("#" + serverId).attr("data-serverIP"));
-
+        $("#serverName").val($("#" + serverId).attr("data-serverName"));
+        $("#serverIP").val($("#" + serverId).attr("data-serverIP"));
+        $("#shellArgs").val($("#" + serverId).attr("data-shellArgs"));
     }
     function openAddServerModel() {
         $(".moreIp").show();
+        $("#serverName").val("");
+        $("#serverIP").val("");
+        $("#shellArgs").val("");
         $("#addServerModel").modal('show');
     }
 

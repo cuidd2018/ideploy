@@ -23,6 +23,9 @@ public class Server implements Serializable {
 	/** ip地址 */
 	private String ip;
 
+    /** 当前进程shell启动参数 **/
+    private String shellArgs = "";
+
 	/** 创建时间 */
 	private Date createTime;
 
@@ -58,7 +61,15 @@ public class Server implements Serializable {
 		return ip;
 	}
 
-	public void setCreateTime(Date createTime) {
+    public String getShellArgs() {
+        return shellArgs;
+    }
+
+    public void setShellArgs(String shellArgs) {
+        this.shellArgs = shellArgs;
+    }
+
+    public void setCreateTime(Date createTime) {
 		this.createTime = createTime;
 	}
 

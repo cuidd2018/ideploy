@@ -14,10 +14,12 @@ profile=${PROJ_PROFILE}
 BASE_DIR=${PROJECT_DIR}
 _RUNCLASS=${MAIN_CLASS}
 JAR_OPT=${JAR_ARGS}
-JAVA_OPTS="${JVM_ARGS}"
+JAVA_OPTS=${JVM_ARGS}
 RUN_DIR=${BASE_DIR}/${MODULE_NAME}
 RUN_LIBS=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar:$JRE_HOME/lib/rt.jar:$RUN_DIR/*
 model=${MODULE_NAME}
+#特定IP自定义的args参数，格式 {ip:shellArgs}{ip:shellArgs}
+SHELL_OPTS=${SHELL_ARGS}
 
 
 #### 运行java的基本参数："java 启动参数 classpath"
@@ -34,6 +36,14 @@ if [ -n $JAR_OPT ]; then
   JAVA_OPTS="${JAR_OPT} ${JAVA_OPTS}"
   _RUNJAVA="$JAVA_HOME/bin/java $JAVA_OPTS "
 fi
+
+#解析当前ip地址的shellArgs
+resolveShellArgs()
+{
+  #内网地址
+  inner_ip=$(/sbin/ifconfig -a |egrep -A 1 'enp3s0|eth0|en0' |tail -n 1| awk '{print $2}')
+
+}
 
 # 启动脚本的方法
 start() {

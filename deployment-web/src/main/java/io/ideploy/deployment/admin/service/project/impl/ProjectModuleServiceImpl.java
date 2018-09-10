@@ -1,5 +1,6 @@
 package io.ideploy.deployment.admin.service.project.impl;
 
+import io.ideploy.deployment.common.util.IpAddressUtils;
 import org.apache.commons.collections.CollectionUtils;
 import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
@@ -128,6 +129,8 @@ public class ProjectModuleServiceImpl implements ProjectModuleService {
 
         validateJvmArgs(projectModule);
 
+        validateServerGroup(projectModule);
+
         if (projectModule.getModuleType() == ModuleType.WEB_PROJECT.getValue()) {
             Assert.notNull(projectModule.getResinConf(), "Resin配置不能为null");
             ResinConf resinConf = projectModule.getResinConf();
@@ -164,6 +167,24 @@ public class ProjectModuleServiceImpl implements ProjectModuleService {
                 jvm.setJvmArgs(arg);
             }
             Assert.isTrue(found, "至少要配置一个环境的JVM参数");
+        }
+    }
+
+    private void validateServerGroup(ProjectModule projectModule) {
+        if(CollectionUtils.isEmpty(projectModule.getServerGroups())){
+            return;
+        }
+        for(ServerGroup serverGroup: projectModule.getServerGroups()){
+            Assert.isTrue(StringUtils.isNoneBlank(serverGroup.getGroupName()), "服务组名不能为空");
+            if(CollectionUtils.isEmpty(serverGroup.getServers())){
+                continue;
+            }
+            for(Server server: serverGroup.getServers()){
+                Assert.isTrue(StringUtils.isNoneBlank(server.getServerName()), "服务器名不能为空");
+                Assert.isTrue(StringUtils.isNoneBlank(server.getIp()), "服务器ip不能为空");
+                Assert.isTrue(IpAddressUtils.isIP(server.getIp()), "服务器IP不合法");
+                Assert.isTrue(StringUtils.length(server.getShellArgs())<1024, "shell启动参数过长");
+            }
         }
     }
 
