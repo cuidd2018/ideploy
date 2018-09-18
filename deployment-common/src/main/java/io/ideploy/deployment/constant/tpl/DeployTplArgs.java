@@ -95,6 +95,25 @@ public interface DeployTplArgs {
      * 启动前shell
      */
     String HAS_PRESHELL = "\\$\\{HAS_PRESHELL\\}";
+
+    /**
+     * 启动前shell
+     */
+    String PRE_DEPLOY = "\\$\\{PRE_DEPLOY\\}";
+    /**
+     * 启动前shell
+     */
+    String HAS_PREDEPLOY = "\\$\\{HAS_PREDEPLOY\\}";
+
+    /**
+     * 启动前shell
+     */
+    String POST_DEPLOY = "\\$\\{POST_DEPLOY\\}";
+    /**
+     * 启动前shell
+     */
+    String HAS_POSTDEPLOY = "\\$\\{HAS_POSTDEPLOY\\}";
+
     /**
      * 启动shell
      */

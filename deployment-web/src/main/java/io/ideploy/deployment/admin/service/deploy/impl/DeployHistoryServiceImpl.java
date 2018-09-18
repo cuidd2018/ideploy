@@ -44,6 +44,7 @@ import io.ideploy.deployment.common.enums.ModuleRepoType;
 import io.ideploy.deployment.common.enums.ModuleType;
 import io.ideploy.deployment.common.enums.ServerDeployResult;
 import io.ideploy.deployment.common.util.ModuleUtil;
+import io.ideploy.deployment.compile.config.CompileConfig;
 import io.ideploy.deployment.compile.service.JavaCompiler;
 import io.ideploy.deployment.compile.service.StaticFileCompiler;
 import io.ideploy.deployment.compile.vo.CompileRequest;
@@ -819,7 +820,8 @@ public class DeployHistoryServiceImpl implements DeployHistoryService {
             if (request.getModuleType() == ModuleType.STATIC.getValue()) {
                 StaticTransferService staticTransferService = new StaticTransferService(request);
                 return staticTransferService.pushPackageToServer();
-            } else {
+            }
+            else {
                 logger.info("开始发布");
                 JavaTransferService javaTransferService = new JavaTransferService(request);
                 return javaTransferService.pushPackageToServer();
@@ -959,7 +961,8 @@ public class DeployHistoryServiceImpl implements DeployHistoryService {
             if (module.getModuleType() == ModuleType.WEB_PROJECT.getValue() || module.getModuleType() == ModuleType.SERVICE.getValue()) {
                 JavaCompiler javaCompileService = new JavaCompiler(compileRequest, pushLogService);
                 return javaCompileService.compileModule();
-            } else {
+            }
+            else {
                 StaticFileCompiler staticCompileService = new StaticFileCompiler(compileRequest, pushLogService);
                 return staticCompileService.compileModule();
             }
@@ -1013,15 +1016,21 @@ public class DeployHistoryServiceImpl implements DeployHistoryService {
                 request.setStructureType(project.getStructureType());
                 request.setModuleName(project.getProjectNo());
             }
+            CompileConfig compileConfig= new CompileConfig();
+
             request.setEnv(envName);
             request.setProjectName(project.getProjectNo());
             request.setRestartShell(module.getRestartShell());
             request.setJvmArgs(getModuleJvmArgs(module));
-            request.setPreDeployShell(module.getPreShell());
-            request.setPostDeployShell(module.getPostShell());
+            request.setPreDeploy(module.getPreDeploy());
+            request.setPostDeploy(module.getPostDeploy());
+            request.setPreStartShell(module.getPreShell());
+            request.setPostStartShell(module.getPostShell());
             request.setModuleType(module.getModuleType());
             request.setStopShell(module.getStopShell());
             request.setRollBackDeployId(deployHistory.getRollbackToDeployId());
+            request.setDeployArgs(module.getDeployArgs());
+            request.setCompileFileHost(compileConfig.getCompileServer());
 
             request.setLanguage(project.getProgramLanguage());
 

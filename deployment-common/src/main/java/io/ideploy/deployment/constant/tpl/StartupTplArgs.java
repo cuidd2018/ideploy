@@ -27,9 +27,9 @@ public interface StartupTplArgs {
      */
     String JVM_ARGS = "\\$\\{JVM_ARGS\\}";
     /**
-     * jar参数
+     * 启动类型 0-Main类启动  1-jar包启动
      */
-    String JAR_ARGS = "\\$\\{JAR_ARGS\\}";
+    String MAIN_TYPE = "\\$\\{MAIN_TYPE\\}";
     /**
      * 模块名称
      */

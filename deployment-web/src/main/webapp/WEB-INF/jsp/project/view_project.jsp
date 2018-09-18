@@ -167,6 +167,16 @@
                             </div>
                             <div class="row">
                                 <div class="form-group">
+                                    <label class="col-md-2 control-label text-right">stop shell</label>
+                                    <div class="col-md-10">
+                                        <pre id="stopShell">
+
+                                        </pre>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="form-group">
                                     <label class="col-md-2 control-label text-right">JVM参数</label>
                                     <div class="col-md-10">
                                         <div class="row" id="jvmArgsContent">
@@ -182,17 +192,6 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="form-group">
-                                    <label class="col-md-2 control-label text-right">stop shell</label>
-                                    <div class="col-md-10">
-                                        <pre id="stopShell">
-
-                                        </pre>
-                                    </div>
-                                </div>
-                            </div>
-
                             <div class="form-group" id="groups">
                                 <ul id="serverGroups" class="nav nav-tabs">
                                 </ul>
@@ -215,6 +214,41 @@
 
         </section><!-- /.content -->
     </div><!-- /.content-wrapper -->
+
+    <!-- 添加服务器模态窗口 -->
+    <div class="modal" id="viewServerModel">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">查看服务器</h4>
+                </div>
+                <div class="modal-body form-horizontal">
+                    <input type="hidden" id="currentServerId" />
+                    <div class="form-group">
+                        <label class="col-md-2 control-label">实例名称</label>
+                        <div class="col-md-10">
+                            <input class="form-control"  readonly="readonly"  type="text" id="serverName" name="serverName" title="实例名称" placeholder="实例名称（唯一值）" maxlength="60">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-2 control-label">实例IP</label>
+                        <div class="col-md-10">
+                            <input class="form-control"  readonly="readonly"  type="text" id="serverIP" name="serverIP" title="实例IP" placeholder="实例IP" maxlength="60">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-2 control-label">启动参数<i class='fa fa-question-circle' id="helpIpShellArgs"></i></label>
+                        <div class="col-md-10">
+                            <textarea class="form-control" readonly="readonly" id="ipShellArgs" placeholder="当前ip特定shell启动参数（可为空）" ></textarea>
+                            <%--<input class="form-control" type="" id="ipShellArgs" name="ipShellArgs" title="实例shell启动参数" placeholder="当前ip特定shell启动参数（可为空）" maxlength="60">--%>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
 
     <!-- footer -->
@@ -360,11 +394,16 @@
             //初始化服务器
             var serverHtml = "";
             for (var j in group.servers) {
-                serverHtml = serverHtml + "<div class='row'>" +
-                    "<div class='col-xs-6'><label><input class='server' type='checkbox'  /><span style='font-weight: normal;font-size: 14px;'>" + group.servers[j].serverName + "(" + group.servers[j].ip + ")</span></label></div>";
+                serverHtml = serverHtml + "<div class='row' id='oldServer_" + group.servers[j].serverId +"' data-servername='" + group.servers[j].serverName  + "' data-serverip='" + group.servers[j].ip + "' data-ipShellArgs='" + group.servers[j].ipShellArgs  + "'>" +
+                    "<div class='col-xs-4'><label><input class='server' type='checkbox'  /><span style='font-weight: normal;font-size: 14px;'>" + group.servers[j].serverName + "(" + group.servers[j].ip + ")</span></label></div>";
                 if (moduleType != <%=ModuleType.STATIC.getValue()%>) {
-                    serverHtml = serverHtml + "<div class='col-xs-3'><a onclick='javascript:restartServer(" + group.servers[j].serverId + ',\"' + group.servers[j].ip + "\");return false;' href='#' ><i class='fa fa-fw fa-refresh'></i>Restart</a></div>" +
-                        "<div class='col-xs-3'><a onclick='javascript:stopServer(" + group.servers[j].serverId + ',\"' + group.servers[j].ip + "\");return false;' href='#' ><i class='fa fa-fw fa-power-off'></i>Stop</a></div>";
+                    var ipShellArgs = group.servers[j].ipShellArgs;
+                    if(ipShellArgs && ipShellArgs.length > 20){
+                       ipShellArgs = ipShellArgs.substring(0, 19) + "...";
+                    }
+                    serverHtml = serverHtml + "<div class='col-xs-4'>参数：<a onclick='javascript:viewServer(\"oldServer_" + group.servers[j].serverId + "\");return false;' href='#' >"+ ipShellArgs +"</a></div>";
+                    serverHtml = serverHtml + "<div class='col-xs-2'><a onclick='javascript:restartServer(" + group.servers[j].serverId + ',\"' + group.servers[j].ip + "\");return false;' href='#' ><i class='fa fa-fw fa-refresh'></i>Restart</a></div>";
+                    serverHtml = serverHtml + "<div class='col-xs-2'><a onclick='javascript:stopServer(" + group.servers[j].serverId + ',\"' + group.servers[j].ip + "\");return false;' href='#' ><i class='fa fa-fw fa-power-off'></i>Stop</a></div>";
                 }
                 serverHtml = serverHtml + "</div>";
             }
@@ -413,6 +452,13 @@
 
     }
 
+    function viewServer(serverId) {
+      $("#viewServerModel").modal('show');
+      $("#serverName").val($("#" + serverId).attr("data-serverName"));
+      $("#serverIP").val($("#" + serverId).attr("data-serverIP"));
+      $("#ipShellArgs").val($("#" + serverId).attr("data-ipShellArgs"));
+    }
+
     function stopServer(serverId, ip) {
         BootstrapDialog.confirm('确认要stop服务' + ip + '？', function (result) {
             if (result) {
@@ -436,6 +482,23 @@
         };
         new PNotify(opts);
     }
+
+    $(function() {
+      $('#helpIpShellArgs').popover({
+        content: 'ip自定义启动shell参数，解决服务器职责分配问题，场景:<br/>' +
+        '192.168.10.25（对外服务，也运行定时任务）<br/>' +
+        '192.168.10.24（对外服务）<br/>' +
+        '192.168.10.25的启动参数配置 -DstartJob=true 完成职责分配<br/>' +
+        '<br/>' +
+        '启动参数可以通过变量名（IP_SHELL_ARGS）引用，比如在 启动入口 这样传递：<br/>' +
+        '/data/project/pay-order-impl/start.sh &#36;{IP_SHELL_ARGS}<br/>',
+        trigger: 'click',
+        placement: 'bottom',
+        html: 'true',
+        template: '<div class="popover" role="tooltip"><div class="arrow">' +
+        '</div><div class="popover-content" style="background-color:#f5f5f5;width:400px"></div></div>'
+      })
+    })
 </script>
 </body>
 </html>

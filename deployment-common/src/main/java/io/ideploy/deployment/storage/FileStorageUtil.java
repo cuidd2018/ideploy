@@ -1,6 +1,6 @@
 package io.ideploy.deployment.storage;
 
-import io.ideploy.deployment.cfg.Configuration;
+import io.ideploy.deployment.cfg.AppConfigFileUtil;
 import io.ideploy.deployment.common.util.EncryptUtil;
 import org.apache.commons.lang3.StringUtils;
 
@@ -39,6 +39,6 @@ public class FileStorageUtil {
     }
 
     public static String getLocalFileStorageName(String filename) {
-        return Configuration.getCompileStorageDir() + "/" + filename;
+        return AppConfigFileUtil.getCompileStorageDir() + "/" + filename;
     }
 }

@@ -1,6 +1,6 @@
 package io.ideploy.deployment.compile.vo;
 
-import io.ideploy.deployment.cfg.Configuration;
+import io.ideploy.deployment.cfg.AppConfigFileUtil;
 import io.ideploy.deployment.common.ModuleUserShellArgs;
 import io.ideploy.deployment.common.ProgramLanguageType;
 import io.ideploy.deployment.common.enums.ModuleRepoType;
@@ -127,13 +127,14 @@ public class CompileShellTemplate {
 
     private void replaceLocalStorageArgs() {
         String saveFileName = FileStorageUtil.getSaveFileName(compileRequest.getProjectId(), compileRequest.getModuleId(), compileRequest.getTagName(), compileRequest.getEnv(), compileRequest.getVersion());
-        compileTplContent = compileTplContent.replaceAll(CompileTplArgs.LOCAL_STORAGE_DIR, Configuration.getCompileStorageDir())
+        compileTplContent = compileTplContent.replaceAll(CompileTplArgs.LOCAL_STORAGE_DIR, AppConfigFileUtil
+                .getCompileStorageDir())
                 .replaceAll(CompileTplArgs.SAVE_FILE_NAME, saveFileName);
     }
 
     private void replaceCheckoutArgs() {
         String tagName = compileRequest.getTagName();
-        String checkoutDir = Configuration.getCompileServerCheckoutDir() + compileRequest.getEnv() + "/" + compileRequest.getProjectName()
+        String checkoutDir = AppConfigFileUtil.getCompileServerCheckoutDir() + compileRequest.getEnv() + "/" + compileRequest.getProjectName()
                 + "/" + tagName;
 
         String checkoutShell = buildCheckoutShell(tagName, checkoutDir);
@@ -198,7 +199,7 @@ public class CompileShellTemplate {
     }
 
     private void replaceNeedCompileArgs() {
-        String projectDir = Configuration.getCompileServerCheckoutDir() + compileRequest.getEnv() + "/" + compileRequest.getProjectName() + "/";
+        String projectDir = AppConfigFileUtil.getCompileServerCheckoutDir() + compileRequest.getEnv() + "/" + compileRequest.getProjectName() + "/";
         compileTplContent = compileTplContent.replaceAll(CompileTplArgs.PROJECT_DIR, projectDir);
 
         // branch/tags_分支名_版本号.tar
@@ -235,7 +236,7 @@ public class CompileShellTemplate {
     }
 
     private String getMvnTargetProjectDir() {
-        return Configuration.getCompilePackagedir() + compileRequest.getEnv() + "/" + compileRequest.getProjectName() + "/";
+        return AppConfigFileUtil.getCompilePackagedir() + compileRequest.getEnv() + "/" + compileRequest.getProjectName() + "/";
     }
 
     private void replaceMvnArgs() {
@@ -243,14 +244,14 @@ public class CompileShellTemplate {
         compileTplContent = compileTplContent
                 .replaceAll(MODULE_NAME, shortModuleName)
                 .replaceAll(CompileTplArgs.COMPILED_FILE_DIR, getMvnTargetModuleDir())
-                .replaceAll(CompileTplArgs.PROJECT_LOG_DIR, Configuration.getCompileLogDir() + compileRequest.getEnv() + "/" + compileRequest.getProjectName() + "/")
+                .replaceAll(CompileTplArgs.PROJECT_LOG_DIR, AppConfigFileUtil.getCompileLogDir() + compileRequest.getEnv() + "/" + compileRequest.getProjectName() + "/")
                 .replaceAll(CompileTplArgs.PYTHON_COLLECT_LOG, buildCollectionLogShell());
 
         replaceMvnShell();
     }
 
     private void replaceMvnShell() {
-        String checkoutDir = Configuration.getCompileServerCheckoutDir() + compileRequest.getEnv() + "/" + compileRequest.getProjectName()
+        String checkoutDir = AppConfigFileUtil.getCompileServerCheckoutDir() + compileRequest.getEnv() + "/" + compileRequest.getProjectName()
                 + "/" + compileRequest.getTagName();
         // 1. 替换参数
         String compileShell = compileRequest.getCompileShell();
@@ -263,6 +264,7 @@ public class CompileShellTemplate {
         }
         compileShell = compileShell.replaceAll("\\$\\{" + ModuleUserShellArgs.ENV + "}", compileRequest.getEnv());
         // 2. 逐条处理
+        String copyShell = "";
         String[] userCompileShellList = compileShell.split("\n");
         for (String shell : userCompileShellList) {
             if (StringUtils.isBlank(shell)) {
@@ -274,21 +276,25 @@ public class CompileShellTemplate {
             } else {
                 // 判断是否是是复制, 改为 yes 2>/dev/null | cp 实现拷贝覆盖(2>/dev/null 是为了忽略yes的错误信息)
                 if (shell.startsWith("cp ") && !shell.contains("/dev/null")) {
-                    compileTplContent = compileTplContent.replaceAll(MVN_CP_SHELL, shell.replace("cp ", "yes 2>/dev/null | cp "));
+                    //compileTplContent = compileTplContent.replaceAll(MVN_CP_SHELL, shell.replace("cp ", "yes 2>/dev/null | cp "));
+                    copyShell +=shell.replace("cp ", "yes 2>/dev/null | cp ");
                 }
-                if (shell.startsWith("cp ") && shell.contains("/dev/null")) {
-                    compileTplContent = compileTplContent.replaceAll(MVN_CP_SHELL, shell);
+                else{
+                    copyShell +="\n"+shell;
                 }
             }
         }
+
+        compileTplContent = compileTplContent.replaceAll(MVN_CP_SHELL, copyShell);
+
         // 3. mvn 日志
-        String compileLogPath = Configuration.getCompileLogDir() + compileRequest.getEnv() + "/" + compileRequest.getProjectName()
+        String compileLogPath = AppConfigFileUtil.getCompileLogDir() + compileRequest.getEnv() + "/" + compileRequest.getProjectName()
                 + "/" + shortModuleName + ".log";
         compileTplContent = compileTplContent.replaceAll(CompileTplArgs.COMPILE_LOG, compileLogPath);
     }
 
     private String buildCollectionLogShell() {
-        String compileLogPath = Configuration.getCompileLogDir() + compileRequest.getEnv() + "/" + compileRequest.getProjectName()
+        String compileLogPath = AppConfigFileUtil.getCompileLogDir() + compileRequest.getEnv() + "/" + compileRequest.getProjectName()
                 + "/" + shortModuleName + ".log";
 
         StringBuilder builder = new StringBuilder(128);
@@ -302,12 +308,12 @@ public class CompileShellTemplate {
          * */
         builder.append(compileLogPath).append(" ").append(COLLECT_LOG_TIMEOUT).append(" compile ")
                 .append(compileRequest.getHistoryId()).append(" ")
-                .append(Configuration.getCollectLogUrl())
+                .append(AppConfigFileUtil.getCollectLogUrl())
                 .append(" & ");
         return builder.toString();
     }
 
     private String getScriptServerDir() {
-        return Configuration.getCompileServerScriptDir() + compileRequest.getEnv() + "/" + compileRequest.getProjectName() + "/" + shortModuleName + "/";
+        return AppConfigFileUtil.getCompileServerScriptDir() + compileRequest.getEnv() + "/" + compileRequest.getProjectName() + "/" + shortModuleName + "/";
     }
 }

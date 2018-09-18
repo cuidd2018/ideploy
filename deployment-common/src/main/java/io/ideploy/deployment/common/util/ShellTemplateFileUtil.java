@@ -64,17 +64,17 @@ public class ShellTemplateFileUtil {
 
     static {
         try {
-            javaCompileShellTpl = loadShellTpl("module_compile_shell_tpl_java.sh");
+            javaCompileShellTpl = loadShellTpl("java/module_compile_shell_tpl_java.sh");
 
-            staticCompileShellTpl = loadShellTpl("module_compile_shell_tpl_static.sh");
+            staticCompileShellTpl = loadShellTpl("html/module_compile_shell_tpl_static.sh");
 
-            staticInJavaCompileShellTpl = loadShellTpl("module_compile_shell_tpl_staticInJava.sh");
+            staticInJavaCompileShellTpl = loadShellTpl("static/module_compile_shell_tpl_staticInJava.sh");
 
-            javaDeployShellTpl = loadShellTpl("module_deploy_shell_tpl_java.sh");
+            javaDeployShellTpl = loadShellTpl("java/module_deploy_shell_tpl_java.sh");
 
-            staticDeployShellTpl = loadShellTpl("module_deploy_shell_tpl_static.sh");
+            staticDeployShellTpl = loadShellTpl("html/module_deploy_shell_tpl_static.sh");
 
-            staticInJavaDeployShellTpl = loadShellTpl("module_deploy_shell_tpl_staticJava.sh");
+            staticInJavaDeployShellTpl = loadShellTpl("static/module_deploy_shell_tpl_staticJava.sh");
 
             startupShellTpl = loadShellTpl("module_startup_shell_tpl.sh");
 

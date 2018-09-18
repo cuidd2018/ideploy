@@ -1,7 +1,7 @@
 package io.ideploy.deployment.transfer.conf;
 
 import com.google.common.collect.Lists;
-import io.ideploy.deployment.cfg.Configuration;
+import io.ideploy.deployment.cfg.AppConfigFileUtil;
 import io.ideploy.deployment.common.util.ModuleUtil;
 import io.ideploy.deployment.transfer.vo.ModuleConf;
 import io.ideploy.deployment.transfer.vo.ResinConf;
@@ -69,7 +69,7 @@ public class ResinConfTemplate {
         Assert.notNull(outputPath);
         String serverId = moduleConf.getShortModuleName();
         String hostName = resinConf.getDomain();
-        String documentDir = Configuration.getWebRunDir() + resinConf.getDomain() + "/" + moduleConf.getShortModuleName();
+        String documentDir = AppConfigFileUtil.getWebRunDir() + resinConf.getDomain() + "/" + moduleConf.getShortModuleName();
         String archiveDir = ModuleUtil.getModuleDir(moduleConf.getProjectNo(), moduleConf.getShortModuleName()) + moduleConf.getModuleFinalName();
         //潜规则：如果域名为空，host默认设置为""，文件名统一用resin.xml
         confFileName = (StringUtils.isBlank(hostName) ? "resin" : hostName) + ".xml";
@@ -163,7 +163,7 @@ public class ResinConfTemplate {
     }
 
     private String getLogXml() {
-        String logBase = Configuration.getResinLogDir() + moduleConf.getProjectNo() + "/"
+        String logBase = AppConfigFileUtil.getResinLogDir() + moduleConf.getProjectNo() + "/"
                 + moduleConf.getShortModuleName();
         String str = "<stdout-log path=\"" + logBase + "/stdout.log\" archive-format=\"stdout.log.%Y-%m-%d.gz\"\n" +
                 "                  rollover-period=\"1D\" rollover-count=\"3\"/>\n" +

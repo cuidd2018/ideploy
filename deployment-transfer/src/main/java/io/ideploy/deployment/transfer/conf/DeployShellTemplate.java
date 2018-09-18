@@ -1,13 +1,15 @@
 package io.ideploy.deployment.transfer.conf;
 
 import com.google.common.collect.Lists;
-import io.ideploy.deployment.cfg.Configuration;
+import io.ideploy.deployment.cfg.AppConfigFileUtil;
+import io.ideploy.deployment.cfg.ModuleConfig;
 import io.ideploy.deployment.common.ModuleUserShellArgs;
 import io.ideploy.deployment.common.ProgramLanguageType;
 import io.ideploy.deployment.common.enums.ModuleType;
 import io.ideploy.deployment.common.util.ModuleUtil;
 import io.ideploy.deployment.common.util.ShellTemplateFileUtil;
 import io.ideploy.deployment.constant.tpl.DeployTplArgs;
+import io.ideploy.deployment.constant.tpl.ModuleVarArgs;
 import io.ideploy.deployment.transfer.vo.TransferRequest;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -76,6 +78,11 @@ public class DeployShellTemplate {
      */
     private String moduleStopShell;
 
+    /***
+     * 变量自定义 + 系统预定义
+     */
+    private TransferConfig transferConfig;
+
     public DeployShellTemplate(String shortModuleName, TransferRequest request, boolean isStop, String deployType) {
         this.shortModuleName = shortModuleName;
         this.request = request;
@@ -96,6 +103,9 @@ public class DeployShellTemplate {
             }
         }
         Assert.hasText(deployTplContents, "发布脚本模板没有信息");
+
+        transferConfig = new TransferConfig();
+        transferConfig.load(request.getDeployArgs());
     }
 
     private String buildRestartShell(TransferRequest request) {
@@ -103,7 +113,7 @@ public class DeployShellTemplate {
             return request.getRestartShell();
         }
         // web项目检测resin的目录是否有权限
-        String defaultResin = Configuration.getWebContainerShell().split(" ")[0];
+        String defaultResin = AppConfigFileUtil.getWebContainerShell().split(" ")[0];
         StringBuilder builder = new StringBuilder();
         builder.append("if [ ! -x ").append(defaultResin).append(" ]; then\n");
         builder.append("  echo 'resin脚本 ").append(defaultResin).append("没有执行权限' >&2\n");
@@ -143,9 +153,11 @@ public class DeployShellTemplate {
 
         deployTplContents = deployTplContents.replaceAll(DeployTplArgs.DEPLOY_TYPE, deployType);
 
-        deployTplContents = deployTplContents.replaceAll(DeployTplArgs.GC_LOG_DIR, Configuration.getGcLogDir() + request.getProjectName() + "/" + shortModuleName + "/");
+        deployTplContents = deployTplContents.replaceAll(DeployTplArgs.GC_LOG_DIR, AppConfigFileUtil
+                .getGcLogDir() + request.getProjectName() + "/" + shortModuleName + "/");
 
-        deployTplContents = deployTplContents.replaceAll(DeployTplArgs.RESIN_ACCESS_LOG_DIR, Configuration.getAccessLogDir() + request.getProjectName() + "/" + request.getModuleName() + "/");
+        deployTplContents = deployTplContents.replaceAll(DeployTplArgs.RESIN_ACCESS_LOG_DIR, AppConfigFileUtil
+                .getAccessLogDir() + request.getProjectName() + "/" + request.getModuleName() + "/");
 
         deployTplContents = deployTplContents.replaceAll(DeployTplArgs.WEB_PROJECT_FLAG, String.valueOf(request.getModuleType()));
 
@@ -189,13 +201,14 @@ public class DeployShellTemplate {
 
         String deployLogPath = "/tmp/deploy_" + shortModuleName + ".log";
 
-        String moduleErrLogPath = Configuration.getServerFileDir() + request.getProjectName() + "/" + shortModuleName + "_err.log";
+        String moduleErrLogPath = AppConfigFileUtil.getServerFileDir() + request.getProjectName() + "/" + shortModuleName + "_err.log";
 
         deployTplContents = deployTplContents.replaceAll(DeployTplArgs.MODULE_NAME, shortModuleName);
 
         deployTplContents = deployTplContents.replaceAll(DeployTplArgs.ENV, request.getEnv());
 
-        deployTplContents = deployTplContents.replaceAll(DeployTplArgs.BASE_PROJECT_DIR, Configuration.getServerFileDir());
+        deployTplContents = deployTplContents.replaceAll(DeployTplArgs.BASE_PROJECT_DIR, AppConfigFileUtil
+                .getServerFileDir());
 
         if (request.getResinConf() != null) {
             // 域名为空的，统一采用resin.xml
@@ -219,8 +232,9 @@ public class DeployShellTemplate {
         // 根据stop restart 确定 restartShell
         rebuildDeployShell();
 
-        int hasPreShell = StringUtils.isNotBlank(request.getPreDeployShell()) ? 1 : 0;
-        int hasPostShell = StringUtils.isNotBlank(request.getPostDeployShell()) ? 1 : 0;
+        replacePrePostShell();
+
+        replacePrePostDeploy();
 
         if (moduleDeployShell.contains("{" + ModuleUserShellArgs.CONF + "}")) {
             moduleDeployShell = moduleDeployShell.replaceAll("\\$\\{" + ModuleUserShellArgs.CONF + "}", ModuleUtil.getModuleConfDir(request.getProjectName(), shortModuleName) + getResinXmlName());
@@ -230,28 +244,67 @@ public class DeployShellTemplate {
         }
 
         deployTplContents = deployTplContents
-                .replaceAll(DeployTplArgs.PRE_SHELL, StringUtils.defaultString(request.getPreDeployShell(), ""))
-                .replaceAll(DeployTplArgs.HAS_PRESHELL, String.valueOf(hasPreShell))
                 .replaceAll(DeployTplArgs.RESTART_SHELL, moduleDeployShell)
-                .replaceAll(DeployTplArgs.STOP_SHELL, moduleStopShell)
-                .replaceAll(DeployTplArgs.POST_SHELL, StringUtils.defaultString(request.getPostDeployShell(), ""))
+                .replaceAll(DeployTplArgs.STOP_SHELL, moduleStopShell);
+    }
+
+    private void replacePrePostShell(){
+        int hasPreShell = StringUtils.isNotBlank(request.getPreStartShell()) ? 1 : 0;
+        int hasPostShell = StringUtils.isNotBlank(request.getPostStartShell()) ? 1 : 0;
+        String preDeployShell = StringUtils.defaultString(request.getPreStartShell(), "");
+        String postDeployShell = StringUtils.defaultString(request.getPostStartShell(), "");
+        if(hasPreShell == 1){
+            preDeployShell = preDeployShell.replaceAll(ModuleVarArgs.deployDir, transferConfig.getDeployDir(request))
+                    .replaceAll(ModuleVarArgs.backupDir, transferConfig.getBackUpDir(request));
+        }
+        if(hasPostShell == 1){
+            postDeployShell = postDeployShell.replaceAll(ModuleVarArgs.deployDir, transferConfig.getDeployDir(request))
+                    .replaceAll(ModuleVarArgs.backupDir, transferConfig.getBackUpDir(request));
+        }
+
+        deployTplContents = deployTplContents
+                .replaceAll(DeployTplArgs.PRE_SHELL, preDeployShell)
+                .replaceAll(DeployTplArgs.HAS_PRESHELL, String.valueOf(hasPreShell))
+                .replaceAll(DeployTplArgs.POST_SHELL, postDeployShell)
                 .replaceAll(DeployTplArgs.HAS_POSTSHELL, String.valueOf(hasPostShell));
     }
+
+    private void replacePrePostDeploy(){
+        int hasPreDeploy = StringUtils.isNotBlank(request.getPreDeploy()) ? 1 : 0;
+        int hasPostDeploy = StringUtils.isNotBlank(request.getPostDeploy()) ? 1 : 0;
+        String preDeployShell = StringUtils.defaultString(request.getPreDeploy(), "");
+        String postDeployShell = StringUtils.defaultString(request.getPostDeploy(), "");
+        if(hasPreDeploy == 1){
+            preDeployShell = preDeployShell.replaceAll(ModuleVarArgs.deployDir, transferConfig.getDeployDir(request))
+                    .replaceAll(ModuleVarArgs.backupDir, transferConfig.getBackUpDir(request));
+        }
+        if(hasPostDeploy == 1){
+            postDeployShell = postDeployShell.replaceAll(ModuleVarArgs.deployDir, transferConfig.getDeployDir(request))
+                    .replaceAll(ModuleVarArgs.backupDir, transferConfig.getBackUpDir(request));
+        }
+
+        deployTplContents = deployTplContents
+                .replaceAll(DeployTplArgs.PRE_DEPLOY, preDeployShell)
+                .replaceAll(DeployTplArgs.HAS_PREDEPLOY, String.valueOf(hasPreDeploy))
+                .replaceAll(DeployTplArgs.POST_DEPLOY, postDeployShell)
+                .replaceAll(DeployTplArgs.HAS_POSTDEPLOY, String.valueOf(hasPostDeploy));
+    }
+
 
     private void replaceBackupArgs() {
         Calendar date = Calendar.getInstance();
         date.setTime(new Date());
-        String absoluteBackupPath = Configuration.getServerBackupFileDir() + request.getProjectName() + "/" + shortModuleName + "/";
+        //String absoluteBackupPath = AppConfigFileUtil.getServerBackupFileDir() + request.getProjectName() + "/" + shortModuleName + "/";
         //项目备份目录 针对静态项目
-        String projectBackupPath = Configuration.getServerBackupFileDir() + request.getProjectName() + "/";
+        String projectBackupPath = AppConfigFileUtil.getServerBackupFileDir() + request.getProjectName() + "/";
 
-        String needBackupModuleDir = Configuration.getServerFileDir() + request.getProjectName() + "/" + shortModuleName;
-        String needBackupProjectDir = Configuration.getServerFileDir() + request.getProjectName() ;
+        //String needBackupModuleDir = AppConfigFileUtil.getServerFileDir() + request.getProjectName() + "/" + shortModuleName;
+        String needBackupProjectDir = AppConfigFileUtil.getServerFileDir() + request.getProjectName() ;
 
         deployTplContents = deployTplContents
-                .replaceAll(DeployTplArgs.BACKUP_DIR, absoluteBackupPath)
+                .replaceAll(DeployTplArgs.BACKUP_DIR, transferConfig.getBackUpDir(request))
                 .replaceAll(DeployTplArgs.PRO_BACKUP_DIR, projectBackupPath)
-                .replaceAll(DeployTplArgs.MODULE_DIR, needBackupModuleDir)
+                .replaceAll(DeployTplArgs.MODULE_DIR, transferConfig.getDeployDir(request))
                 .replaceAll(DeployTplArgs.PROJECT_DIR, needBackupProjectDir);
     }
 
@@ -277,7 +330,7 @@ public class DeployShellTemplate {
     }
 
     private String getScriptServerDir() {
-        return Configuration.getServerShellDir() + request.getProjectName() + "/" + shortModuleName + "/";
+        return AppConfigFileUtil.getServerShellDir() + request.getProjectName() + "/" + shortModuleName + "/";
     }
 
     private String buildCollectLogShell(String deployLogPath) {
@@ -292,7 +345,7 @@ public class DeployShellTemplate {
          **/
         builder.append(deployLogPath).append(" ").append(COLLECT_LOG_TIMEOUT).append(" deploy ")
                 .append(request.getHistoryId()).append(" ")
-                .append(Configuration.getCollectLogUrl())
+                .append(AppConfigFileUtil.getCollectLogUrl())
                 .append(" & ");
         return builder.toString();
     }

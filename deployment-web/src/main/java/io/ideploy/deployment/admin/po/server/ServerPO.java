@@ -32,7 +32,7 @@ public class ServerPO implements Serializable {
 	private String ip;
 
 	/** 当前进程shell启动参数 **/
-	private String shellArgs;
+	private String ipShellArgs;
 
 	/** 创建时间 */
 	private Date createTime;
@@ -64,12 +64,12 @@ public class ServerPO implements Serializable {
 		return ip;
 	}
 
-    public String getShellArgs() {
-        return shellArgs;
+    public String getIpShellArgs() {
+        return ipShellArgs;
     }
 
-    public void setShellArgs(String shellArgs) {
-        this.shellArgs = shellArgs;
+    public void setIpShellArgs(String ipShellArgs) {
+        this.ipShellArgs = ipShellArgs;
     }
 
     public void setCreateTime(Date createTime) {

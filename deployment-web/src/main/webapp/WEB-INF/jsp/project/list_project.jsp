@@ -276,7 +276,7 @@
                     $('#programLanguage').val(project.programLanguage);
                    // $('#managerId').val(project.managerId);
                     $('#myModalLabel').html('修改项目');
-                    $('#projectNo').attr("readonly","readonly");
+                    //$('#projectNo').attr("readonly","readonly");
                 }
 
                 $("#joiners").select2();

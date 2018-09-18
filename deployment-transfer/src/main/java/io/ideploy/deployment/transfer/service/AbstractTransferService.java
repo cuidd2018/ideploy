@@ -1,15 +1,18 @@
 package io.ideploy.deployment.transfer.service;
 
 import com.google.common.collect.Lists;
-import io.ideploy.deployment.cfg.Configuration;
+import io.ideploy.deployment.cfg.AppConfigFileUtil;
 import io.ideploy.deployment.cmd.AnsibleCommand;
 import io.ideploy.deployment.cmd.AnsibleCommandResult;
 import io.ideploy.deployment.cmd.CommandResult;
+import io.ideploy.deployment.cmd.CommandUtil;
 import io.ideploy.deployment.common.enums.DeployResult;
+import io.ideploy.deployment.common.util.IpAddressUtils;
 import io.ideploy.deployment.common.util.ModuleUtil;
 import io.ideploy.deployment.storage.FileStorageUtil;
 import io.ideploy.deployment.storage.ProjectFileStorage;
 import io.ideploy.deployment.storage.ProjectFileStorageFactory;
+import io.ideploy.deployment.transfer.conf.TransferConfig;
 import io.ideploy.deployment.transfer.enums.DeployType;
 import io.ideploy.deployment.transfer.vo.TransferRequest;
 import io.ideploy.deployment.transfer.vo.TransferResult;
@@ -55,6 +58,8 @@ public abstract class AbstractTransferService {
 
     protected DeployType deployType;
 
+    protected TransferConfig transferConfig;
+
     static {
         projectFileStorage = ProjectFileStorageFactory.getInstance();
     }
@@ -71,6 +76,9 @@ public abstract class AbstractTransferService {
 
         Assert.hasText(request.getModuleName(), "模块名称不能为空");
         shortModuleName = ModuleUtil.getShortModuleName(transferRequest.getModuleName());
+
+        transferConfig = new TransferConfig();
+        transferConfig.load(transferRequest.getDeployArgs());
     }
 
     /**
@@ -105,7 +113,7 @@ public abstract class AbstractTransferService {
                 File file = buildDownloadFile();
                 logger.info("下载到本地文件: " + file.getAbsolutePath());
 
-                projectFileStorage.download(request.getSaveFileName(), file);
+                projectFileStorage.download(request.getSaveFileName(), request.getCompileFileHost(), file);
                 result.setDownloadFileName(file.getAbsolutePath());
 
             } catch (Exception e) {
@@ -117,7 +125,7 @@ public abstract class AbstractTransferService {
     }
 
     private File buildDownloadFile() {
-        String downloadDir = Configuration.getWebDownloadDir() + request.getEnv() + "/";
+        String downloadDir = AppConfigFileUtil.getWebDownloadDir() + request.getEnv() + "/";
         File dir = new File(downloadDir);
         if (!dir.exists()) {
             dir.mkdirs();
@@ -137,17 +145,18 @@ public abstract class AbstractTransferService {
             return;
         }
 
-        String shellUploadDir = Configuration.getServerShellDir() + request.getProjectName() + "/" + shortModuleName + "/";
-        String serverUploadDir = Configuration.getServerFileDir() + request.getProjectName() + "/" + shortModuleName + "/";
+        String shellUploadDir = AppConfigFileUtil.getServerShellDir() + request.getProjectName() + "/" + shortModuleName + "/";
+        String serverUploadDir = AppConfigFileUtil.getServerFileDir() + request.getProjectName() + "/" + shortModuleName + "/";
 
         List<String> needBuildDirs = Lists.newArrayList("mkdir -p " + shellUploadDir, "mkdir -p " + serverUploadDir);
 
-        String hostFile = generateHostFile();
-        String[] args = {"-i", hostFile, "all", "-m", "shell", "-a", StringUtils.join(needBuildDirs, " && ")};
-
-        execAnsibleCommand(args);
-
-        FileUtils.deleteQuietly(new File(hostFile));
+        //String hostFile = generateHostFile();
+        for(String ip: getSuccessIps()) {
+            String[] args = {"-i", ip+",", "all", "-m", "shell", "-a",
+                    StringUtils.join(needBuildDirs, " && ")};
+            execAnsibleCommand(CommandUtil.ansibleCmdArgs(args, 1));
+            //FileUtils.deleteQuietly(new File(hostFile));
+        }
     }
 
     protected void execAnsibleCommand(String[] args) {
@@ -188,7 +197,7 @@ public abstract class AbstractTransferService {
      * 在部署服务器的某个目录 根据ip创建对应服务器的私钥
      * 到遇到部署1个或多个服务器的时候,生成ansible的host文件,:
      */
-    public String generateHostFile() {
+    /*public String generateHostFile() {
         List<String> successIps = getSuccessIps();
 
         String hostFileName = "";
@@ -209,9 +218,9 @@ public abstract class AbstractTransferService {
             IOUtils.closeQuietly(writer);
         }
         return hostFileName;
-    }
+    }*/
 
-    private List<String> getSuccessIps() {
+    protected List<String> getSuccessIps() {
         if (result.getIp2FailLogMap() == null) {
             return request.getTargetServerIps();
         }
@@ -234,13 +243,17 @@ public abstract class AbstractTransferService {
             return;
         }
         logger.info("开始执行启动脚本");
-        String hostFilePath = generateHostFile();
-        String[] args = {"ansible", "-i", hostFilePath, "all", "-m", "shell", "-a", "nohup sh " + result.getSetupShellPath()};
-        logger.info("执行启动脚本的ansible" + StringUtils.join(args, " "));
+        for(String ip: getSuccessIps()) {
+            //String hostFilePath = generateHostFile();
 
-        execAnsibleCommand(args);
+            String[] args = {"ansible", "-i", ip+",", "all", "-m", "shell", "-a",
+                    "nohup sh " + result.getSetupShellPath()};
+            logger.info("执行启动脚本的ansible" + StringUtils.join(args, " "));
 
-        FileUtils.deleteQuietly(new File(hostFilePath));
+            execAnsibleCommand(CommandUtil.ansibleCmdArgs(args, 2));
+
+           // FileUtils.deleteQuietly(new File(hostFilePath));
+        }
     }
 
     protected boolean checkIsAllFail() {
@@ -254,17 +267,20 @@ public abstract class AbstractTransferService {
      */
     protected void unTarShell2Server(String taredFilePath, boolean localTarResult) {
         if (localTarResult) {
-            String hostFile = generateHostFile();
-            String[] args = {"-i", hostFile, "all", "-m", "unarchive", "-a", "src=" + taredFilePath + " dest=" + getScriptServerDir() + " mode=755"};
-            execAnsibleCommand(args);
-            FileUtils.deleteQuietly(new File(hostFile));
+            //String hostFile = generateHostFile();
+            for(String ip: getSuccessIps()) {
+                String[] args = {"-i", ip+",", "all", "-m", "unarchive", "-a",
+                        "src=" + taredFilePath + " dest=" + getScriptServerDir() + " mode=755"};
+                execAnsibleCommand(CommandUtil.ansibleCmdArgs(args, 1));
+                //FileUtils.deleteQuietly(new File(hostFile));
+            }
         } else {
             result.setSuccessType(DeployResult.FAILURE);
         }
     }
 
     protected   String getScriptServerDir() {
-        return Configuration.getServerShellDir() + request.getProjectName() + "/" + shortModuleName + "/";
+        return AppConfigFileUtil.getServerShellDir() + request.getProjectName() + "/" + shortModuleName + "/";
     }
 
     public boolean isNewDeploy() {

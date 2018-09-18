@@ -64,7 +64,7 @@ backupModule() {
     for (( j=1; j<$dirNum;j++))
     do
          currentDirNum=`ls -l |grep "^d" | wc -l`
-         if [ $currentDirNum -gt 20 ]; then
+         if [ $currentDirNum -gt 10 ]; then
                 rm -rf `ls | awk 'NR==1{print $1}'`
           else
                break
@@ -83,13 +83,39 @@ decompressModule() {
     cd ${MODULE_DIR}
     ls |grep -v ${PID_FILE} | xargs rm -rf
     cd ..
-    tar -zxvf ${MODULE_TAR_FILE} >/dev/null 2>&1
+    tar -zxvf ${MODULE_TAR_FILE} -C ${MODULE_DIR} --strip-components 1 >/dev/null 2>&1
     decompressResult=$?
     if [ $decompressResult -ne 0 ]; then
         logDeploy "解压失败"
         exit 1
     fi
     logDeploy "解压完成"
+}
+
+execPreDeploy() {
+    # 判断是否有 preDeploy, 1 代表有, 0 没有
+    hasPreDeploy=${HAS_PREDEPLOY}
+    if [ $hasPreDeploy -eq 1 ]; then
+       ${PRE_DEPLOY}
+       if [ $? -ne 0 ]; then
+            logDeploy "执行部署前脚本失败"
+           else
+            logDeploy "执行部署前脚本完成"
+       fi
+     fi
+}
+
+execPostDeploy() {
+    # 判断是否有 postDeploy, 1 代表有, 0 没有
+    hasPostDeploy=${HAS_POSTDEPLOY}
+    if [ $hasPostDeploy -eq 1 ]; then
+       ${POST_DEPLOY}
+       if [ $? -ne 0 ]; then
+            logDeploy "执行部署完成脚本失败"
+           else
+            logDeploy "执行部署完成脚本完成"
+       fi
+     fi
 }
 
 execPreShell() {
@@ -208,6 +234,7 @@ startupModule() {
 }
 
 deployModule() {
+
       prepareModuleFile 1> /dev/null 2>${MODULE_ERR_LOG}
       logErrorInfo
 
@@ -263,8 +290,8 @@ rollBackModuleFile() {
     # 恢复 jar/war , dubbo服务的需要保留pid，
     if [ $webProjectFlag -eq 1 ];then
             rm -rf ${MODULE_DIR}/*
-        else
-            ls | grep -v '${PID_FILE}' | xargs rm -rf
+        #else
+           # ls | grep -v '${PID_FILE}' | xargs rm -rf
     fi
 
     \cp -rf ${BACKUP_DIR}/$rollBackVersion/code/* ${MODULE_DIR}
@@ -282,7 +309,7 @@ checkProcessOn() {
     sleep 2
     # dubbo服务监测进程是否存在
     if [ $webProjectFlag -eq 2 ];then
-        dubboPid=`ps -ef | grep java | grep ${BASE_PROJECT_DIR}${PROJECT_NAME} | grep '/${MODULE_NAME}/*' | awk '{print $2}'`
+        dubboPid=`ps -ef | grep java | grep ${PROJECT_NAME} | grep '/${MODULE_NAME}/*' | awk '{print $2}'`
         if [ ! -n "$dubboPid" ]; then
             logDeploy "服务进程启动失败"
             exit 1
@@ -306,7 +333,13 @@ checkProcessOn() {
 case "$deployType" in
 deploy)
       logDeploy "开始发布"
+      execPreDeploy 1> /dev/null 2>${MODULE_ERR_LOG}
+      logErrorInfo
+
       deployModule
+
+      execPostDeploy 1> /dev/null 2>${MODULE_ERR_LOG}
+      logErrorInfo
 ;;
 restart)
       #检测是否同一个项目同时在启动
@@ -326,6 +359,9 @@ stop)
 rollBack)
       logDeploy "开始回滚"
 
+      execPreDeploy 1> /dev/null 2>${MODULE_ERR_LOG}
+      logErrorInfo
+
       logDeploy "开始回滚代码和配置"
       rollBackModuleFile
 
@@ -333,6 +369,9 @@ rollBack)
       execRestartShell
 
       checkProcessOn 1> /dev/null 2>${MODULE_ERR_LOG}
+      logErrorInfo
+
+      execPostDeploy 1> /dev/null 2>${MODULE_ERR_LOG}
       logErrorInfo
 
       logDeploy "回滚完成"

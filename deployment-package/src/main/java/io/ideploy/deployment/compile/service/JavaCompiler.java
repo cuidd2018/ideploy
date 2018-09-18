@@ -1,6 +1,6 @@
 package io.ideploy.deployment.compile.service;
 
-import io.ideploy.deployment.cfg.Configuration;
+import io.ideploy.deployment.cfg.AppConfigFileUtil;
 import io.ideploy.deployment.cmd.AnsibleCommandResult;
 import io.ideploy.deployment.cmd.CommandUtil;
 import io.ideploy.deployment.common.enums.DeployResult;
@@ -30,7 +30,7 @@ public class JavaCompiler extends AbstractCompiler {
     }
 
     private String getMvnTargetProjectDir() {
-        return Configuration.getCompilePackagedir() + request.getEnv() + "/" + request.getProjectName() + "/";
+        return AppConfigFileUtil.getCompilePackagedir() + request.getEnv() + "/" + request.getProjectName() + "/";
     }
 
     private void executeCompileShell(String compileShellFilePath) {
@@ -40,8 +40,8 @@ public class JavaCompiler extends AbstractCompiler {
         logger.info("开始执行编译脚本");
         writeStep("开始编译项目 ... <a href=\"/admin/deploy/compileLog.xhtml?historyId=" + historyId + "\" target=\"_blank\">查看日志</a>");
         long startTime = System.currentTimeMillis();
-        String[] args = {"-i", Configuration.getAnsibleHostFile(), "all", "-m", "shell", "-a", " sh " + compileShellFilePath};
-        AnsibleCommandResult ansibleResult = CommandUtil.execAnsible(args);
+        String[] args = {"-i", compileConfig.getCompileServer(), "all", "-m", "shell", "-a", "sh " + compileShellFilePath};
+        AnsibleCommandResult ansibleResult = CommandUtil.execAnsible(CommandUtil.ansibleCmdArgs(args, 1));
         logger.info("编译返回的结果是 :" + ansibleResult.getMessage());
         boolean executeCompileSuccess = (ansibleResult.getSuccessType() == DeployResult.SUCCESS);
         result.setCompileSuccess(executeCompileSuccess);

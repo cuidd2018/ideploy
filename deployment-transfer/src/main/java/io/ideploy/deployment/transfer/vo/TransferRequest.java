@@ -3,6 +3,7 @@ package io.ideploy.deployment.transfer.vo;
 import io.ideploy.deployment.common.enums.ModuleType;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 详情 : 传输请求
@@ -16,10 +17,20 @@ public class TransferRequest {
      */
     private String saveFileName;
 
+    /***
+     * 保存编译结果文件ip地址，去编译服务器下载
+     */
+    private String compileFileHost;
+
     /**
      * 目标部署服务器ip
      */
     private List<String> targetServerIps;
+
+    /***
+     * 各个ip自定义的参数，解决不同服务器作用，如 ip1只运行定时任务，不对外服务，ip2对外服务，通过shell参数控制
+     */
+    private Map<String,String> ipShellArgsMap;
 
     /**
      * 发布历史的id
@@ -54,7 +65,17 @@ public class TransferRequest {
     /**
      * 部署前执行的脚本
      */
-    private String preDeployShell;
+    private String preDeploy;
+
+    /**
+     * 部署后执行的脚本
+     */
+    private String postDeploy;
+
+    /**
+     * 启动前执行的脚本
+     */
+    private String preStartShell;
 
     /**
      * 部署启动执行的脚本 (当为独立进程的项目时 为启动的Main类路径)
@@ -67,9 +88,14 @@ public class TransferRequest {
     private String stopShell;
 
     /**
-     * 部署后执行的脚本
+     * 启动后执行的脚本
      */
-    private String postDeployShell;
+    private String postStartShell;
+
+    /**
+     * module自定义参数
+     */
+    private String deployArgs;
 
     /**
      * JAVA_OPT 参数,用于设置jvm参数 (java 独立进程的项目特有)
@@ -125,12 +151,20 @@ public class TransferRequest {
         this.jvmArgs = jvmArgs;
     }
 
-    public String getPreDeployShell() {
-        return preDeployShell;
+    public String getPreStartShell() {
+        return preStartShell;
     }
 
-    public void setPreDeployShell(String preDeployShell) {
-        this.preDeployShell = preDeployShell;
+    public void setPreStartShell(String preStartShell) {
+        this.preStartShell = preStartShell;
+    }
+
+    public String getPostStartShell() {
+        return postStartShell;
+    }
+
+    public void setPostStartShell(String postStartShell) {
+        this.postStartShell = postStartShell;
     }
 
     public String getRestartShell() {
@@ -141,13 +175,6 @@ public class TransferRequest {
         this.restartShell = restartShell;
     }
 
-    public String getPostDeployShell() {
-        return postDeployShell;
-    }
-
-    public void setPostDeployShell(String postDeployShell) {
-        this.postDeployShell = postDeployShell;
-    }
 
     public String getProjectName() {
         return projectName;
@@ -205,6 +232,14 @@ public class TransferRequest {
         this.targetServerIps = targetServerIps;
     }
 
+    public Map<String, String> getIpShellArgsMap() {
+        return ipShellArgsMap;
+    }
+
+    public void setIpShellArgsMap(Map<String, String> ipShellArgsMap) {
+        this.ipShellArgsMap = ipShellArgsMap;
+    }
+
     public String getModuleFinalName() {
         return moduleFinalName;
     }
@@ -243,5 +278,37 @@ public class TransferRequest {
 
     public void setStructureType(int structureType) {
         this.structureType = structureType;
+    }
+
+    public String getDeployArgs() {
+        return deployArgs;
+    }
+
+    public void setDeployArgs(String deployArgs) {
+        this.deployArgs = deployArgs;
+    }
+
+    public String getCompileFileHost() {
+        return compileFileHost;
+    }
+
+    public void setCompileFileHost(String compileFileHost) {
+        this.compileFileHost = compileFileHost;
+    }
+
+    public String getPreDeploy() {
+        return preDeploy;
+    }
+
+    public void setPreDeploy(String preDeploy) {
+        this.preDeploy = preDeploy;
+    }
+
+    public String getPostDeploy() {
+        return postDeploy;
+    }
+
+    public void setPostDeploy(String postDeploy) {
+        this.postDeploy = postDeploy;
     }
 }

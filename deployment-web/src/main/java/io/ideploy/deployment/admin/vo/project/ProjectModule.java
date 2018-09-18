@@ -33,6 +33,15 @@ public class ProjectModule implements Serializable {
 	/** SVN上的目录，比如 service-impl/target/*.jar */
 	private String srcPath;
 
+    /** 部署自定变量 **/
+	private String deployArgs;
+
+	/** 开始部署执行操作 **/
+	private String preDeploy;
+
+    /** 部署完成执行操作 **/
+	private String postDeploy;
+
 	/** 发布前执行的shell */
 	private String preShell = "";
 
@@ -138,7 +147,15 @@ public class ProjectModule implements Serializable {
 		return srcPath;
 	}
 
-	public void setPreShell(String preShell) {
+    public String getDeployArgs() {
+        return deployArgs;
+    }
+
+    public void setDeployArgs(String deployArgs) {
+        this.deployArgs = deployArgs;
+    }
+
+    public void setPreShell(String preShell) {
 		this.preShell = preShell;
 	}
 
@@ -258,7 +275,23 @@ public class ProjectModule implements Serializable {
 		this.resinConf = resinConf;
 	}
 
-	public String toString() {
+    public String getPreDeploy() {
+        return preDeploy;
+    }
+
+    public void setPreDeploy(String preDeploy) {
+        this.preDeploy = preDeploy;
+    }
+
+    public String getPostDeploy() {
+        return postDeploy;
+    }
+
+    public void setPostDeploy(String postDeploy) {
+        this.postDeploy = postDeploy;
+    }
+
+    public String toString() {
 		return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
 	}
 

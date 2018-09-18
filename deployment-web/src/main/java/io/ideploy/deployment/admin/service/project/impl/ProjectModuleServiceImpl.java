@@ -183,7 +183,7 @@ public class ProjectModuleServiceImpl implements ProjectModuleService {
                 Assert.isTrue(StringUtils.isNoneBlank(server.getServerName()), "服务器名不能为空");
                 Assert.isTrue(StringUtils.isNoneBlank(server.getIp()), "服务器ip不能为空");
                 Assert.isTrue(IpAddressUtils.isIP(server.getIp()), "服务器IP不合法");
-                Assert.isTrue(StringUtils.length(server.getShellArgs())<1024, "shell启动参数过长");
+                Assert.isTrue(StringUtils.length(server.getIpShellArgs())<1024, "shell启动参数过长");
             }
         }
     }

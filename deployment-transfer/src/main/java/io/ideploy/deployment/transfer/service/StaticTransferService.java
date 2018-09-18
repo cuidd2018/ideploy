@@ -1,7 +1,7 @@
 package io.ideploy.deployment.transfer.service;
 
-import com.google.common.collect.Lists;
-import io.ideploy.deployment.cfg.Configuration;
+import io.ideploy.deployment.cfg.AppConfigFileUtil;
+import io.ideploy.deployment.cmd.CommandUtil;
 import io.ideploy.deployment.common.enums.DeployResult;
 import io.ideploy.deployment.common.util.FileCompressUtil;
 import io.ideploy.deployment.common.util.FileResource;
@@ -105,18 +105,21 @@ public class StaticTransferService extends AbstractTransferService {
         if (checkIsAllFail() || !isNewDeploy()) {
             return;
         }
-        logger.info("开始传输OSS文件到目标服务器");
-        String serverUploadDir = Configuration.getServerFileDir() + request.getProjectName() + "/";
+        logger.info("开始传输编译打包文件到目标服务器");
+        String serverUploadDir = AppConfigFileUtil.getServerFileDir() + request.getProjectName() + "/";
 
-        String hostFilePath = generateHostFile();
+        for(String ip: getSuccessIps()) {
+            //String hostFilePath = generateHostFile();
 
-        String[] args = new String[]{"ansible", "-i", hostFilePath, "all", "-m", "copy", "-a", "src=" + result.getDownloadFileName() + " dest=" + serverUploadDir};
-        logger.info("传输OSS文件的ansible:" + StringUtils.join(args, " "));
+            String[] args = new String[]{"ansible", "-i", ip+",", "all", "-m", "copy", "-a",
+                    "src=" + result.getDownloadFileName() + " dest=" + serverUploadDir};
+            logger.info("传输编译打包文件的ansible:" + StringUtils.join(args, " "));
 
-        execAnsibleCommand(args);
+            execAnsibleCommand(CommandUtil.ansibleCmdArgs(args,2));
 
-        FileUtils.deleteQuietly(new File(hostFilePath));
-        FileUtils.deleteQuietly(new File(result.getDownloadFileName()));
+            //FileUtils.deleteQuietly(new File(hostFilePath));
+            FileUtils.deleteQuietly(new File(result.getDownloadFileName()));
+        }
     }
 
 }

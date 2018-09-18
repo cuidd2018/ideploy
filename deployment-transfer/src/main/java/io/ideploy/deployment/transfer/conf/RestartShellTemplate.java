@@ -1,8 +1,10 @@
 package io.ideploy.deployment.transfer.conf;
 
-import io.ideploy.deployment.cfg.Configuration;
+import io.ideploy.deployment.cfg.AppConfigFileUtil;
 import io.ideploy.deployment.common.util.ModuleUtil;
 import io.ideploy.deployment.common.util.ShellTemplateFileUtil;
+import io.ideploy.deployment.constant.tpl.DeployTplArgs;
+import io.ideploy.deployment.constant.tpl.ModuleVarArgs;
 import io.ideploy.deployment.constant.tpl.StartupTplArgs;
 import io.ideploy.deployment.transfer.vo.TransferRequest;
 import org.apache.commons.io.FileUtils;
@@ -34,11 +36,15 @@ public class RestartShellTemplate {
 
     private boolean isStop;
 
+    private TransferConfig transferConfig;
+
     public RestartShellTemplate(String shortModuleName, TransferRequest request, boolean isStop) {
 
         this.shortModuleName = shortModuleName;
         this.request = request;
         this.isStop = isStop;
+        transferConfig = new TransferConfig();
+        transferConfig.load(request.getDeployArgs());
 
         startupTplContents = ShellTemplateFileUtil.getStartupShellTpl();
         Assert.hasText(startupTplContents, "启动脚本模板没有信息");
@@ -57,25 +63,26 @@ public class RestartShellTemplate {
             writer = new FileWriter(restartShellFilePath);
             // 1. 初始化基础参数
             String restartShell = StringUtils.trimToEmpty(request.getRestartShell());
-            if (ModuleUtil.isMainClass(restartShell)) {
+            if (ModuleUtil.isMainClass(restartShell) || ModuleUtil.isJarBoot(restartShell)) {
                 startupTplContents=startupTplContents.replaceAll(StartupTplArgs.MAIN_CLASS, request.getRestartShell())
                         .replaceAll(StartupTplArgs.JVM_ARGS, request.getJvmArgs());
-                writer.write(startupTplContents);
-            }
-            else if(ModuleUtil.isJarBoot(restartShell)){
-                startupTplContents=startupTplContents.replaceAll(StartupTplArgs.MAIN_CLASS, request.getRestartShell())
-                        .replaceAll(StartupTplArgs.JVM_ARGS, request.getJvmArgs())
-                        .replaceAll(StartupTplArgs.JAR_ARGS, "-jar");
+                if(ModuleUtil.isJarBoot(restartShell)){
+                    startupTplContents=startupTplContents.replaceAll(StartupTplArgs.MAIN_TYPE, "1");
+                }
+                else {
+                    startupTplContents=startupTplContents.replaceAll(StartupTplArgs.MAIN_TYPE, "0");
+                }
                 writer.write(startupTplContents);
             }
             else {
                 writer.write("#!/bin/bash\n");
                 writer.write("source /etc/profile\n");
+                String shell = restartShell;
                 if (isStop) {
-                    writer.write(StringUtils.trimToEmpty(request.getStopShell()));
-                } else {
-                    writer.write(restartShell);
+                    shell = request.getStopShell();
                 }
+                shell = shell.replaceAll(ModuleVarArgs.deployDir, transferConfig.getDeployDir(request));
+                writer.write(StringUtils.trimToEmpty(shell));
             }
         } catch (IOException e) {
             logger.error("生成模块 {} 的重启脚本失败, {}", shortModuleName, e);
@@ -89,8 +96,8 @@ public class RestartShellTemplate {
     }
 
     private void replaceStartupTplArgs() {
-        String projectDir = Configuration.getServerFileDir() + request.getProjectName() + "/";
-        String modulePidFile = Configuration.getServerFileDir() + request.getProjectName() + "/"
+        String projectDir = AppConfigFileUtil.getServerFileDir() + request.getProjectName() + "/";
+        String modulePidFile = AppConfigFileUtil.getServerFileDir() + request.getProjectName() + "/"
                 + shortModuleName + "/" + shortModuleName + ".pid";
         startupTplContents = startupTplContents
                 .replaceAll(StartupTplArgs.PROJECT_DIR, projectDir)

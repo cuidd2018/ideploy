@@ -5,15 +5,15 @@
 
     <!-- 新增 -->
 	<insert id="insert" parameterType="io.ideploy.deployment.admin.po.server.ServerPO" useGeneratedKeys="false" >
-		insert into t_server (server_id,server_name,ip,shell_args,create_time,group_id)
-		values (#{serverId},#{serverName},#{ip},${shellArgs},now(),#{groupId})
+		insert into t_server (server_id,server_name,ip,ip_shell_args,create_time,group_id)
+		values (#{serverId},#{serverName},#{ip},#{ipShellArgs},now(),#{groupId})
 	</insert>
 
 
 	<!-- 更新 -->
 	<update id="update" parameterType="io.ideploy.deployment.admin.po.server.ServerPO">
 		update t_server
-		set server_name=#{server.serverName},ip=#{server.ip},shell_args=${shellArgs},group_id=#{server.groupId}
+		set server_name=#{server.serverName},ip=#{server.ip},ip_shell_args=#{server.ipShellArgs},group_id=#{server.groupId}
 		where server_id=#{server.serverId}
 	</update>
 
@@ -35,10 +35,10 @@
 
 	<!-- 批量插入 -->
 	<insert id ="batchInsert" parameterType="java.util.List" >
-		insert into t_server (server_id,server_name,ip,shell_args,create_time,group_id)
+		insert into t_server (server_id,server_name,ip,ip_shell_args,create_time,group_id)
 		values 
 		<foreach collection ="servers" item="item" index= "index" separator =",">
-		(#{item.serverId},#{item.serverName},#{item.ip},#{item.shellArgs},now(),#{item.groupId})
+		(#{item.serverId},#{item.serverName},#{item.ip},#{item.ipShellArgs},now(),#{item.groupId})
 		 </foreach>
 	</insert>
 
