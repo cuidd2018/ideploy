@@ -1,5 +1,6 @@
 package io.ideploy.deployment.admin.controller.project;
 
+import io.ideploy.deployment.compile.config.CompileConfig;
 import org.apache.commons.collections.CollectionUtils;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
@@ -237,6 +238,7 @@ public class ViewProjectController {
             } else {
                 deployHistory = deployHistoryService.createStopHistory(accountId, serverId);
             }
+            CompileConfig compileConfig = new CompileConfig();
             TransferRequest request = new TransferRequest();
             request.setHistoryId(deployHistory.getHistoryId());
             request.setSaveFileName(null);
@@ -245,10 +247,14 @@ public class ViewProjectController {
             request.setProjectName(project.getProjectNo());
             request.setRestartShell(module.getRestartShell());
             request.setJvmArgs(getModuleJvmArgs(module.getModuleId(), serverGroup.getEnvId()));
-            request.setPreDeployShell(module.getPreShell());
-            request.setPostDeployShell(module.getPostShell());
+            request.setPreStartShell(module.getPreShell());
+            request.setPreDeploy(module.getPreDeploy());
+            request.setPreDeploy(module.getPostDeploy());
+            request.setPostStartShell(module.getPostShell());
             request.setStopShell(module.getStopShell());
             request.setModuleType(module.getModuleType());
+            request.setDeployArgs(module.getDeployArgs());
+            request.setCompileFileHost(compileConfig.getCompileServer());
             List<String> serverIps = new ArrayList<>();
             serverIps.add(server.getIp());
             request.setTargetServerIps(serverIps);

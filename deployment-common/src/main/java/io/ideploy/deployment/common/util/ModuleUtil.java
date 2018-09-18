@@ -1,7 +1,7 @@
 package io.ideploy.deployment.common.util;
 
 import com.google.common.collect.Lists;
-import io.ideploy.deployment.cfg.Configuration;
+import io.ideploy.deployment.cfg.AppConfigFileUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +26,7 @@ public class ModuleUtil {
      */
     private static final String MAIN_CLASS_PATTERN = "([A-Za-z0-9_$]{1,40}\\.?)+";
 
-    private static final String JAR_BOOT_PATTERN = "([A-Za-z0-9_$]{1,40}\\.?)+.*jar$";
+    private static final String JAR_BOOT_PATTERN = "[^\\s]+jar$";
 
     /**
      * 获得缩短后的模块名.
@@ -52,7 +52,7 @@ public class ModuleUtil {
     }
 
     public static String getProjectDir(String projectNo) {
-        return Configuration.getServerFileDir() + projectNo + "/";
+        return AppConfigFileUtil.getServerFileDir() + projectNo + "/";
     }
 
     /**
@@ -63,7 +63,7 @@ public class ModuleUtil {
      * @return
      */
     public static String getModuleDir(String projectNo, String shortModuleName) {
-        return Configuration.getServerFileDir() + projectNo + "/" + shortModuleName + "/";
+        return AppConfigFileUtil.getServerFileDir() + projectNo + "/" + shortModuleName + "/";
     }
 
     /**
@@ -74,7 +74,7 @@ public class ModuleUtil {
      * @return
      */
     public static String getModuleConfDir(String projectNo, String shortModuleName) {
-        return Configuration.getServerConfDir() + projectNo + "/" + shortModuleName + "/";
+        return AppConfigFileUtil.getServerConfDir() + projectNo + "/" + shortModuleName + "/";
     }
 
     /**
@@ -85,7 +85,7 @@ public class ModuleUtil {
      * @return
      */
     public static String getGcLogFile(String projectNo, String shortModuleName) {
-        return Configuration.getGcLogDir() + projectNo + "/" + shortModuleName + "/gc.log";
+        return AppConfigFileUtil.getGcLogDir() + projectNo + "/" + shortModuleName + "/gc.log";
     }
 
     /**
@@ -96,7 +96,7 @@ public class ModuleUtil {
      * @return
      */
     public static String getAccessLogFile(String projectNo, String shortModuleName) {
-        return Configuration.getAccessLogDir() + projectNo + "/" + shortModuleName + "/access.log";
+        return AppConfigFileUtil.getAccessLogDir() + projectNo + "/" + shortModuleName + "/access.log";
     }
 
     /**
@@ -107,8 +107,8 @@ public class ModuleUtil {
      * @return
      */
     public static String getDomainForEnv(String domain, String env) {
-        String domainRegx = Configuration.getDomainRegx();
-        String domainStyle = Configuration.getDomainStyle(env);
+        String domainRegx = AppConfigFileUtil.getDomainRegx();
+        String domainStyle = AppConfigFileUtil.getDomainStyle(env);
         if (StringUtils.isBlank(domainRegx) || StringUtils.isBlank(domainStyle)) {
             logger.warn("域名配置有误, env: {}, domainRegx: {}, domainStyle: {}", env, domainRegx, domainStyle);
             return domain;

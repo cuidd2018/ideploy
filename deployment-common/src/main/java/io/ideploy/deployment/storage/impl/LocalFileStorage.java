@@ -1,16 +1,10 @@
 package io.ideploy.deployment.storage.impl;
 
-import io.ideploy.deployment.cfg.Configuration;
-import io.ideploy.deployment.cmd.AnsibleCommand;
+import io.ideploy.deployment.cfg.ModuleConfig;
 import io.ideploy.deployment.cmd.AnsibleCommandResult;
-import io.ideploy.deployment.cmd.CommandResult;
 import io.ideploy.deployment.cmd.CommandUtil;
-import io.ideploy.deployment.cmd.LocalCommand;
-import io.ideploy.deployment.common.util.IpAddressUtils;
 import io.ideploy.deployment.storage.FileStorageUtil;
 import io.ideploy.deployment.storage.ProjectFileStorage;
-import java.util.Arrays;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,40 +20,46 @@ public class LocalFileStorage implements ProjectFileStorage {
 
     private static final Logger logger = LoggerFactory.getLogger(LocalFileStorage.class);
 
+    private ModuleConfig moduleConfig;
+
+    public LocalFileStorage(){
+        moduleConfig = new ModuleConfig();
+    }
+
     @Override
     public boolean exists(String filename) {
         return false;
     }
 
     @Override
-    public void download(String filename, File file) {
+    public void download(String filename,String compileHost, File file) {
         // 1. 判断本地有没有文件
-        if (!isFileExist(filename)) {
+        if (!isFileExist(file.getAbsolutePath())) {
             // 2. 如果没有，下载编译服务器 /data/storage/filename 到本地
-            doDownload(filename, file);
+            doDownload(filename, compileHost, file);
         }
     }
 
     @Override
-    public boolean save(String source, String shell, String filename) {
+    public boolean save(String source, String compileHost, String shell, String filename) {
         // 0. 编译脚本执行 cp 到 /data/storage/文件名
         // 1. scp 到本地
         // 2. 返回
-        return doDownload(filename, new File(FileStorageUtil.getLocalFileStorageName(filename)));
+        return doDownload(filename, compileHost, new File(FileStorageUtil.getLocalFileStorageName(filename)));
     }
 
     private boolean isFileExist(String filename) {
         File file = new File(FileStorageUtil.getLocalFileStorageName(filename));
-        logger.info("检测文件是否存在：{}", file.getAbsolutePath());
+        logger.info("检测文件是否存在：{},exist:{}", file.getAbsolutePath(),file.exists());
         return file.exists();
     }
 
-    private boolean doDownload(String filename, File file) {
+    private boolean doDownload(String filename,String compileHost, File file) {
         String destFile = FileStorageUtil.getLocalFileStorageName(filename);
 
         logger.info("ansible下载编译文件到本地");
-        String[] args = {"-i", Configuration.getAnsibleHostFile(), "all", "-m", "fetch", "-a",  "src=" + destFile + " dest=" + file.getAbsolutePath() + " flat=yes"};
-        AnsibleCommandResult result= CommandUtil.execAnsible(args);
+        String[] args = {"-i", compileHost, "all", "-m", "fetch", "-a",  "src=" + destFile + " dest=" + file.getAbsolutePath() + " flat=yes"};
+        AnsibleCommandResult result= CommandUtil.execAnsible(CommandUtil.ansibleCmdArgs(args,1));
         logger.info("ansible下载文件结果:{}", result.isSuccess());
         return result.isSuccess();
     }

@@ -51,66 +51,73 @@ public class SubscribeLogThread extends Thread {
 
     @Override
     public void run() {
-        jedisPubSub = new JedisPubSub() {
-            @Override
-            public void onMessage(String channel, String message) {
-              logger.info("接收到通道:{} 发布的信息, message: {}", channel, message);
-                try {
+        try {
+            jedisPubSub = new JedisPubSub() {
+                @Override
+                public void onMessage(String channel, String message) {
+                    logger.info("接收到通道:{} 发布的信息, message: {}", channel, message);
+                    try {
 
-                    //向用户推送监控的发布服务器信息
-                    List<ServerCollectLog> logList = JSONArray.parseArray(message, ServerCollectLog.class);
+                        //向用户推送监控的发布服务器信息
+                        List<ServerCollectLog> logList = JSONArray
+                                .parseArray(message, ServerCollectLog.class);
 
-                    //发布服务器对应的模块id  map
-                    Map<Integer, Integer> serverDeployId2ModuleIdMap = new HashMap<>();
+                        //发布服务器对应的模块id  map
+                        Map<Integer, Integer> serverDeployId2ModuleIdMap = new HashMap<>();
 
-                    for (ServerCollectLog log : logList) {
+                        for (ServerCollectLog log : logList) {
 
 //                        Set<WebSocketSession> sessions = serverDeployRelates.get(log.getId());
-                        Set<WebSocketSession> sessions = LogIdToSessionHolder.getInstance().get(log.getId());
+                            Set<WebSocketSession> sessions = LogIdToSessionHolder.getInstance()
+                                    .get(log.getId());
 
-                        if (CollectionUtils.isNotEmpty(sessions)) {
+                            if (CollectionUtils.isNotEmpty(sessions)) {
 
-                            //推送信息
-                            ShellLogResponseMessage responseMessage = new ShellLogResponseMessage();
+                                //推送信息
+                                ShellLogResponseMessage responseMessage = new ShellLogResponseMessage();
 
 //                            responseMessage.setStepLogs(readStepLogs(serverDeployId2ModuleIdMap, log));
 
-                            ShellLogResponseMessage.ServerShellLog shellLog = new ShellLogResponseMessage.ServerShellLog();
+                                ShellLogResponseMessage.ServerShellLog shellLog = new ShellLogResponseMessage.ServerShellLog();
 
-                            shellLog.setServerDeployId(log.getId());
-                            shellLog.setLog(log.getContent());
+                                shellLog.setServerDeployId(log.getId());
+                                shellLog.setLog(log.getContent());
 
-                            List<ShellLogResponseMessage.ServerShellLog> shellLogList = new ArrayList<>();
-                            shellLogList.add(shellLog);
-                            responseMessage.setServerLogs(shellLogList);
-                            responseMessage.setCode(ApiCode.SUCCESS);
-                            responseMessage.setType(WebSocketRequestType.DEPLOY_SHELL_LOG.getName());
+                                List<ShellLogResponseMessage.ServerShellLog> shellLogList = new ArrayList<>();
+                                shellLogList.add(shellLog);
+                                responseMessage.setServerLogs(shellLogList);
+                                responseMessage.setCode(ApiCode.SUCCESS);
+                                responseMessage
+                                        .setType(WebSocketRequestType.DEPLOY_SHELL_LOG.getName());
 
-                            String messageStr = JSONObject.toJSONString(responseMessage);
+                                String messageStr = JSONObject.toJSONString(responseMessage);
 
-                            //向监听用户发送消息
-                            for (WebSocketSession session : sessions) {
-                                if (session.isOpen()) {
-                                    try {
-                                        session.sendMessage(new TextMessage(messageStr));
-                                    } catch (Exception e) {
-                                        logger.error("发送推送日志消息失败 | msg:{}", e.getMessage(), e);
+                                //向监听用户发送消息
+                                for (WebSocketSession session : sessions) {
+                                    if (session.isOpen()) {
+                                        try {
+                                            session.sendMessage(new TextMessage(messageStr));
+                                        } catch (Exception e) {
+                                            logger.error("发送推送日志消息失败 | msg:{}", e.getMessage(), e);
+                                        }
                                     }
+
                                 }
 
                             }
+                        } // end for
+                    } catch (Exception e) {
+                        logger.error("处理订阅的日志更改信息失败 | msg:{}", e.getMessage(), e);
+                    }
 
-                        }
-                    } // end for
-                } catch (Exception e) {
-                    logger.error("处理订阅的日志更改信息失败 | msg:{}", e.getMessage(), e);
                 }
-
-            }
-        };
-        logger.info("订阅开始……");
-        redis.subscribe(jedisPubSub, RedisKey.getDeploySubscribeChannelKey());
-        logger.info("订阅结束 ...");
+            };
+            logger.info("订阅开始……");
+            redis.subscribe(jedisPubSub, RedisKey.getDeploySubscribeChannelKey());
+            logger.info("订阅结束 ...");
+        }catch (Exception e){
+            logger.error("订阅失败", e);
+        }
     }
 
 }

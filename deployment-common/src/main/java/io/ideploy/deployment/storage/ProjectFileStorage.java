@@ -22,7 +22,7 @@ public interface ProjectFileStorage {
      * @param filename 文件名，唯一
      * @param file     保存到本地哪个文件
      */
-    void download(String filename, File file);
+    void download(String filename, String compileHost, File file);
 
     /**
      * 保存到存储系统
@@ -31,5 +31,5 @@ public interface ProjectFileStorage {
      * @param filename  要保存的文件名
      * @return true=成功
      */
-    boolean save(String source, String shell, String filename);
+    boolean save(String source,String compileHost, String shell, String filename);
 }

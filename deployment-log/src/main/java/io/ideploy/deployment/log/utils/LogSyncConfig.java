@@ -1,6 +1,6 @@
 package io.ideploy.deployment.log.utils;
 
-import io.ideploy.deployment.cfg.Configuration;
+import io.ideploy.deployment.cfg.AppConfigFileUtil;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -18,7 +18,7 @@ public class LogSyncConfig {
     /**
      * 同步shell日志的url
      */
-    private String syncShellLogUrl = Configuration.getDeploySaveShellLogDir();
+    private String syncShellLogUrl = AppConfigFileUtil.getDeploySaveShellLogDir();
 
     /**
      * 同步shell的后台发送线程数

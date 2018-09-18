@@ -13,9 +13,9 @@ import org.slf4j.LoggerFactory;
  *
  * @author linyi, 2017/2/20.
  */
-public class Configuration {
+public class AppConfigFileUtil {
 
-    private static final Logger logger = LoggerFactory.getLogger(Configuration.class);
+    private static final Logger logger = LoggerFactory.getLogger(AppConfigFileUtil.class);
 
     private static PropertiesConfiguration config;
 
@@ -50,12 +50,26 @@ public class Configuration {
         return config.getString("server.shell.dir");
     }
 
+
+
+    public static String getAnsibleHostFile() {
+        return config.getString("compile.server.ansible.host.file");
+    }
+
     /**
      * 编译打包服务器对应的ansible host配置文件路径
      * @return
      */
-    public static String getAnsibleHostFile() {
+    public static String getCompileHostFile() {
         return config.getString("compile.server.ansible.host.file");
+    }
+
+    /***
+     * 是否使用deployment-web作为本地编译服务器
+     * @return
+     */
+    public static boolean isCompileServerLocal(){
+        return "true".equalsIgnoreCase(config.getString("compile.server.local", "false"));
     }
 
     /**

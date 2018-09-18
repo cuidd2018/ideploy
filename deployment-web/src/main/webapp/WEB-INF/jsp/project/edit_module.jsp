@@ -1,7 +1,7 @@
 <%@ page import="io.ideploy.deployment.common.enums.ModuleType" %>
 <%@ page import="io.ideploy.deployment.common.enums.ModuleRepoType" %>
 <%@ page import="io.ideploy.deployment.common.Constants" %>
-<%@ page import="io.ideploy.deployment.cfg.Configuration" %>
+<%@ page import="io.ideploy.deployment.cfg.AppConfigFileUtil" %>
 <%@ page import="io.ideploy.deployment.common.util.JvmArgUtil" %>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
@@ -9,6 +9,11 @@
 <head>
     <%@ include file="/include/meta.html" %>
     <title>编辑或添加模块</title>
+    <style>
+        textarea.form-control{
+            height:80px;
+        }
+    </style>
 </head>
 <body class="skin-blue sidebar-mini">
 <div class="wrapper">
@@ -65,12 +70,12 @@
                                         <div class="col-md-4">
                                             <div class="radio">
                                                 <label><input type="radio" name="moduleType"
-                                                              value="<%=ModuleType.WEB_PROJECT.getValue()%>"
-                                                              onclick="setDefaultShell()"/><%=ModuleType.WEB_PROJECT.getName()%>
-                                                </label>
-                                                <label><input type="radio" name="moduleType"
                                                               value="<%=ModuleType.SERVICE.getValue()%>"
                                                               onclick="setDefaultShell()"/><%=ModuleType.SERVICE.getName()%>
+                                                </label>
+                                                <label><input type="radio" name="moduleType"
+                                                              value="<%=ModuleType.WEB_PROJECT.getValue()%>"
+                                                              onclick="setDefaultShell()"/><%=ModuleType.WEB_PROJECT.getName()%>
                                                 </label>
                                                 <label><input type="radio" name="moduleType"
                                                               value="<%=ModuleType.STATIC.getValue()%>"
@@ -144,49 +149,75 @@
             <div class="row">
                 <section class="col-md-5">
                     <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">通用配置</h3>
+                            <div class="box-tools pull-right">
+                                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                                </button>
+                            </div>
+                        </div>
                         <div class="box-body">
                             <div class="form-group">
-                                <label>pre deploy：</label> <br/>
+                                <label>自定义变量：</label><i class="fa fa-question-circle" id="helpDeployArgs"></i><br/>
+                                <textarea id="deployArgs" name="deployArgs" class="form-control" placeholder="targetDir=/data/project/pay-order-impl #部署目标路径"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>编译脚本：</label><i class="fa fa-question-circle" id="helpCompileShell"></i><br/>
+                                <textarea class="form-control" id="compileShell" placeholder="编译脚本"
+                                          onkeypress="changeCompileShell()"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">部署配置</h3>
+                            <div class="box-tools pull-right">
+                                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <div class="form-group">
+                                <label>preDeploy</label><i class="fa fa-question-circle" id="helpPreDeploy"></i><br/>
+                                <textarea class="form-control" id="preDeploy" placeholder="开始部署执行操作"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>postDeploy</label><i class="fa fa-question-circle" id="helpPostDeploy"></i><br/>
+                                <textarea class="form-control" id="postDeploy" placeholder="部署完成执行操作"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="box box-primary">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">启动配置</h3>
+                            <div class="box-tools pull-right">
+                                <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <div class="form-group">
+                                <label>pre start：</label><i class="fa fa-question-circle" id="helpPreShell"></i><br/>
                                 <textarea id="preShell" class="form-control" placeholder="重启前执行"></textarea>
 
                             </div>
                             <div class="form-group">
-                                <label>服务启动入口：</label><br/>
-                                比如: <br/>
-                                /usr/local/resinpro/bin/resin.sh restart (脚本启动)<br/>
-                                com.alibaba.dubbo.container.Main (main主类启动)<br/>
-                                pay-order-impl*.jar (SpringBoot Jar启动)<br/>
+                                <label>启动入口：</label><i class="fa fa-question-circle" id="helpRestartShell"></i><br/>
                                 <textarea class="form-control" id="restartShell"
                                           placeholder="com.alibaba.dubbo.container.Main" onblur="showJvmArgs()"
                                           onkeypress="changeRestartShell()"></textarea>
+                                <br/>
                             </div>
                             <div class="form-group">
-                                <label>post deploy：</label> <br/>
+                                <label>post start：</label><i class="fa fa-question-circle" id="helpPostShell"></i><br/>
                                 <textarea class="form-control" id="postShell" placeholder="重启后执行"></textarea>
                             </div>
                             <div class="form-group">
-                                <label>编译脚本(参考如下，<span class="text-danger">每行一条指令</span>)：</label> <br/>
-                                mvn -P=&#36;{env} -Dmaven.test.skip=true -U clean install<br/>
-                                cp -f &#36;{moduleDir}/target/*.<b>jar</b> &#36;{targetDir}<br/>
-                                或 cp -f &#36;{moduleDir}/target/*.<b>war</b> &#36;{targetDir}<br/>
-                                <textarea class="form-control" id="compileShell" placeholder="编译脚本"
-                                          onkeypress="changeCompileShell()"></textarea>
-                            </div>
-                            <div class="form-group">
-                                <label>停止服务脚本(重启脚本填了Main Class可忽略)：</label><br/>
-                                比如: /usr/local/resinpro/bin/resin.sh stop<br/>
-                                <textarea class="form-control" id="stopShell" placeholder="停止服务脚本"
+                                <label>停止服务脚本</label><i class="fa fa-question-circle" id="helpStopShell"></i><br/>
+                                <textarea class="form-control" id="stopShell" placeholder="停止服务脚本，启动入口填了Main Class可忽略"
                                           onkeypress="changeStopShell()"></textarea>
                             </div>
-                            <%--<div class="form-group">--%>
-                            <%--<h4>可用变量：</h4>--%>
-                            <%--<!-- 请勿修改下面的空格 -->--%>
-                            <%--<pre>--%>
-                            <%--&#36;{moduleDir}：mvn编译完成后的模块目录，绝对路径，比如 /data/project/projectA/module1--%>
-                            <%--&#36;{targetDir}：模块发布完成后所在的目录，绝对路径，比如 /data/project/projectA/module1--%>
-                            <%--&#36;{env}：哪个环境，例如dev/test--%>
-                            <%--</pre>--%>
-                            <%--</div>--%>
                         </div>
                     </div>
                 </section>
@@ -368,21 +399,20 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="box-footer">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <h4>“编译脚本”可用变量：</h4>
-                                    <!-- 请勿修改下面的空格 -->
-                                    <pre>
+                    </div>
+                    <div class="box-footer">
+                        <div class="row">
+                            <div class="col-md-12">
+                                <h4>“编译脚本”可用变量：</h4>
+                                <!-- 请勿修改下面的空格 -->
+                                <pre>
 &#36;{moduleDir}：mvn编译完成后的模块目录，绝对路径，比如 /data/project/projectA/module1
 &#36;{targetDir}：模块发布完成后所在的目录，绝对路径，比如 /data/project/projectA/module1
 &#36;{env}：哪个环境，例如dev/test
-                                    </pre>
-                                </div>
+                                </pre>
                             </div>
                         </div>
                     </div>
-
                 </section>
             </div>
 
@@ -448,99 +478,37 @@
         </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
 
-    <%--添加服务器模态窗口--%>
+    <!-- 添加服务器模态窗口 -->
     <div class="modal" id="addServerModel">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
                             aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title">添加服务器</h4>
+                    <h4 class="modal-title">添加服务器IP</h4>
                 </div>
-                <div class="modal-body">
-                    <div class="row">
-
-                        <input type="hidden" id="currentServerId"/>
-
-                        <form class="form-horizontal col-md-12">
-
-                            <div class="form-group">
-                                <label class="control-label col-sm-2"> 名称1: </label>
-                                <div class="col-md-4">
-                                    <input type="text" id="serverName1" value="" class="form-control" maxlength="45"
-                                           onfocus="loadAllServers(this,false)" onkeyup="filterServer(this,false)"
-                                           onblur="hideServerList(event)"/>
-                                </div>
-                                <label class="control-label col-sm-2"> IP1: </label>
-                                <div class="col-md-4">
-                                    <input type="text" id="serverIP1" value="" class="form-control" maxlength="45"
-                                           onfocus="loadAllServers(this,true)" onkeyup="filterServer(this,true)"
-                                           onblur="hideServerList(event)"/>
-                                </div>
-                            </div>
-
-                            <div class="form-group moreIp">
-                                <label class="control-label col-sm-2"> 名称2: </label>
-                                <div class="col-md-4">
-                                    <input type="text" id="serverName2" value="" class="form-control" placeholder="可以不填"
-                                           maxlength="45" onfocus="loadAllServers(this)" onkeyup="filterServer(this)"
-                                           onblur="hideServerList(event)"/>
-                                </div>
-                                <label class="control-label col-sm-2"> IP2: </label>
-                                <div class="col-md-4">
-                                    <input type="text" id="serverIP2" value="" class="form-control" placeholder="可以不填"
-                                           maxlength="45" onfocus="loadAllServers(this)" onkeyup="filterServer(this)"
-                                           onblur="hideServerList(event)"/>
-                                </div>
-                            </div>
-                            <div class="form-group moreIp">
-                                <label class="control-label col-sm-2"> 名称3: </label>
-                                <div class="col-md-4">
-                                    <input type="text" id="serverName3" value="" class="form-control" placeholder="可以不填"
-                                           maxlength="45" onfocus="loadAllServers(this)" onkeyup="filterServer(this)"
-                                           onblur="hideServerList(event)"/>
-                                </div>
-                                <label class="control-label col-sm-2"> IP3: </label>
-                                <div class="col-md-4">
-                                    <input type="text" id="serverIP3" value="" class="form-control" placeholder="可以不填"
-                                           maxlength="45" onfocus="loadAllServers(this)" onkeyup="filterServer(this)"
-                                           onblur="hideServerList(event)"/>
-                                </div>
-                            </div>
-                            <div class="form-group moreIp">
-                                <label class="control-label col-sm-2"> 名称4: </label>
-                                <div class="col-md-4">
-                                    <input type="text" id="serverName4" value="" class="form-control" placeholder="可以不填"
-                                           maxlength="45" onfocus="loadAllServers(this)" onkeyup="filterServer(this)"
-                                           onblur="hideServerList(event)"/>
-                                </div>
-                                <label class="control-label col-sm-2"> IP4: </label>
-                                <div class="col-md-4">
-                                    <input type="text" id="serverIP4" value="" class="form-control" placeholder="可以不填"
-                                           maxlength="45" onfocus="loadAllServers(this)" onkeyup="filterServer(this)"
-                                           onblur="hideServerList(event)"/>
-                                </div>
-                            </div>
-                            <div class="form-group moreIp">
-                                <label class="control-label col-sm-2"> 名称5: </label>
-                                <div class="col-md-4">
-                                    <input type="text" id="serverName5" value="" class="form-control" placeholder="可以不填"
-                                           maxlength="45" onfocus="loadAllServers(this)" onkeyup="filterServer(this)"
-                                           onblur="hideServerList(event)"/>
-                                </div>
-                                <label class="control-label col-sm-2"> IP5: </label>
-                                <div class="col-md-4">
-                                    <input type="text" id="serverIP5" value="" class="form-control" placeholder="可以不填"
-                                           maxlength="45" onfocus="loadAllServers(this)" onkeyup="filterServer(this)"
-                                           onblur="hideServerList(event)"/>
-                                </div>
-                            </div>
-                        </form>
+                <div class="modal-body form-horizontal">
+                    <input type="hidden" id="currentServerId" />
+                    <div class="form-group">
+                        <label class="col-md-2 control-label">实例名称</label>
+                        <div class="col-md-10">
+                            <input class="form-control" type="text" id="serverName" name="serverName" title="实例名称" placeholder="实例名称（唯一值）" maxlength="60">
+                        </div>
                     </div>
-
-
+                    <div class="form-group">
+                        <label class="col-md-2 control-label">实例IP</label>
+                        <div class="col-md-10">
+                            <input class="form-control" type="text" id="serverIP" name="serverIP" title="实例IP" placeholder="实例IP" maxlength="60">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-2 control-label">启动参数<i class='fa fa-question-circle' id="helpIpShellArgs"></i></label>
+                        <div class="col-md-10">
+                            <textarea class="form-control" id="ipShellArgs" name="ipShellArgs" placeholder="当前ip特定shell启动参数（可为空）" ></textarea>
+                            <%--<input class="form-control" type="text" id="ipShellArgs" name="ipShellArgs" title="实例shell启动参数" placeholder="当前ip特定shell启动参数（可为空）" maxlength="60">--%>
+                        </div>
+                    </div>
                 </div>
-
                 <div class="modal-footer">
                     <div class="col-md-3"></div>
                     <div class="col-md-2">
@@ -554,9 +522,10 @@
                         </button>
                     </div>
                 </div>
-            </div><!-- /.modal-content -->
-        </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
+            </div>
+        </div>
+    </div>
+
 
     <div id="serverListDiv" class="dropdown-menu"
          style="z-index:10000;display:none;width:300px;height:240px;overflow:scroll;border:1px solid #3c8dbc;">
@@ -647,7 +616,7 @@
     }
 
     function setDefaultShell() {
-        var containerShell = '<%=Configuration.getWebContainerShell()%>';
+        var containerShell = '<%=AppConfigFileUtil.getWebContainerShell()%>';
         var moduleType = $('input:radio[name="moduleType"]:checked').val();
 
         if (moduleType) {
@@ -772,14 +741,20 @@
                 var serverHtml = "";
                 for (var j in group.servers) {
                     var serverId = "oldServer_" + group.servers[j].serverId;
+                    var ipShellArgs = group.servers[j].ipShellArgs?group.servers[j].ipShellArgs:"";
+                    if(ipShellArgs && ipShellArgs.length > 20){
+                       ipShellArgs = ipShellArgs.substring(0, 19) + "...";
+                    }
                     serverHtml = serverHtml + "<div style='margin-top: 10px;' class='row oldServer' data-serverId='" + group.servers[j].serverId +
                         "' data-serverName='" + group.servers[j].serverName +
                         "' data-groupId='" + group.servers[j].groupId +
                         "' data-serverIp='" + group.servers[j].ip +
+                        "' data-ipShellArgs='" + ipShellArgs +
                         "' id='" + serverId + "'>" +
-                        "<div class='col-xs-6'>" + group.servers[j].serverName + "(" + group.servers[j].ip + ")</div>" +
-                        "<div class='col-xs-3'><a  onclick='javascript:deleteServer(" + "\"" + serverId + "\"" + ");return false;' href='#' >删除</a></div>" +
-                        "<div class='col-xs-3'><a onclick='javascript:editServer(" + "\"" + serverId + "\"" + ");return false;' href='#' >编辑</a></div>" +
+                        "<div class='col-xs-4'>" + group.servers[j].serverName + "(" + group.servers[j].ip + ")</div>" +
+                        "<div class='col-xs-4'>参数:" + ipShellArgs + "</div>" +
+                        "<div class='col-xs-2'><a  onclick='javascript:deleteServer(" + "\"" + serverId + "\"" + ");return false;' href='#' >删除</a></div>" +
+                        "<div class='col-xs-2'><a onclick='javascript:editServer(" + "\"" + serverId + "\"" + ");return false;' href='#' >编辑</a></div>" +
                         "</div>";
                 }
 
@@ -853,8 +828,12 @@
                     $('#srcPath').val(projectModule.srcPath);
                     $('#svnAccount').val(projectModule.svnAccount);
                     $('#svnPassword').val(projectModule.svnPassword);
+                    $('#deployArgs').val(projectModule.deployArgs);
+                    $('#preDeploy').val(projectModule.preDeploy);
+                    $('#postDeploy').val(projectModule.postDeploy);
                     $('#preShell').val(projectModule.preShell);
                     $('#restartShell').val(projectModule.restartShell);
+                    $('#deployArgs').val(projectModule.deployArgs);
                     $('#postShell').val(projectModule.postShell);
                     $('#compileShell').val(projectModule.compileShell);
                     $('#stopShell').val(projectModule.stopShell);
@@ -923,6 +902,9 @@
         projectModule.srcPath = $('#srcPath').val();
         projectModule.repoType = $('#repoType').val();
 
+        projectModule.deployArgs = $('#deployArgs').val();
+        projectModule.preDeploy = $('#preDeploy').val();
+        projectModule.postDeploy = $('#postDeploy').val();
         projectModule.preShell = $('#preShell').val();
         projectModule.postShell = $('#postShell').val();
         projectModule.compileShell = $('#compileShell').val();
@@ -990,6 +972,7 @@
                 var server = {};
                 server.serverName = $(this).attr("data-servername");
                 server.ip = $(this).attr("data-serverip");
+                server.ipShellArgs=$(this).attr("data-ipShellArgs");
                 servers.push(server);
             });
             $("#" + serverId).children(".oldServer").each(function () {
@@ -998,6 +981,7 @@
                 server.groupId = $(this).attr("data-groupId");
                 server.serverName = $(this).attr("data-servername");
                 server.ip = $(this).attr("data-serverip");
+                server.ipShellArgs=$(this).attr("data-ipShellArgs");
                 servers.push(server);
             });
             group.servers = servers;
@@ -1145,37 +1129,43 @@
     }
     //创建服务器
     function addServer() {
-
         var currentServerId = $("#currentServerId").val();
-
         if (currentServerId) {
-            var serverIP = $.trim($("#serverIP1").val());
-            var serverName = $.trim($("#serverName1").val());
+            var serverIP = $.trim($("#serverIP").val());
+            var serverName = $.trim($("#serverName").val());
+            var ipShellArgs = $.trim($("#ipShellArgs").val());
             if (serverIP && serverName) {
                 $("#" + currentServerId).attr("data-serverName", serverName);
                 $("#" + currentServerId).attr("data-serverIP", serverIP);
+                $("#" + currentServerId).attr("data-ipShellArgs", ipShellArgs);
                 $("#" + currentServerId).children("div").first().text(serverName + "(" + serverIP + ")");
                 $("#addServerModel").modal('hide');
-                $("#serverIP1").val('');
-                $("#serverName1").val('');
+                $("#serverIP").val('');
+                $("#serverName").val('');
+                $("#ipShellArgs").val('');
+                $("#currentServerId").val('');
             } else {
                 BootstrapDialog.alert('请输入完整的IP和名称, ip: ' + serverIP + ', 名称: ' + serverName);
             }
         } else if (checkServerNameAndIP()) {
-            for (var i = 1; i <= 5; i++) {
-                var serverIP = $.trim($("#serverIP" + i).val());
-                var serverName = $.trim($("#serverName" + i).val());
-                if (serverIP && serverName) {
-                    var serverId = "newServer_" + (new Date()).getTime();
-                    var serverHtml = "<div style='margin-top: 10px;' class='row newServer' data-serverName='" + serverName + "' data-serverIp='" + serverIP + "' id='" + serverId + "'>" +
-                        "<div class='col-xs-6'>" + serverName + "(" + serverIP + ")</div>" +
-                        "<div class='col-xs-3'><a  onclick='javascript:deleteServer(" + "\"" + serverId + "\"" + ");return false;' href='#' >删除</a></div>" +
-                        "<div class='col-xs-3'><a onclick='javascript:editServer(" + "\"" + serverId + "\"" + ");return false;' href='#' >编辑</a></div>" +
-                        "</div>";
-                    $("#groupContent").children(".active").children("div").first().before(serverHtml);
-                    $("#serverIP" + i).val('');
-                    $("#serverName" + i).val('');
-                }
+            var serverIP = $.trim($("#serverIP").val());
+            var serverName = $.trim($("#serverName").val());
+            var ipShellArgs = $.trim($("#ipShellArgs").val());
+              if(ipShellArgs && ipShellArgs.length > 20){
+                ipShellArgs = ipShellArgs.substring(0, 19) + "...";
+              }
+            if (serverIP && serverName) {
+                var serverId = "newServer_" + (new Date()).getTime();
+                var serverHtml = "<div style='margin-top: 10px;' class='row newServer' data-serverName='" + serverName + "' data-serverIp='" + serverIP + "' data-ipShellArgs='" + ipShellArgs + "' id='" + serverId + "'>" +
+                    "<div class='col-xs-4'>" + serverName + "(" + serverIP + ")</div>" +
+                    "<div class='col-xs-4'>参数:" + ipShellArgs + "</div>" +
+                    "<div class='col-xs-2'><a  onclick='javascript:deleteServer(" + "\"" + serverId + "\"" + ");return false;' href='#' >删除</a></div>" +
+                    "<div class='col-xs-2'><a onclick='javascript:editServer(" + "\"" + serverId + "\"" + ");return false;' href='#' >编辑</a></div>" +
+                    "</div>";
+                $("#groupContent").children(".active").children("div").first().before(serverHtml);
+                $("#serverIP").val('');
+                $("#serverName").val('');
+                $("#ipShellArgs").val('');
             }
             $("#addServerModel").modal('hide');
         }
@@ -1184,14 +1174,12 @@
     }
 
     function checkServerNameAndIP() {
-        for (var i = 1; i <= 5; i++) {
-            var serverIP = $.trim($("#serverIP" + i).val());
-            var serverName = $.trim($("#serverName" + i).val());
-            if ((serverIP == '' && serverName != '')
-                || (serverIP != '' && serverName == '')) {
-                BootstrapDialog.alert('请输入完整的IP和名称, ip: ' + serverIP + ", 名称: " + serverName);
-                return false;
-            }
+        var serverIP = $.trim($("#serverIP").val());
+        var serverName = $.trim($("#serverName").val());
+        if ((serverIP == '' && serverName != '')
+            || (serverIP != '' && serverName == '')) {
+            BootstrapDialog.alert('请输入完整的IP和名称, ip: ' + serverIP + ", 名称: " + serverName);
+            return false;
         }
         return true;
     }
@@ -1235,12 +1223,15 @@
         $(".moreIp").hide();
         $("#addServerModel").modal('show');
         $("#currentServerId").val(serverId);
-        $("#serverName1").val($("#" + serverId).attr("data-serverName"));
-        $("#serverIP1").val($("#" + serverId).attr("data-serverIP"));
-
+        $("#serverName").val($("#" + serverId).attr("data-serverName"));
+        $("#serverIP").val($("#" + serverId).attr("data-serverIP"));
+        $("#ipShellArgs").val($("#" + serverId).attr("data-ipShellArgs"));
     }
     function openAddServerModel() {
         $(".moreIp").show();
+        $("#serverName").val("");
+        $("#serverIP").val("");
+        $("#ipShellArgs").val("");
         $("#addServerModel").modal('show');
     }
 
@@ -1318,8 +1309,99 @@
       }else{
         $("#moduleName").attr("disabled", false);
       }
-
     }
+
+    $(function() {
+      $('#helpDeployArgs').popover({
+        content: 'properties文件变量定义格式，比如：<br/>' +
+        'deployDir=/data0/project/ideploy #部署业务目录',
+        trigger: 'click',
+        placement: 'bottom',
+        html: 'true',
+        template: '<div class="popover" role="tooltip"><div class="arrow">' +
+        '</div><div class="popover-content" style="background-color:#f5f5f5;width:400px"></div></div>'
+      })
+    })
+
+    $(function() {
+      $('#helpCompileShell').popover({
+        content: '参考如下，<span class="text-danger">每行一条指令</span>：<br/>' +
+        'mvn -P=&#36;{env} -Dmaven.test.skip=true -U clean install<br/>' +
+        'cp -f &#36;{moduleDir}/target/*.<b>jar</b> &#36;{targetDir}<br/>' +
+        '或cp -f &#36;{moduleDir}/target/*.<b>war</b> &#36;{targetDir}',
+        trigger: 'click',
+        placement: 'bottom',
+        html: 'true',
+        template: '<div class="popover" role="tooltip"><div class="arrow">' +
+        '</div><div class="popover-content" style="background-color:#f5f5f5;width:400px"></div></div>'
+      })
+    })
+
+    $(function() {
+      $('#helpPreShell').popover({
+        content: '启动完前执行的脚本，可以不填写',
+        trigger: 'click',
+        placement: 'bottom',
+        html: 'true',
+        template: '<div class="popover" role="tooltip"><div class="arrow">' +
+        '</div><div class="popover-content" style="background-color:#f5f5f5;width:400px"></div></div>'
+      })
+    })
+
+    $(function() {
+      $('#helpRestartShell').popover({
+        content: '支持多种启动方式：<br/>' +
+        '1.脚本启动：/usr/local/resinpro/bin/resin.sh restart<br/>' +
+        '2.Main类启动：com.alibaba.dubbo.container.Main<br/>' +
+        '3.Jar启动：pay-order-impl.jar',
+        trigger: 'click',
+        placement: 'bottom',
+        html: 'true',
+        template: '<div class="popover" role="tooltip"><div class="arrow">' +
+        '</div><div class="popover-content" style="background-color:#f5f5f5;width:400px"></div></div>'
+      })
+    })
+
+    $(function() {
+      $('#helpPostShell').popover({
+        content: '启动完成后执行的脚本，可以不填写',
+        trigger: 'click',
+        placement: 'bottom',
+        html: 'true',
+        template: '<div class="popover" role="tooltip"><div class="arrow">' +
+        '</div><div class="popover-content" style="background-color:#f5f5f5;width:400px"></div></div>'
+      })
+    })
+
+    $(function() {
+      $('#helpStopShell').popover({
+        content: '比如:<br/>' +
+        '/usr/local/resinpro/bin/resin.sh stop<br/>' +
+        'Main类启动 或 Jar启动 都有stop的脚本，可以不填写',
+        trigger: 'click',
+        placement: 'bottom',
+        html: 'true',
+        template: '<div class="popover" role="tooltip"><div class="arrow">' +
+        '</div><div class="popover-content" style="background-color:#f5f5f5;width:400px"></div></div>'
+      })
+    })
+
+    $(function() {
+      $('#helpIpShellArgs').popover({
+        content: 'ip自定义启动shell参数，解决服务器职责分配问题，场景:<br/>' +
+        '192.168.10.25（对外服务，也运行定时任务）<br/>' +
+        '192.168.10.24（对外服务）<br/>' +
+        '192.168.10.25的启动参数配置 -DstartJob=true 完成职责分配<br/>' +
+        '<br/>' +
+        '启动参数可以通过变量名（IP_SHELL_ARGS）引用，比如在 启动入口 这样传递：<br/>' +
+        '/data/project/pay-order-impl/start.sh &#36;{IP_SHELL_ARGS}<br/>',
+        trigger: 'click',
+        placement: 'bottom',
+        html: 'true',
+        template: '<div class="popover" role="tooltip"><div class="arrow">' +
+        '</div><div class="popover-content" style="background-color:#f5f5f5;width:400px"></div></div>'
+      })
+    })
 </script>
 </body>
 </html>

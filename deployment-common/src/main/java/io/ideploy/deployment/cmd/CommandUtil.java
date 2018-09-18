@@ -3,11 +3,13 @@ package io.ideploy.deployment.cmd;
 import com.google.common.collect.Lists;
 import io.ideploy.deployment.base.ApiCode;
 import io.ideploy.deployment.common.enums.DeployResult;
+import io.ideploy.deployment.common.util.IpAddressUtils;
 import io.ideploy.deployment.exception.ServiceException;
 import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.regex.Pattern;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
@@ -31,6 +33,9 @@ import org.springframework.util.Assert;
 public class CommandUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(CommandUtil.class);
+
+    private static final Pattern HOST_LINE_PATTERN=  Pattern.compile("^(([1-9]|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])(\\.(\\d|[1-9]\\d|1\\d{2}|2[0-4]\\d|25[0-5])){3})\\s*,+");
+
 
     /**
      * 执行命令并返回结果
@@ -107,5 +112,24 @@ public class CommandUtil {
     public static void main(String[] args) {
         AnsibleCommandResult ansibleCommandResult = CommandUtil.ansiblePing(Lists.newArrayList("123.56.158.175", "1.1.1.1"));
         System.out.println(ansibleCommandResult);
+    }
+
+    public static String[] ansibleCmdArgs(String[] args, int hostIndex){
+        if(args == null || args.length < hostIndex){
+            return args;
+        }
+        String host = args[hostIndex];
+        if(HOST_LINE_PATTERN.matcher(host).matches()){
+            String ip = host.substring(0, host.length() - 1);
+            if(IpAddressUtils.isLocalIP(ip)){
+                String[]tmpArgs = Arrays.copyOf(args, args.length + 2);
+                tmpArgs[args.length] = "--connection";
+                tmpArgs[args.length + 1] = "local";
+
+                return tmpArgs;
+            }
+        }
+
+        return  args;
     }
 }

@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# name:  dubbo服务启动脚本模板
+# name:  JAVA进程服务启动脚本模板
 # author: 梁广龙
 # date:    2017/02/26
 #
@@ -13,27 +13,25 @@ profile=${PROJ_PROFILE}
 #### 需要运行的 Main类全路径；以及参数
 BASE_DIR=${PROJECT_DIR}
 _RUNCLASS=${MAIN_CLASS}
-JAR_OPT=${JAR_ARGS}
-JAVA_OPTS="${JVM_ARGS}"
+EXE_TYPE=${MAIN_TYPE} # 0-表示Main类启动入口  1-表示Jar启动入口
+JAVA_OPTS="${IP_SHELL_ARGS} ${JVM_ARGS}"
 RUN_DIR=${BASE_DIR}/${MODULE_NAME}
 RUN_LIBS=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar:$JRE_HOME/lib/rt.jar:$RUN_DIR/*
 model=${MODULE_NAME}
 
 
 #### 运行java的基本参数："java 启动参数 classpath"
-CLASSPATH=$RUN_LIBS
-_RUNJAVA="$JAVA_HOME/bin/java $JAVA_OPTS -cp $CLASSPATH"
+if [ 1 -eq $EXE_TYPE ]; then
+    CLASSPATH=$RUN_LIBS
+    _RUNJAVA="$JAVA_HOME/bin/java $JAVA_OPTS -cp $CLASSPATH"
+  else
+    JAR_FILE=`find $RUN_DIR -name $_RUNCLASS`
+    _RUNJAVA="$JAVA_HOME/bin/java -jar $JAVA_OPTS $JAR_FILE"
+fi
 SERVICE_PID=${MODULE_PID_FILE}
 touch ${SERVICE_PID}
 chmod a+w ${SERVICE_PID}
 
-
-#springboot JAR启动方式
-if [ -n $JAR_OPT ]; then
-  _RUNCLASS=`find $RUN_DIR -name $_RUNCLASS`
-  JAVA_OPTS="${JAR_OPT} ${JAVA_OPTS}"
-  _RUNJAVA="$JAVA_HOME/bin/java $JAVA_OPTS "
-fi
 
 # 启动脚本的方法
 start() {

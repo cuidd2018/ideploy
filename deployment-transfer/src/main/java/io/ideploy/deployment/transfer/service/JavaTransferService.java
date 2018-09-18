@@ -1,7 +1,7 @@
 package io.ideploy.deployment.transfer.service;
 
-import com.google.common.collect.Lists;
-import io.ideploy.deployment.cfg.Configuration;
+import io.ideploy.deployment.cfg.AppConfigFileUtil;
+import io.ideploy.deployment.cmd.CommandUtil;
 import io.ideploy.deployment.common.enums.DeployResult;
 import io.ideploy.deployment.common.enums.ModuleType;
 import io.ideploy.deployment.common.util.FileCompressUtil;
@@ -185,36 +185,41 @@ public class JavaTransferService extends AbstractTransferService {
         if (request.getModuleType() == ModuleType.WEB_PROJECT.getValue() && CollectionUtils.isEmpty(resinConfFiles)) {
             return;
         }
-        logger.info("开始传输OSS文件到目标服务器");
-        String serverUploadDir = Configuration.getServerFileDir() + request.getProjectName() + "/";
+        logger.info("开始传输编译打包结果文件到目标服务器");
+        //String serverUploadDir = AppConfigFileUtil.getServerFileDir() + request.getProjectName() + "/";
 
-        String hostFilePath = generateHostFile();
+        for (String ip: getSuccessIps()) {
+            //String hostFilePath = generateHostFile();
 
-        String[] args;
-        String tarFileLocalPath = null;
-        if (request.getModuleType() == ModuleType.WEB_PROJECT.getValue()) {
-            // web服务的将resin文件 + OSS文件打包发送
-            tarFileLocalPath = tarResinAndOss(resinConfFiles);
-            if (checkIsAllFail()) {
-                return;
+            String[] args;
+            String tarFileLocalPath = null;
+            if (request.getModuleType() == ModuleType.WEB_PROJECT.getValue()) {
+                // web服务的将resin文件 + OSS文件打包发送
+                tarFileLocalPath = tarResinAndOss(resinConfFiles);
+                if (checkIsAllFail()) {
+                    return;
+                }
+                logger.info("将resin配置文件和oss文件打包发送 ： " + tarFileLocalPath);
+                args = new String[]{"ansible", "-i", ip+",", "all", "-m", "unarchive", "-a",
+                        "src=" + tarFileLocalPath + " dest=" + transferConfig.getDeployDir(request)};
+                logger.info("resin和oss压缩过后的文件是：" + tarFileLocalPath);
+            } else {
+                logger.info("发送dubbo文件");
+                // dubbo服务的直接上传oss文件 (解压模块比传输模块多耗3S,所以dubbo服务不做解压)
+                args = new String[]{"ansible", "-i", ip+",", "all", "-m", "copy", "-a",
+                        "src=" + result.getDownloadFileName() + " dest=" + transferConfig.getServerUploadDir(request)};
+
+                logger.info("传输打包文件:" + result.getDownloadFileName());
+                logger.info("传输打包文件的ansible:" + StringUtils.join(args, " "));
             }
-            logger.info("将resin配置文件和oss文件打包发送 ： " + tarFileLocalPath);
-            args = new String[]{"ansible", "-i", hostFilePath, "all", "-m", "unarchive", "-a", "src=" + tarFileLocalPath + " dest=" + serverUploadDir + shortModuleName + "/"};
-        } else {
-            logger.info("发送dubbo文件");
-            // dubbo服务的直接上传oss文件 (解压模块比传输模块多耗3S,所以dubbo服务不做解压)
-            args = new String[]{"ansible", "-i", hostFilePath, "all", "-m", "copy", "-a", "src=" + result.getDownloadFileName() + " dest=" + serverUploadDir};
-            logger.info("传输OSS文件的ansible:" + StringUtils.join(args, " "));
-        }
 
-        logger.info("resin和oss压缩过后的文件是：" + tarFileLocalPath);
+            execAnsibleCommand(CommandUtil.ansibleCmdArgs(args, 2));
 
-        execAnsibleCommand(args);
-
-        FileUtils.deleteQuietly(new File(hostFilePath));
-        FileUtils.deleteQuietly(new File(result.getDownloadFileName()));
-        if (StringUtils.isNotBlank(tarFileLocalPath)) {
-            FileUtils.deleteQuietly(new File(tarFileLocalPath));
+            //FileUtils.deleteQuietly(new File(hostFilePath));
+            FileUtils.deleteQuietly(new File(result.getDownloadFileName()));
+            if (StringUtils.isNotBlank(tarFileLocalPath)) {
+                FileUtils.deleteQuietly(new File(tarFileLocalPath));
+            }
         }
     }
 
@@ -253,6 +258,7 @@ public class JavaTransferService extends AbstractTransferService {
         try {
             restartShellFilePath = shellTemplate.generateRestartShellFile();
         } catch (IOException e) {
+            logger.error("", e);
             result.setSuccessType(DeployResult.FAILURE);
         }
 

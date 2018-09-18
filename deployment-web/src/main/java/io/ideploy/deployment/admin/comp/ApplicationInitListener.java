@@ -1,6 +1,5 @@
 package io.ideploy.deployment.admin.comp;
 
-import io.ideploy.deployment.cfg.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationListener;

@@ -68,7 +68,7 @@
         INNER JOIN t_project_account_relation par
         ON p.project_id=par.project_id
         WHERE
-        par.account_id=${accountId}
+        par.account_id=#{accountId}
         <if test="projectName != null and projectName != ''">
             AND p.project_name like #{projectName}
         </if>
@@ -103,6 +103,6 @@
 		INNER JOIN t_project_account_relation par
 		ON p.project_id=par.project_id
 		WHERE
-			par.account_id=${accountId}
+			par.account_id=#{accountId}
 	</select>
 </mapper>

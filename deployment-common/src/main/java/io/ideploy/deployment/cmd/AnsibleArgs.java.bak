@@ -192,7 +192,7 @@ public class AnsibleArgs {
             if(line.startsWith("[")){ //已经开始下一组ip的读取
                 break;
             }
-            if(HOST_LINE_PATTERN.matcher(line).matches()){
+
                 String ip= line.split("\\s")[0];
                 allIps.add(ip);
             }

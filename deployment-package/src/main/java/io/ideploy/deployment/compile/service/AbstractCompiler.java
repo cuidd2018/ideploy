@@ -2,13 +2,14 @@ package io.ideploy.deployment.compile.service;
 
 import com.google.common.collect.Lists;
 import io.ideploy.deployment.base.ApiCode;
-import io.ideploy.deployment.cfg.Configuration;
+import io.ideploy.deployment.cfg.AppConfigFileUtil;
+import io.ideploy.deployment.cfg.ModuleConfig;
 import io.ideploy.deployment.cmd.AnsibleCommandResult;
 import io.ideploy.deployment.cmd.CommandUtil;
-import io.ideploy.deployment.common.enums.DeployResult;
 import io.ideploy.deployment.common.util.FileCompressUtil;
 import io.ideploy.deployment.common.util.FileResource;
 import io.ideploy.deployment.common.util.ModuleUtil;
+import io.ideploy.deployment.compile.config.CompileConfig;
 import io.ideploy.deployment.compile.vo.CompileRequest;
 import io.ideploy.deployment.compile.vo.CompileResult;
 import io.ideploy.deployment.compile.vo.CompileShellTemplate;
@@ -46,6 +47,9 @@ public abstract class AbstractCompiler {
     protected CompileRequest request;
 
     protected CompileResult result = new CompileResult();
+
+    //TODO 自定义
+    protected CompileConfig compileConfig = new CompileConfig();
 
     protected PushLogService pushLogService;
 
@@ -122,9 +126,9 @@ public abstract class AbstractCompiler {
 
         List<String> needBuildDirs = Lists.newArrayList("mkdir -p " + allScriptDir);
 
-        String[] args = {"-i", Configuration.getAnsibleHostFile(), "all", "-m", "shell", "-a", StringUtils.join(needBuildDirs, " && ")};
+        String[] args = {"-i", compileConfig.getCompileServer(), "all", "-m", "shell", "-a", StringUtils.join(needBuildDirs, " && ")};
 
-        AnsibleCommandResult commandResult = CommandUtil.execAnsible(args);
+        AnsibleCommandResult commandResult = CommandUtil.execAnsible(CommandUtil.ansibleCmdArgs(args, 1));
         if(commandResult != null && !commandResult.isSuccess()){
             writeStep("服务器创建目录异常，message: "+ commandResult.getErrorMessage());
             throw new ServiceException(ApiCode.FAILURE, "ansible创建服务器目录失败");
@@ -141,7 +145,6 @@ public abstract class AbstractCompiler {
 
         List<FileResource> fileResources= new ArrayList<>();
         //1.日志收集脚本
-        //String logFilePath = JavaCompiler.class.getResource("/").getPath() + "shell/" + LOG_SCRIPT_NAME;
         fileResources.add(FileResource.war("shell/" + LOG_SCRIPT_NAME));
 
         //2.编译脚本
@@ -149,10 +152,8 @@ public abstract class AbstractCompiler {
         fileResources.add(FileResource.file(compileShellFilePath));
 
         //3.oss脚本
-        //String ossScriptFilePath = JavaCompiler.class.getResource("/").getPath() + "shell/" + OSS_SCRIPT_NAME;
-        fileResources.add(FileResource.war("shell/" + OSS_SCRIPT_NAME));
+      //  fileResources.add(FileResource.war("shell/" + OSS_SCRIPT_NAME));
 
-        //ArrayList<String> allScriptFilePath = Lists.newArrayList(logFilePath, compileShellFilePath, ossScriptFilePath);
         String tarFilePath = FileUtils.getTempDirectoryPath() + "/" + request.getEnv() + "_" + shortModuleName + ".tar";
 
 
@@ -160,8 +161,8 @@ public abstract class AbstractCompiler {
         result.setCompileSuccess(tarResult);
 
         if (tarResult) {
-            String[] args = {"-i", Configuration.getAnsibleHostFile(), "all", "-m", "unarchive", "-a", "src=" + tarFilePath + " dest=" + getScriptServerDir() + " mode=755"};
-            CommandUtil.execAnsible(args);
+            String[] args = {"-i", compileConfig.getCompileServer(), "all", "-m", "unarchive", "-a", "src=" + tarFilePath + " dest=" + getScriptServerDir() + " mode=755"};
+            CommandUtil.execAnsible(CommandUtil.ansibleCmdArgs(args, 1));
         } else {
             writeStep("传输编译相关脚本到服务器失败");
         }
@@ -196,6 +197,6 @@ public abstract class AbstractCompiler {
 
 
     protected String getScriptServerDir() {
-        return Configuration.getCompileServerScriptDir() + request.getEnv() + "/" + request.getProjectName() + "/" + shortModuleName + "/";
+        return AppConfigFileUtil.getCompileServerScriptDir() + request.getEnv() + "/" + request.getProjectName() + "/" + shortModuleName + "/";
     }
 }

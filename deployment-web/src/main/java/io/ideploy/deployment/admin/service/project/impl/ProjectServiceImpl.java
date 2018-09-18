@@ -61,7 +61,7 @@ public class ProjectServiceImpl implements ProjectService {
         if (project.getProjectId() > 0) {
             ProjectPO current = projectDao.get(project.getProjectId());
             Assert.notNull(current, "项目不存在");
-            projectPO.setProjectNo(current.getProjectNo()); // 禁止修改
+            //projectPO.setProjectNo(current.getProjectNo());
             projectDao.update(projectPO);
         } else {
             ProjectPO current = projectDao.getByProjectNo(project.getProjectNo());
