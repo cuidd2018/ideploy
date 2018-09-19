@@ -12,8 +12,8 @@
 
     <!-- 新增 -->
 	<insert id="insert" parameterType="io.ideploy.deployment.admin.po.deploy.DeployHistoryPO" useGeneratedKeys="true" keyProperty="historyId">
-		insert into t_deploy_history (history_id,title,create_time,account_id,deploy_time,result,audit_time,auditor_id,tag_name,version_no,is_restart,is_rollback,rollback_to_deploy_id,module_id,module_name,env_id,project_id,deploy_servers,success_count,concurrent_server_percentage,deploy_time_interval,real_name,force_compile,deploy_status,server_strategy)
-		values (#{historyId},#{title},#{createTime},#{accountId},#{deployTime},#{result},#{auditTime},#{auditorId},#{tagName},#{versionNo},#{isRestart},#{isRollback},#{rollbackToDeployId},#{moduleId},#{moduleName},#{envId},#{projectId},#{deployServers},#{successCount},#{concurrentServerPercentage},#{deployTimeInterval},#{realName},#{forceCompile},#{deployStatus},#{serverStrategy})
+		insert into t_deploy_history (history_id,title,create_time,account_id,deploy_time,result,audit_time,auditor_id,tag_name,version_no,is_restart,is_rollback,rollback_to_deploy_id,module_id,module_name,app_name,env_id,project_id,deploy_servers,success_count,concurrent_server_percentage,deploy_time_interval,real_name,force_compile,deploy_status,server_strategy)
+		values (#{historyId},#{title},#{createTime},#{accountId},#{deployTime},#{result},#{auditTime},#{auditorId},#{tagName},#{versionNo},#{isRestart},#{isRollback},#{rollbackToDeployId},#{moduleId},#{moduleName},#{appName},#{envId},#{projectId},#{deployServers},#{successCount},#{concurrentServerPercentage},#{deployTimeInterval},#{realName},#{forceCompile},#{deployStatus},#{serverStrategy})
 	</insert>
 
 	<!-- 根据主键或复合主键查询数据 -->

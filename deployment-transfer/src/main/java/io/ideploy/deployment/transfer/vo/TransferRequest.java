@@ -47,10 +47,8 @@ public class TransferRequest {
      */
     private String moduleName;
 
-    /***
-     * 是否空模块工程
-     */
-    private int structureType;
+    private String appName;
+
 
     /**
      * 环境
@@ -272,14 +270,6 @@ public class TransferRequest {
         this.rollBackDeployId = rollBackDeployId;
     }
 
-    public int getStructureType() {
-        return structureType;
-    }
-
-    public void setStructureType(int structureType) {
-        this.structureType = structureType;
-    }
-
     public String getDeployArgs() {
         return deployArgs;
     }
@@ -310,5 +300,13 @@ public class TransferRequest {
 
     public void setPostDeploy(String postDeploy) {
         this.postDeploy = postDeploy;
+    }
+
+    public String getAppName() {
+        return appName;
+    }
+
+    public void setAppName(String appName) {
+        this.appName = appName;
     }
 }

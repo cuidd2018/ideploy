@@ -5,12 +5,13 @@
 
 	<!-- 新增 -->
 	<insert id="insert" parameterType="io.ideploy.deployment.admin.po.project.ProjectModulePO" useGeneratedKeys="true" keyProperty="moduleId">
-		insert into t_project_module (module_id,module_name_zh,module_name,module_type,src_path,pre_deploy,post_deploy,pre_shell,deploy_args,post_shell,log_name,repo_type,repo_url,create_time,compile_shell,stop_shell,restart_shell,project_id,need_audit,svn_account,svn_password) values (#{moduleId},#{moduleNameZh},#{moduleName},#{moduleType},#{srcPath},#{preDeploy},#{postDeploy}#{preShell},#{deployArgs},#{postShell},#{logName},#{repoType},#{repoUrl},#{createTime},#{compileShell},#{stopShell},#{restartShell},#{projectId},#{needAudit},#{svnAccount},#{svnPassword})
+		insert into t_project_module (module_id,module_name_zh,app_name,module_name,module_type,src_path,pre_deploy,post_deploy,pre_shell,deploy_args,post_shell,log_name,repo_type,repo_url,create_time,compile_shell,stop_shell,restart_shell,project_id,need_audit,svn_account,svn_password) values
+		(#{moduleId},#{moduleNameZh},#{appName},#{moduleName},#{moduleType},#{srcPath},#{preDeploy},#{postDeploy},#{preShell},#{deployArgs},#{postShell},#{logName},#{repoType},#{repoUrl},#{createTime},#{compileShell},#{stopShell},#{restartShell},#{projectId},#{needAudit},#{svnAccount},#{svnPassword})
 	</insert>
 
 	<!-- 更新 -->
 	<update id="update" parameterType="io.ideploy.deployment.admin.po.project.ProjectModulePO">
-		update t_project_module set module_name_zh=#{moduleNameZh},module_name=#{moduleName},module_type=#{moduleType},src_path=#{srcPath},pre_deploy=#{preDeploy},post_deploy=#{postDeploy},pre_shell=#{preShell},deploy_args=#{deployArgs},post_shell=#{postShell},log_name=#{logName},repo_type=#{repoType},repo_url=#{repoUrl},compile_shell=#{compileShell},stop_shell=#{stopShell},restart_shell=#{restartShell},project_id=#{projectId},need_audit=#{needAudit},svn_account=#{svnAccount},svn_password=#{svnPassword} where module_id=#{moduleId}
+		update t_project_module set module_name_zh=#{moduleNameZh},app_name=#{appName},module_name=#{moduleName},module_type=#{moduleType},src_path=#{srcPath},pre_deploy=#{preDeploy},post_deploy=#{postDeploy},pre_shell=#{preShell},deploy_args=#{deployArgs},post_shell=#{postShell},log_name=#{logName},repo_type=#{repoType},repo_url=#{repoUrl},compile_shell=#{compileShell},stop_shell=#{stopShell},restart_shell=#{restartShell},project_id=#{projectId},need_audit=#{needAudit},svn_account=#{svnAccount},svn_password=#{svnPassword} where module_id=#{moduleId}
 	</update>
 
 	<!-- 删除 -->

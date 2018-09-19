@@ -138,13 +138,6 @@ public class CompileShellTemplate {
                 + "/" + tagName;
 
         String checkoutShell = buildCheckoutShell(tagName, checkoutDir);
-        if(compileRequest.getStructureType() == 1){
-            logger.info("空模块工程，生成辅助子模块：{}", checkoutDir + "/" + compileRequest.getModuleName());
-            /***
-             * 空模块工程，创造一个默认的模块
-             */
-            checkoutShell = buildCheckoutShell(tagName, checkoutDir + "/" + compileRequest.getModuleName());
-        }
 
         compileTplContent = compileTplContent
                 .replaceAll(CompileTplArgs.BRANCH_DIR, checkoutDir)

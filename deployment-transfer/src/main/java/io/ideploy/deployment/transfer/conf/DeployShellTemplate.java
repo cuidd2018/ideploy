@@ -41,6 +41,7 @@ public class DeployShellTemplate {
      */
     private String shortModuleName;
 
+
     /**
      * 传输请求
      */
@@ -199,11 +200,13 @@ public class DeployShellTemplate {
 
     private void replaceCollectLogArgs() {
 
-        String deployLogPath = "/tmp/deploy_" + shortModuleName + ".log";
+        String deployLogPath = "/tmp/deploy_" + request.getAppName() + ".log";
 
-        String moduleErrLogPath = AppConfigFileUtil.getServerFileDir() + request.getProjectName() + "/" + shortModuleName + "_err.log";
+        String moduleErrLogPath = AppConfigFileUtil.getServerFileDir() + request.getProjectName() + "/" + request.getAppName() + "_err.log";
 
         deployTplContents = deployTplContents.replaceAll(DeployTplArgs.MODULE_NAME, shortModuleName);
+
+        deployTplContents = deployTplContents.replaceAll(DeployTplArgs.APP_NAME, request.getAppName());
 
         deployTplContents = deployTplContents.replaceAll(DeployTplArgs.ENV, request.getEnv());
 

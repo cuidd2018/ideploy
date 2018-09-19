@@ -88,6 +88,8 @@ public class DeployHistoryPO implements Serializable {
 	/** 模块名称 */
 	private String moduleName;
 
+	private String appName;
+
 	/** 环境 */
 	private int envId;
 
@@ -327,4 +329,12 @@ public class DeployHistoryPO implements Serializable {
 	public void setServerStrategy(short serverStrategy) {
 		this.serverStrategy = serverStrategy;
 	}
+
+    public String getAppName() {
+        return appName;
+    }
+
+    public void setAppName(String appName) {
+        this.appName = appName;
+    }
 }

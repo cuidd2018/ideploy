@@ -28,10 +28,6 @@ public class Project implements Serializable {
     @Length(min = 1, max = 30, message = "项目名称的长度是1~30个字符")
     private String projectName;
 
-    /***
-     * 工程结构 0-多模块  1-空模块结构
-     */
-    private int structureType;
 
     /**
      * 项目管理员ID
@@ -91,13 +87,6 @@ public class Project implements Serializable {
      */
     private String managers;
 
-    public int getStructureType() {
-        return structureType;
-    }
-
-    public void setStructureType(int structureType) {
-        this.structureType = structureType;
-    }
 
     public void setProjectId(int projectId) {
         this.projectId = projectId;

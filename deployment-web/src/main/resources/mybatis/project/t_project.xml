@@ -6,12 +6,12 @@
     <!-- 新增 -->
     <insert id="insert" parameterType="io.ideploy.deployment.admin.po.project.ProjectPO" useGeneratedKeys="true"
             keyProperty="projectId">
-		insert into t_project (project_id,structure_type,project_name,manager_id,manager_name,manager_email,manager_phone,create_time,project_no,program_language) values (#{projectId},#{structureType},#{projectName},#{managerId},#{managerName},#{managerEmail},#{managerPhone},#{createTime},#{projectNo},#{programLanguage})
+		insert into t_project (project_id,project_name,manager_id,manager_name,manager_email,manager_phone,create_time,project_no,program_language) values (#{projectId},#{projectName},#{managerId},#{managerName},#{managerEmail},#{managerPhone},#{createTime},#{projectNo},#{programLanguage})
 	</insert>
 
     <!-- 更新 -->
     <update id="update" parameterType="io.ideploy.deployment.admin.po.project.ProjectPO">
-		update t_project set project_name=#{projectName},structure_type=#{structureType},manager_id=#{managerId},manager_name=#{managerName},manager_email=#{managerEmail},manager_phone=#{managerPhone},project_no=#{projectNo},program_language=#{programLanguage} where project_id=#{projectId}
+		update t_project set project_name=#{projectName},manager_id=#{managerId},manager_name=#{managerName},manager_email=#{managerEmail},manager_phone=#{managerPhone},project_no=#{projectNo},program_language=#{programLanguage} where project_id=#{projectId}
 	</update>
 
     <!-- 根据主键读取记录（主键可能有多个） -->

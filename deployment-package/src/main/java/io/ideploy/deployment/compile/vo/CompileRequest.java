@@ -17,11 +17,6 @@ public class CompileRequest {
      */
     private String compileShell;
 
-    /***
-     * 是否空模块工程
-     */
-    private int structureType;
-
     /**
      * module名称
      */
@@ -225,11 +220,4 @@ public class CompileRequest {
         this.language = language;
     }
 
-    public int getStructureType() {
-        return structureType;
-    }
-
-    public void setStructureType(int structureType) {
-        this.structureType = structureType;
-    }
 }

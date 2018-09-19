@@ -104,6 +104,16 @@
                                     </div>
                                 </div>
 
+                                <div class="row">
+                                    <div class="form-group">
+                                        <label class="col-md-2 control-label text-right">服务名</label>
+                                        <div class="col-md-6">
+                                            <input type="text" name="appName" id="appName" class="form-control"
+                                                   value=""
+                                                   placeholder="服务名，通常跟模块名一致"/>
+                                        </div>
+                                    </div>
+                                </div>
 
                                 <div class="row">
                                     <div class="form-group">
@@ -111,7 +121,7 @@
                                         <div class="col-md-6">
                                             <input type="text" name="moduleName" id="moduleName" class="form-control"
                                                    value=""
-                                                   placeholder="项目里的module名称，比如xxxx-impl"/>
+                                                   placeholder="工程结构里的module名称，比如xxxx-impl"/>
                                         </div>
                                     </div>
                                 </div>
@@ -667,12 +677,6 @@
                     $('#projectId').val(projectId);
                     $('#projectName').text(project.projectName);
                     $('#projectManagerName').text(project.managerName);
-                    if(project.structureType == 1){
-                      $('#moduleName').val(project.projectNo);
-                      $('#moduleNameZh').val(project.projectNo);
-                      $("#moduleName").attr("disabled", true);
-                      $("#moduleNameZh").attr("disabled", true);
-                    }
                 }
                 var serverGroups = moduleDetail.serverGroups;
                 globalEnvs = moduleDetail.envs;
@@ -811,10 +815,6 @@
                     $('#projectName').text(project.projectName);
                     $('#projectManagerName').text(project.managerName);
                     $('#viewProjectLink').prop('href', '/admin/project/viewProject.xhtml?projectId=' + project.projectId);
-                  if(project.structureType == 1){
-                    $("#moduleName").attr("disabled", true);
-                    $("#moduleNameZh").attr("disabled", true);
-                  }
                 }
 
                 var projectModule = moduleDetail.projectModule;
@@ -823,6 +823,7 @@
                     $('#moduleId').val(projectModule.moduleId);
                     $('#moduleNameZh').val(projectModule.moduleNameZh);
                     $('#moduleName').val(projectModule.moduleName);
+                    $('#appName').val(projectModule.appName)
                     $("input[name='moduleType'][value='" + projectModule.moduleType + "']").prop("checked", true);
                     $('#repoUrl').val(projectModule.repoUrl);
                     $('#srcPath').val(projectModule.srcPath);
@@ -896,6 +897,7 @@
         projectModule.moduleId = $('#moduleId').val();
         projectModule.projectId = $('#projectId').val();
         projectModule.moduleNameZh = $('#moduleNameZh').val().trim();
+        projectModule.appName = $('#appName').val().trim();
         projectModule.moduleName = $('#moduleName').val().trim();
         projectModule.moduleType = $('input:radio[name="moduleType"]:checked').val();
         projectModule.repoUrl = $('#repoUrl').val().trim();
@@ -1055,6 +1057,9 @@
 
         if ($("#moduleNameZh").val() == '') {
             message = '模块名称不能为空';
+        }
+        if ($("#appName").val() == '') {
+            message = '服务名不能为空';
         }
         if ($("#repoType").val() == '') {
             message = '版本管理类型不能为空，请选择是SVN或GIT';

@@ -7,10 +7,10 @@ import io.ideploy.deployment.cfg.ModuleConfig;
  * @description:
  * @date: Created in 18:42 2018/9/17
  */
-public class ModuleVarArgs {
+public interface ModuleVarArgs {
 
-    public static String deployDir = "\\$\\{" + ModuleConfig.KEY_DEPLOY_DIR+ "\\}";
+    String deployDir = "\\$\\{" + ModuleConfig.KEY_DEPLOY_DIR+ "\\}";
 
-    public static String backupDir = "\\$\\{" + ModuleConfig.KEY_BACKUP_DIR + "\\}";
+    String backupDir = "\\$\\{" + ModuleConfig.KEY_BACKUP_DIR + "\\}";
 
 }

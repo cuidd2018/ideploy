@@ -24,6 +24,8 @@ public class ProjectModule implements Serializable {
 	/** 模块中文名称 */
 	private String moduleNameZh;
 
+	private String appName;
+
 	/** 模块名称 */
 	private String moduleName;
 
@@ -289,6 +291,14 @@ public class ProjectModule implements Serializable {
 
     public void setPostDeploy(String postDeploy) {
         this.postDeploy = postDeploy;
+    }
+
+    public String getAppName() {
+        return appName;
+    }
+
+    public void setAppName(String appName) {
+        this.appName = appName;
     }
 
     public String toString() {

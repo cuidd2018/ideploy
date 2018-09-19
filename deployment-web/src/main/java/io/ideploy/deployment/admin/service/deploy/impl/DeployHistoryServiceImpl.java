@@ -142,6 +142,7 @@ public class DeployHistoryServiceImpl implements DeployHistoryService {
         deployHistory.setCreateTime(new Date());
         deployHistory.setProjectId(module.getProjectId());
         deployHistory.setModuleName(module.getModuleName());
+        deployHistory.setAppName(module.getAppName());
         deployHistory.setResult(DeployResult.NONE.getValue());
         // 如果模块需要审核，进入审核，否则进入发布阶段
         if (needAudit(module, deployHistory)) {
@@ -464,6 +465,7 @@ public class DeployHistoryServiceImpl implements DeployHistoryService {
         po.setProjectId(module.getProjectId());
         po.setModuleId(module.getModuleId());
         po.setModuleName(module.getModuleName());
+        po.setAppName(module.getAppName());
         po.setVersionNo("");
         po.setIsRestart(Constants.TRUE);
         po.setEnvId(serverGroup.getEnvId());
@@ -973,16 +975,9 @@ public class DeployHistoryServiceImpl implements DeployHistoryService {
             compileRequest.setHistoryId(deployHistory.getHistoryId());
 
             compileRequest.setCompileShell(module.getCompileShell());
-            if(project.getStructureType() == 0) {
-                compileRequest.setModuleName(module.getModuleName());
-            }
-            else{
-                /***
-                 * 空模块工程，使用工程代号作为名字
-                 */
-                compileRequest.setModuleName(project.getProjectNo());
-                compileRequest.setStructureType(project.getStructureType());
-            }
+
+            compileRequest.setModuleName(module.getModuleName());
+
             compileRequest.setProjectName(project.getProjectNo());
             compileRequest.setEnv(envName);
             compileRequest.setTagName(deployHistory.getTagName());
@@ -1006,16 +1001,10 @@ public class DeployHistoryServiceImpl implements DeployHistoryService {
             TransferRequest request = new TransferRequest();
             request.setHistoryId(deployHistory.getHistoryId());
             request.setSaveFileName(getSaveFileName());
-            if(project.getStructureType() == 0) {
-                request.setModuleName(deployHistory.getModuleName());
-            }
-            else{
-                /***
-                 * 空模块工程特殊处理
-                 */
-                request.setStructureType(project.getStructureType());
-                request.setModuleName(project.getProjectNo());
-            }
+
+            request.setModuleName(deployHistory.getModuleName());
+            request.setAppName(deployHistory.getAppName());
+
             CompileConfig compileConfig= new CompileConfig();
 
             request.setEnv(envName);

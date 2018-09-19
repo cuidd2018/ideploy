@@ -37,6 +37,7 @@ cat /dev/null >${MODULE_ERR_LOG}
 
 backupModule() {
 
+
     logDeploy "开始对当前版本进行备份"
 
     backupTime=`date '+%Y%m%d-%H%M%S'`
@@ -76,6 +77,11 @@ backupModule() {
         exit 1
     fi
     logDeploy "备份完成"
+
+    #删除发布的压缩文件
+    if [ -f "${MODULE_DIR}/../${MODULE_TAR_FILE}" ]; then
+        rm -rf "${MODULE_DIR}/../${MODULE_TAR_FILE}"
+    fi
 }
 
 decompressModule() {
@@ -309,7 +315,7 @@ checkProcessOn() {
     sleep 2
     # dubbo服务监测进程是否存在
     if [ $webProjectFlag -eq 2 ];then
-        dubboPid=`ps -ef | grep java | grep ${PROJECT_NAME} | grep '/${MODULE_NAME}/*' | awk '{print $2}'`
+        dubboPid=`ps -ef | grep java | grep '/${APP_NAME}/*' | awk '{print $2}'`
         if [ ! -n "$dubboPid" ]; then
             logDeploy "服务进程启动失败"
             exit 1

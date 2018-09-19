@@ -44,6 +44,9 @@ public class ProjectModulePO implements Serializable {
 	/** 模块中文名称 */
 	private String moduleNameZh;
 
+    /** 模块名称 */
+    private String appName;
+
 	/** 模块名称 */
 	private String moduleName;
 
@@ -57,13 +60,13 @@ public class ProjectModulePO implements Serializable {
 	private String srcPath;
 
 	/** 部署自定变量 **/
-	private String deployArgs;
+	private String deployArgs="";
 
     /** 开始部署执行操作 **/
-    private String preDeploy;
+    private String preDeploy="";
 
     /** 部署完成执行操作 **/
-    private String postDeploy;
+    private String postDeploy="";
 
 	/** 发布前执行的shell */
 	private String preShell = "";
@@ -284,4 +287,12 @@ public class ProjectModulePO implements Serializable {
     public void setServerGroups(List<ServerGroup> serverGroups) {
 		this.serverGroups = serverGroups;
 	}
+
+    public String getAppName() {
+        return appName;
+    }
+
+    public void setAppName(String appName) {
+        this.appName = appName;
+    }
 }

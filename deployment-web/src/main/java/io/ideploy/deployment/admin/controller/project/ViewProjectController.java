@@ -244,6 +244,7 @@ public class ViewProjectController {
             request.setSaveFileName(null);
             request.setModuleName(module.getModuleName());
             request.setEnv(env.getEnvName());
+            request.setAppName(module.getAppName());
             request.setProjectName(project.getProjectNo());
             request.setRestartShell(module.getRestartShell());
             request.setJvmArgs(getModuleJvmArgs(module.getModuleId(), serverGroup.getEnvId()));

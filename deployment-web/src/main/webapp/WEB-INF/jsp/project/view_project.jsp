@@ -287,9 +287,6 @@
                     if (projectDetail.modules) {
                         $(".moduleName").css("color", "black");
                         viewModule(projectDetail.modules[0].moduleId);
-                        if(projectDetail.project.structureType == 1 && projectDetail.modules.length > 0){
-                          $("#addModule").attr("disabled", true);
-                        }
                     }
                 } else {
                     BootstrapDialog.alert(json.message);

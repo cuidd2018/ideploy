@@ -77,7 +77,7 @@
                             <div class="row form-group">
                                 <label class="col-md-2 control-label text-right">项目&模块</label>
                                 <div class="col-md-10">
-                                    ${history.projectName} , ${history.moduleName}
+                                    ${history.projectName} , ${history.appName}
                                 </div>
                             </div>
                             <div class="row form-group">
