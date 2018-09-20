@@ -77,7 +77,7 @@ public abstract class AbstractTransferService {
         Assert.hasText(request.getModuleName(), "模块名称不能为空");
         shortModuleName = ModuleUtil.getShortModuleName(transferRequest.getModuleName());
 
-        transferConfig = new TransferConfig();
+        transferConfig = new TransferConfig(request);
         transferConfig.load(transferRequest.getDeployArgs());
     }
 
@@ -131,7 +131,7 @@ public abstract class AbstractTransferService {
             dir.mkdirs();
         }
 
-        String fullPathFileName = downloadDir + shortModuleName + FileStorageUtil.EXT;
+        String fullPathFileName = downloadDir + request.getAppName() + FileStorageUtil.EXT;
         File file = new File(fullPathFileName);
         if (file.exists()) {
             file.delete();
@@ -145,8 +145,9 @@ public abstract class AbstractTransferService {
             return;
         }
 
-        String shellUploadDir = AppConfigFileUtil.getServerShellDir() + request.getProjectName() + "/" + shortModuleName + "/";
-        String serverUploadDir = AppConfigFileUtil.getServerFileDir() + request.getProjectName() + "/" + shortModuleName + "/";
+        String shellUploadDir = transferConfig.getServerShellDir();
+        //String serverUploadDir = AppConfigFileUtil.getServerFileDir() + request.getProjectName() + "/" + shortModuleName + "/";
+        String serverUploadDir = transferConfig.getServerUploadDir();
 
         List<String> needBuildDirs = Lists.newArrayList("mkdir -p " + shellUploadDir, "mkdir -p " + serverUploadDir);
 
@@ -270,7 +271,7 @@ public abstract class AbstractTransferService {
             //String hostFile = generateHostFile();
             for(String ip: getSuccessIps()) {
                 String[] args = {"-i", ip+",", "all", "-m", "unarchive", "-a",
-                        "src=" + taredFilePath + " dest=" + getScriptServerDir() + " mode=755"};
+                        "src=" + taredFilePath + " dest=" + transferConfig.getServerShellDir()+ " mode=755"};
                 execAnsibleCommand(CommandUtil.ansibleCmdArgs(args, 1));
                 //FileUtils.deleteQuietly(new File(hostFile));
             }
@@ -280,7 +281,8 @@ public abstract class AbstractTransferService {
     }
 
     protected   String getScriptServerDir() {
-        return AppConfigFileUtil.getServerShellDir() + request.getProjectName() + "/" + shortModuleName + "/";
+        //return AppConfigFileUtil.getServerShellDir() + request.getProjectName() + "/" + shortModuleName + "/";
+        return transferConfig.getServerShellDir();
     }
 
     public boolean isNewDeploy() {

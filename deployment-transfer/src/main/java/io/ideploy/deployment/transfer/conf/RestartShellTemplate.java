@@ -43,7 +43,7 @@ public class RestartShellTemplate {
         this.shortModuleName = shortModuleName;
         this.request = request;
         this.isStop = isStop;
-        transferConfig = new TransferConfig();
+        transferConfig = new TransferConfig(request);
         transferConfig.load(request.getDeployArgs());
 
         startupTplContents = ShellTemplateFileUtil.getStartupShellTpl();
@@ -54,7 +54,7 @@ public class RestartShellTemplate {
      * 生成restart脚本的文件
      */
     public String generateRestartShellFile() throws IOException {
-        String restartShellFilePath = FileUtils.getTempDirectoryPath() + "/restart_" + shortModuleName + ".sh";
+        String restartShellFilePath = FileUtils.getTempDirectoryPath() + "/restart_" + request.getAppName() + ".sh";
         FileWriter writer = null;
 
         replaceStartupTplArgs();
@@ -81,7 +81,7 @@ public class RestartShellTemplate {
                 if (isStop) {
                     shell = request.getStopShell();
                 }
-                shell = shell.replaceAll(ModuleVarArgs.deployDir, transferConfig.getDeployDir(request));
+                shell = shell.replaceAll(ModuleVarArgs.deployDir, transferConfig.getDeployDir());
                 writer.write(StringUtils.trimToEmpty(shell));
             }
         } catch (IOException e) {
@@ -96,11 +96,9 @@ public class RestartShellTemplate {
     }
 
     private void replaceStartupTplArgs() {
-        String projectDir = AppConfigFileUtil.getServerFileDir() + request.getProjectName() + "/";
-        String modulePidFile = AppConfigFileUtil.getServerFileDir() + request.getProjectName() + "/"
-                + shortModuleName + "/" + shortModuleName + ".pid";
+        String modulePidFile = transferConfig.getDeployDir() + "/" + shortModuleName + ".pid";
         startupTplContents = startupTplContents
-                .replaceAll(StartupTplArgs.PROJECT_DIR, projectDir)
+                .replaceAll(StartupTplArgs.PROJECT_DIR, transferConfig.getDeployDir())
                 .replaceAll(StartupTplArgs.MODULE_NAME, shortModuleName)
                 .replaceAll(StartupTplArgs.MODULE_PID_FILE, modulePidFile);
     }

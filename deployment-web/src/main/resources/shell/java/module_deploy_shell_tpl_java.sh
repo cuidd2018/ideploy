@@ -18,7 +18,6 @@ LOG_FILE=${LOG_FILE_DIR}
 touch ${LOG_FILE}
 echo "" > ${LOG_FILE}
 
-mkdir -p ${GC_LOG_DIR}
 webProjectFlag=${WEB_PROJECT_FLAG}
 if [ $webProjectFlag -eq 1 ]; then
     mkdir -p ${RESIN_ACCESS_LOG_DIR}
@@ -35,19 +34,24 @@ fi
 touch ${MODULE_ERR_LOG}
 cat /dev/null >${MODULE_ERR_LOG}
 
+#gc日志是否已经备份 0-未备份 1-已备份
+gcLogBackUp=0
+backupTime=`date '+%Y%m%d-%H%M%S'`
+
 backupModule() {
 
 
     logDeploy "开始对当前版本进行备份"
 
-    backupTime=`date '+%Y%m%d-%H%M%S'`
     mkdir -p ${BACKUP_DIR}/$backupTime-$deployId/code
     mkdir -p ${BACKUP_DIR}/$backupTime-$deployId/conf
+
+
     # jar/war文件
-    if [ -d ${MODULE_DIR} ];then
-        hasFile=`ls ${MODULE_DIR} | wc -l`
+    if [ -d ${DEPLOY_DIR} ];then
+        hasFile=`ls ${DEPLOY_DIR} | wc -l`
         if [ $hasFile -gt 0 ];then
-           cp -rf ${MODULE_DIR}/* ${BACKUP_DIR}/$backupTime-$deployId/code
+           cp -rf ${DEPLOY_DIR}/* ${BACKUP_DIR}/$backupTime-$deployId/code
            #删除pid文件，避免回滚的时候失败
            rm -f ${BACKUP_DIR}/$backupTime-$deployId/code/${PID_FILE}
         fi
@@ -79,17 +83,21 @@ backupModule() {
     logDeploy "备份完成"
 
     #删除发布的压缩文件
-    if [ -f "${MODULE_DIR}/../${MODULE_TAR_FILE}" ]; then
-        rm -rf "${MODULE_DIR}/../${MODULE_TAR_FILE}"
+    if [ -f "${DEPLOY_DIR}/../${MODULE_TAR_FILE}" ]; then
+        rm -rf "${DEPLOY_DIR}/../${MODULE_TAR_FILE}"
     fi
 }
 
 decompressModule() {
-    mkdir -p ${MODULE_DIR}
-    cd ${MODULE_DIR}
+    mkdir -p ${DEPLOY_DIR}
+    cd ${DEPLOY_DIR}
     ls |grep -v ${PID_FILE} | xargs rm -rf
     cd ..
-    tar -zxvf ${MODULE_TAR_FILE} -C ${MODULE_DIR} --strip-components 1 >/dev/null 2>&1
+    if [ ! -f "${MODULE_TAR_FILE}" ]; then
+        logDeploy "${MODULE_TAR_FILE}不存在"
+        exit 1
+    fi
+    tar -zxvf ${MODULE_TAR_FILE} -C ${DEPLOY_DIR} --strip-components 1 >/dev/null 2>&1
     decompressResult=$?
     if [ $decompressResult -ne 0 ]; then
         logDeploy "解压失败"
@@ -109,6 +117,8 @@ execPreDeploy() {
             logDeploy "执行部署前脚本完成"
        fi
      fi
+
+     backupGCFile
 }
 
 execPostDeploy() {
@@ -139,7 +149,7 @@ execPreShell() {
 
 execRestartShell() {
     backupGCFile
-    cd ${MODULE_DIR}
+    cd ${DEPLOY_DIR}
     deployResult=0
     if [ $webProjectFlag -eq 1 ]; then
             ${RESTART_SHELL}
@@ -216,8 +226,8 @@ execPostShell() {
 # 如果是web项目,将含有 oss文件 + resin配置文件的tar包解压,将配置文件放到对应目录
 prepareModuleFile() {
     if [ $webProjectFlag -eq 1 ]; then
-        mkdir -p ${MODULE_DIR}
-        cd ${MODULE_DIR}
+        mkdir -p ${DEPLOY_DIR}
+        cd ${DEPLOY_DIR}
         mv ${MODULE_TAR_FILE} ../
         # 移动resin配置文件
         mkdir -p  ${RESIN_CONF_DIR}
@@ -261,10 +271,10 @@ deployModule() {
 
 # 备份 GC 文件
 backupGCFile() {
-    if [ -f "${GC_LOG_DIR}/gc.log" ]; then
-        CURTIME=$(date +%Y-%m-%d-%H%M%S)
-        BAK_GCFILE="${GC_LOG_DIR}/gc.log.${CURTIME}"
-        cp ${GC_LOG_DIR}/gc.log $BAK_GCFILE
+    if [ -f "${GC_LOG_FILE}" ]&&[ $gcLogBackUp -eq 0 ]; then
+        mkdir -p ${BACKUP_DIR}/$backupTime-$deployId/gc
+        cp ${GC_LOG_FILE} ${BACKUP_DIR}/$backupTime-$deployId/gc
+        gcLogBackUp=1
     fi
 }
 
@@ -295,12 +305,12 @@ rollBackModuleFile() {
     rollBackVersion=`ls |grep "\-$rollBackDeployId\$"`
     # 恢复 jar/war , dubbo服务的需要保留pid，
     if [ $webProjectFlag -eq 1 ];then
-            rm -rf ${MODULE_DIR}/*
+            rm -rf ${DEPLOY_DIR}/*
         #else
            # ls | grep -v '${PID_FILE}' | xargs rm -rf
     fi
 
-    \cp -rf ${BACKUP_DIR}/$rollBackVersion/code/* ${MODULE_DIR}
+    \cp -rf ${BACKUP_DIR}/$rollBackVersion/code/* ${DEPLOY_DIR}
     # 恢复resin配置文件
      if [ $webProjectFlag -eq 1 ];then
         \cp -rf ${BACKUP_DIR}/$rollBackVersion/conf/* ${RESIN_CONF_DIR}

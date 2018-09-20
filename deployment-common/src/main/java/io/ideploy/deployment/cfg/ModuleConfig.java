@@ -20,6 +20,10 @@ public class ModuleConfig {
 
     public static final String KEY_BACKUP_DIR = "backupDir";
 
+    public static final String KEY_GC_FILE = "gcFilePath";
+
+    public static final String KEY_SHELL_DIR = "shellDir";
+
     private static Logger logger = LoggerFactory.getLogger(ModuleConfig.class);
 
     protected Map<String,String> moduleDefines = new HashMap<>();

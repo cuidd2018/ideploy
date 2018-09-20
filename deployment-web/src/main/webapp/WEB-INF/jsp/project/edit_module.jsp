@@ -1318,8 +1318,15 @@
 
     $(function() {
       $('#helpDeployArgs').popover({
-        content: 'properties文件变量定义格式，比如：<br/>' +
-        'deployDir=/data0/project/ideploy #部署业务目录',
+        content: '<span class="text-danger">properties文件变量格式</span>，比如：<br/>' +
+        '#部署业务目录<br/>' +
+        'deployDir=/data0/project/ideploy<br/>' +
+        '#历史版本目录，回滚使用<br/>' +
+        'backupDir=/data0/backup/ideploy<br/>' +
+        '#发布系统在业务机器运行部署脚本存放目录<br/>' +
+        'shellDir=/data0/project/shell/ideploy <br/>' +
+        '#指定gc日志路径，发布时备份gc日志防丢失<br/>' +
+        'gcFilePath=/data0/logs/ideploy/gc.log <br/>',
         trigger: 'click',
         placement: 'bottom',
         html: 'true',

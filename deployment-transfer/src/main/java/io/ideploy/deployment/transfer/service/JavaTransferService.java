@@ -107,12 +107,12 @@ public class JavaTransferService extends AbstractTransferService {
             return;
         }
 
-        String taredFilePath = FileUtils.getTempDirectoryPath() + "/transfer_" + shortModuleName + ".tar";
+        String taredFilePath = FileUtils.getTempDirectoryPath() + "/transfer_" + request.getAppName() + ".tar";
         boolean localTarResult = FileCompressUtil.archive(fileResources, taredFilePath);
 
         unTarShell2Server(taredFilePath, localTarResult);
 
-        result.setSetupShellPath(getScriptServerDir() + "setup_" + shortModuleName + ".sh");
+        result.setSetupShellPath(getScriptServerDir() + "/setup_" + request.getAppName() + ".sh");
 
         FileUtils.deleteQuietly(new File(taredFilePath));
         FileUtils.deleteQuietly(new File(shellFilePath));
@@ -201,13 +201,13 @@ public class JavaTransferService extends AbstractTransferService {
                 }
                 logger.info("将resin配置文件和oss文件打包发送 ： " + tarFileLocalPath);
                 args = new String[]{"ansible", "-i", ip+",", "all", "-m", "unarchive", "-a",
-                        "src=" + tarFileLocalPath + " dest=" + transferConfig.getDeployDir(request)};
+                        "src=" + tarFileLocalPath + " dest=" + transferConfig.getDeployDir()};
                 logger.info("resin和oss压缩过后的文件是：" + tarFileLocalPath);
             } else {
                 logger.info("发送dubbo文件");
                 // dubbo服务的直接上传oss文件 (解压模块比传输模块多耗3S,所以dubbo服务不做解压)
                 args = new String[]{"ansible", "-i", ip+",", "all", "-m", "copy", "-a",
-                        "src=" + result.getDownloadFileName() + " dest=" + transferConfig.getServerUploadDir(request)};
+                        "src=" + result.getDownloadFileName() + " dest=" + transferConfig.getServerUploadDir()};
 
                 logger.info("传输打包文件:" + result.getDownloadFileName());
                 logger.info("传输打包文件的ansible:" + StringUtils.join(args, " "));
@@ -252,7 +252,7 @@ public class JavaTransferService extends AbstractTransferService {
             return null;
         }
 
-        RestartShellTemplate shellTemplate = new RestartShellTemplate(shortModuleName, request, isStop());
+        RestartShellTemplate shellTemplate = new RestartShellTemplate(request.getAppName(), request, isStop());
 
         String restartShellFilePath = null;
         try {

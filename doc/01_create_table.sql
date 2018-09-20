@@ -110,6 +110,7 @@ CREATE TABLE `t_deploy_history` (
   `is_rollback` tinyint(4) NOT NULL DEFAULT '0' COMMENT '本次发布是否是回滚操作, 0不是  1是',
   `rollback_to_deploy_id` int(11) NOT NULL DEFAULT '0' COMMENT '回滚到的版本发布历史ID',
   `module_id` int(11) NOT NULL COMMENT '哪个模块部署的',
+  `app_name` varchar(40) not null default '' comment '应用名',
   `module_name` varchar(80) NOT NULL COMMENT '模块名称',
   `env_id` int(11) NOT NULL COMMENT '环境',
   `project_id` int(11) NOT NULL COMMENT '项目ID',
@@ -263,6 +264,7 @@ DROP TABLE IF EXISTS `t_project_module`;
 CREATE TABLE `t_project_module` (
   `module_id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
   `module_name_zh` varchar(40) NOT NULL DEFAULT '' COMMENT '模块中文名称',
+  `app_name` varchar(40) not null default '' comment '应用名',
   `module_name` varchar(80) NOT NULL DEFAULT '' COMMENT '模块名称',
   `module_type` tinyint(4) NOT NULL DEFAULT '1' COMMENT '模块类型，1代表web项目 2代表dubbo服务',
   `src_path` varchar(200) NOT NULL DEFAULT '' COMMENT 'SVN上的目录，比如 service-impl/target/*.jar'

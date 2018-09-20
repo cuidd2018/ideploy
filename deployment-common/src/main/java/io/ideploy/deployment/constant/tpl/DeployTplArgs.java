@@ -75,7 +75,7 @@ public interface DeployTplArgs {
     /**
      * 模块目录
      */
-    String MODULE_DIR = "\\$\\{MODULE_DIR\\}";
+    String DEPLOY_DIR = "\\$\\{DEPLOY_DIR\\}";
 
     /**
      * 项目目录 （针对静态项目）
@@ -156,7 +156,9 @@ public interface DeployTplArgs {
     /**
      * gc 日志的目录
      */
-    String GC_LOG_DIR = "\\$\\{GC_LOG_DIR\\}";
+    //String GC_LOG_DIR = "\\$\\{GC_LOG_DIR\\}";
+
+    String GC_LOG_FILE= "\\$\\{GC_LOG_FILE\\}";
 
     /**
      * resin access log 目录

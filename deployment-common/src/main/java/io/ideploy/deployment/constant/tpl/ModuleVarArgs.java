@@ -13,4 +13,8 @@ public interface ModuleVarArgs {
 
     String backupDir = "\\$\\{" + ModuleConfig.KEY_BACKUP_DIR + "\\}";
 
+    String gcFilePath = "\\$\\{" + ModuleConfig.KEY_GC_FILE + "\\}";
+
+    String shellDir = "\\$\\{" + ModuleConfig.KEY_SHELL_DIR + "\\}";
+
 }
