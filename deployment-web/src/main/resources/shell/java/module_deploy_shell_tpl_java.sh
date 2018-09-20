@@ -279,6 +279,9 @@ backupGCFile() {
 }
 
 logErrorInfo() {
+  if [ ! -f ${MODULE_ERR_LOG} ]; then
+    touch ${MODULE_ERR_LOG}
+  fi
   errorInfo=`cat ${MODULE_ERR_LOG}`
   if [ -n "$errorInfo" ]; then
      logDeploy "启动失败错误信息 : ""$errorInfo"
