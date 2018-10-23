@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 这里namespace必须是接口的路径，不然要运行的时候要报错 “is not known to the MapperRegistry” -->
+<mapper namespace="io.ideploy.deployment.admin.dao.global.RepoAuthDao">
+
+	<!-- 新增 -->
+	<insert id="save" parameterType="io.ideploy.deployment.admin.po.global.RepoAuthPO"  useGeneratedKeys="true" keyProperty="authId" >
+		insert into t_repo_auth (creator_id,auth_name,auth_desc,repo_type,account,password)
+		    values (#{creatorId},#{authName},#{authDesc},#{repoType},#{account},#{password})
+	</insert>
+
+	<!-- 根据主键，删除数据 -->
+	<delete id="deleteById" parameterType="Map">
+		DELETE FROM t_repo_auth WHERE auth_id=#{authId}
+	</delete>
+
+	<!-- 更新 -->
+	<update id="update" parameterType="io.ideploy.deployment.admin.po.global.RepoAuthPO">
+		update t_repo_auth set repo_type=#{repoType},account=#{account},auth_desc=#{authDesc}
+    <choose>
+		  	<when test="password != null and password != ''">
+				  ,password=#{password}
+			  </when>
+    </choose>
+		 ,update_time=now() where auth_id=#{authId}
+	</update>
+
+  <!-- 根据主键读取记录（主键可能有多个） -->
+  <select id="list" parameterType="Map" resultType="io.ideploy.deployment.admin.po.global.RepoAuthPO">
+    select * from t_repo_auth
+    where creator_id=#{uid}
+    <choose>
+      <when test="authName != null and authName != ''">
+       and auth_name like #{authName}
+      </when>
+    </choose>
+		order by auth_id DESC limit #{page},#{pageSize}
+  </select>
+
+  <select id="getTotalCnt" resultType="integer" parameterType="map" >
+    select count(1) from t_repo_auth where creator_id=#{uid}
+    <choose>
+    <when test="authName != null and authName != ''">
+      and auth_name like #{authName}
+    </when>
+  </choose>
+  </select>
+
+	<!-- 根据主键读取记录（主键可能有多个） -->
+	<select id="getById" parameterType="Map" resultType="io.ideploy.deployment.admin.po.global.RepoAuthPO">
+		SELECT * FROM t_repo_auth WHERE auth_id=#{authId}
+	</select>
+
+</mapper>

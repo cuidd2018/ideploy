@@ -284,6 +284,7 @@ logErrorInfo() {
   fi
   errorInfo=`cat ${MODULE_ERR_LOG}`
   if [ -n "$errorInfo" ]; then
+     echo  "启动失败错误信息 : ""$errorInfo" >&2
      logDeploy "启动失败错误信息 : ""$errorInfo"
      sleep 1
      exit 1
@@ -321,14 +322,12 @@ rollBackModuleFile() {
 }
 
 checkProcessOn() {
-
-
     logDeploy "开始检测进程是否启动"
     # 避免服务启动延迟
     sleep 2
     # dubbo服务监测进程是否存在
     if [ $webProjectFlag -eq 2 ];then
-        dubboPid=`ps -ef | grep java | grep '/${APP_NAME}/*' | awk '{print $2}'`
+        dubboPid=`ps -ef | grep java | grep '/${MODULE_NAME}/*' | awk '{print $2}'`
         if [ ! -n "$dubboPid" ]; then
             logDeploy "服务进程启动失败"
             exit 1

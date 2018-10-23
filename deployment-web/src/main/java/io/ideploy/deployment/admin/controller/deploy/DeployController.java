@@ -62,4 +62,20 @@ public class DeployController {
         }
         return new RestResult<>(null);
     }
+
+    /**
+     * 开始发布
+     * @return
+     */
+    @MenuResource("停止编译")
+    @RequestMapping("stopCompile.do")
+    @ResponseBody
+    public RestResult<Object> stopCompile(int historyId) {
+        try {
+            deployHistoryService.stopCompile(historyId, AdminContext.getAccountId());
+        } catch (RuntimeException e) {
+            return new RestResult<>(ApiCode.PARAMETER_ERROR, e.getMessage());
+        }
+        return new RestResult<>(null);
+    }
 }

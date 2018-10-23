@@ -110,7 +110,6 @@ CREATE TABLE `t_deploy_history` (
   `is_rollback` tinyint(4) NOT NULL DEFAULT '0' COMMENT '本次发布是否是回滚操作, 0不是  1是',
   `rollback_to_deploy_id` int(11) NOT NULL DEFAULT '0' COMMENT '回滚到的版本发布历史ID',
   `module_id` int(11) NOT NULL COMMENT '哪个模块部署的',
-  `app_name` varchar(40) not null default '' comment '应用名',
   `module_name` varchar(80) NOT NULL COMMENT '模块名称',
   `env_id` int(11) NOT NULL COMMENT '环境',
   `project_id` int(11) NOT NULL COMMENT '项目ID',
@@ -264,7 +263,6 @@ DROP TABLE IF EXISTS `t_project_module`;
 CREATE TABLE `t_project_module` (
   `module_id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
   `module_name_zh` varchar(40) NOT NULL DEFAULT '' COMMENT '模块中文名称',
-  `app_name` varchar(40) not null default '' comment '应用名',
   `module_name` varchar(80) NOT NULL DEFAULT '' COMMENT '模块名称',
   `module_type` tinyint(4) NOT NULL DEFAULT '1' COMMENT '模块类型，1代表web项目 2代表dubbo服务',
   `src_path` varchar(200) NOT NULL DEFAULT '' COMMENT 'SVN上的目录，比如 service-impl/target/*.jar'
@@ -274,7 +272,6 @@ CREATE TABLE `t_project_module` (
   `pre_shell` varchar(500) NOT NULL DEFAULT '' COMMENT '发布前执行的shell',
   `post_shell` varchar(500) NOT NULL DEFAULT '' COMMENT '发布后执行的shell',
   `log_name` varchar(200) NOT NULL DEFAULT '' COMMENT '日志名称，读取日志并返回',
-  `repo_type` tinyint(4) NOT NULL DEFAULT '1' COMMENT '版本管理类型, 1-svn, 2-git',
   `repo_url` varchar(200) NOT NULL DEFAULT '' COMMENT '版本管理地址，比如：svn://a.b.com/project/tags',
   `create_time` datetime NOT NULL COMMENT '创建时间',
   `compile_shell` varchar(200) NOT NULL COMMENT '编译脚本',
@@ -282,8 +279,7 @@ CREATE TABLE `t_project_module` (
   `restart_shell` varchar(200) NOT NULL COMMENT '重启服务脚本',
   `project_id` int(11) NOT NULL COMMENT '项目id',
   `need_audit` tinyint(2) NOT NULL DEFAULT '0' COMMENT '是否需要审核，0不需要，1需要',
-  `svn_account` varchar(100) NOT NULL DEFAULT '' COMMENT 'svn 帐号',
-  `svn_password` varchar(100) NOT NULL DEFAULT '' COMMENT 'svn 密码',
+  `repo_auth_id` int(11) NOT NULL COMMENT '仓库认证ID',
   `jvm_args` varchar(255) NOT NULL DEFAULT '' COMMENT 'JVM参数表',
   PRIMARY KEY (`module_id`),
   KEY `idx_moduleName` (`module_name`) USING BTREE
@@ -441,4 +437,38 @@ CREATE TABLE `t_url_resource` (
   UNIQUE KEY `uniq_Key_app_uri` (`app_id`,`uri`),
   KEY `idx_Key_parent_id` (`parent_res_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2131415868 DEFAULT CHARSET=utf8 COMMENT='权限控制的资源';
+
+DROP TABLE IF EXISTS `t_repo_auth`;
+CREATE TABLE `t_repo_auth` (
+  `auth_id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `creator_id` int(11) NOT NULL DEFAULT '0' COMMENT '创建者ID',
+  `auth_name` varchar(30) NOT NULL COMMENT '名称',
+  `auth_desc` varchar(200) NOT NULL COMMENT '描述',
+  `repo_type` tinyint(2) NOT NULL DEFAULT '1' COMMENT '仓库类型 1-Git仓库 2-SVN仓库',
+  `account` varchar(80) NOT NULL COMMENT '仓库账号',
+  `password` varchar(200) DEFAULT '' COMMENT '仓库账号密码',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`auth_id`),
+  KEY `idx_creator_id` (`creator_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='仓库访问配置';
+
+
+DROP TABLE IF EXISTS `t_repo_auth_relation`;
+CREATE TABLE `t_repo_auth_relation` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID',
+  `auth_id` int(11) NOT NULL DEFAULT '0' COMMENT '创建者ID',
+  `uid` varchar(30) NOT NULL COMMENT '名称',
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `update_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  KEY `idx_auth_id` (`auth_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='仓库用户关联';
+
+
+
+
+
+
+
 

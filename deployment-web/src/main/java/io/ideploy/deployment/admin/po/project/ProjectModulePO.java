@@ -44,8 +44,6 @@ public class ProjectModulePO implements Serializable {
 	/** 模块中文名称 */
 	private String moduleNameZh;
 
-    /** 模块名称 */
-    private String appName;
 
 	/** 模块名称 */
 	private String moduleName;
@@ -77,9 +75,6 @@ public class ProjectModulePO implements Serializable {
 	/** 日志名称，读取日志并返回 */
 	private String logName = "";
 
-	/** 版本管理类型 1-svn 2-git */
-	private short repoType = 1;
-
 	/** 版本管理地址，比如：svn://a.b.com/project/tags */
 	private String repoUrl;
 
@@ -101,11 +96,10 @@ public class ProjectModulePO implements Serializable {
 	/** 是否需要审核，0不需要，1需要 */
 	private short needAudit = Constants.TRUE;
 
-	/** svnAccount */
-	private String svnAccount;
-
-	/** svnPassword */
-	private String svnPassword;
+    /***
+     * 仓库认证ID
+     */
+	private int repoAuthId;
 
 	/**
 	 * 服务器组
@@ -184,14 +178,6 @@ public class ProjectModulePO implements Serializable {
 		return logName;
 	}
 
-	public void setRepoType(short repoType) {
-		this.repoType = repoType;
-	}
-
-	public short getRepoType() {
-		return repoType;
-	}
-
 	public void setRepoUrl(String repoUrl) {
 		this.repoUrl = repoUrl;
 	}
@@ -248,22 +234,6 @@ public class ProjectModulePO implements Serializable {
 		return needAudit;
 	}
 
-	public void setSvnAccount(String svnAccount) {
-		this.svnAccount = svnAccount;
-	}
-
-	public String getSvnAccount() {
-		return svnAccount;
-	}
-
-	public void setSvnPassword(String svnPassword) {
-		this.svnPassword = svnPassword;
-	}
-
-	public String getSvnPassword() {
-		return svnPassword;
-	}
-
 	public List<ServerGroup> getServerGroups() {
 		return serverGroups;
 	}
@@ -288,11 +258,11 @@ public class ProjectModulePO implements Serializable {
 		this.serverGroups = serverGroups;
 	}
 
-    public String getAppName() {
-        return appName;
+    public int getRepoAuthId() {
+        return repoAuthId;
     }
 
-    public void setAppName(String appName) {
-        this.appName = appName;
+    public void setRepoAuthId(int repoAuthId) {
+        this.repoAuthId = repoAuthId;
     }
 }

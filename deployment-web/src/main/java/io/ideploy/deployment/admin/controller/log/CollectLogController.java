@@ -50,8 +50,6 @@ public class CollectLogController {
         }else{
             return new RestResult(ApiCode.FAILURE, "内容不能为空");
         }
-
-
     }
 
 

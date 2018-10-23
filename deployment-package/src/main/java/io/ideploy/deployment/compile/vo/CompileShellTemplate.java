@@ -248,8 +248,8 @@ public class CompileShellTemplate {
                 + "/" + compileRequest.getTagName();
         // 1. 替换参数
         String compileShell = compileRequest.getCompileShell();
-        if (compileShell.contains("${" + ModuleUserShellArgs.MODULE_DIR + "}")) {
-            compileShell = compileShell.replaceAll("\\$\\{" + ModuleUserShellArgs.MODULE_DIR + "}", checkoutDir + "/" + compileRequest.getModuleName());
+        if (compileShell.contains("${" + ModuleUserShellArgs.compileDir + "}")) {
+            compileShell = compileShell.replaceAll("\\$\\{" + ModuleUserShellArgs.compileDir + "}", checkoutDir + "/");
         }
         String mvnTargetFileDir = getMvnTargetModuleDir();
         if (compileShell.contains("${" + ModuleUserShellArgs.TARGET_DIR + "}")) {

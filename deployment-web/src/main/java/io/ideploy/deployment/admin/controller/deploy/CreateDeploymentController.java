@@ -6,6 +6,7 @@ import io.ideploy.deployment.admin.common.RestResult;
 import io.ideploy.deployment.admin.context.AdminContext;
 import io.ideploy.deployment.admin.service.deploy.DeployHistoryService;
 import io.ideploy.deployment.admin.service.global.ProjectEnvService;
+import io.ideploy.deployment.admin.service.global.RepoAuthService;
 import io.ideploy.deployment.admin.service.project.ProjectModuleService;
 import io.ideploy.deployment.admin.service.project.ProjectService;
 import io.ideploy.deployment.admin.service.server.ServerGroupService;
@@ -15,6 +16,7 @@ import io.ideploy.deployment.admin.utils.resource.Menu;
 import io.ideploy.deployment.admin.utils.resource.MenuResource;
 import io.ideploy.deployment.admin.vo.deploy.DeployHistory;
 import io.ideploy.deployment.admin.vo.deploy.DeploymentOrder;
+import io.ideploy.deployment.admin.vo.global.RepoAuth;
 import io.ideploy.deployment.admin.vo.project.ModuleJvm;
 import io.ideploy.deployment.admin.vo.project.Project;
 import io.ideploy.deployment.admin.vo.project.ProjectModule;
@@ -79,6 +81,9 @@ public class CreateDeploymentController {
 
     @Autowired
     private ServerGroupService serverGroupService;
+
+    @Autowired
+    private RepoAuthService repoAuthService;
 
     /**
      * 页面最多显示200个项目
@@ -186,23 +191,36 @@ public class CreateDeploymentController {
     public RestResult<List<Map<String, Object>>> listRepository(int moduleId) {
         ProjectModule module = projectModuleService.getByModuleId(moduleId);
         List<Map<String, Object>> tags = new ArrayList<>();
-        if (module != null) {
-            if (module.getRepoType() == ModuleRepoType.SVN.getValue()) {
+        if (module == null) {
+            logger.error("module=null, moduleId: " + moduleId);
+            return new RestResult<>(tags);
+        }
+        try {
+            RepoAuth repoAuth = repoAuthService.get(module.getRepoAuthId());
+            if(repoAuth == null){
+                logger.error("module仓库认证信息错误, moduleId: " + moduleId);
+                return new RestResult<>(ApiCode.FAILURE, "模块配置错误", tags);
+            }
+            if (repoAuth.getRepoType() == ModuleRepoType.SVN.getValue()) {
 
-                String tagsPath = (module.getRepoUrl() + RepositoryConstants.TAGS).replaceAll("/" + RepositoryConstants.TAGS, RepositoryConstants.TAGS);
+                String tagsPath = (module.getRepoUrl() + RepositoryConstants.TAGS)
+                        .replaceAll("/" + RepositoryConstants.TAGS, RepositoryConstants.TAGS);
                 tags.addAll(fetchSvnTags(tagsPath, module));
-                String branchesPath = (module.getRepoUrl() + RepositoryConstants.BRANCHES).replaceAll("/" + RepositoryConstants.BRANCHES, RepositoryConstants.BRANCHES);
+                String branchesPath = (module.getRepoUrl() + RepositoryConstants.BRANCHES)
+                        .replaceAll("/" + RepositoryConstants.BRANCHES,
+                                RepositoryConstants.BRANCHES);
                 tags.addAll(fetchSvnTags(branchesPath, module));
 
-            } else if (module.getRepoType() == ModuleRepoType.GIT.getValue()) {
+            } else if (repoAuth.getRepoType() == ModuleRepoType.GIT.getValue()) {
 
                 tags.addAll(fetchGitBranches(module.getRepoUrl(), module));
 
             } else {
-                logger.warn("不支持类型 {}, moduleId: {}", module.getRepoType(), moduleId);
+                logger.warn("不支持类型 {}, moduleId: {}", repoAuth.getRepoType(), moduleId);
             }
-        } else {
-            logger.error("module=null, moduleId: " + moduleId);
+        }catch (Exception e){
+            logger.error("", e);
+            return new RestResult<>(ApiCode.FAILURE, e.getMessage(), tags);
         }
         return new RestResult<>(tags);
     }
@@ -287,7 +305,9 @@ public class CreateDeploymentController {
             SVNURL url = SVNURL.parseURIEncoded(svnAddr);
             final String prePath = (svnAddr.contains("/") ? svnAddr.substring(svnAddr.lastIndexOf("/")) : "");
             DefaultSVNOptions options = SVNWCUtil.createDefaultOptions(true);
-            SVNClientManager clientManager = SVNClientManager.newInstance(options, module.getSvnAccount(), module.getSvnPassword());
+            RepoAuth repoAuth = repoAuthService.get(module.getRepoAuthId());
+
+            SVNClientManager clientManager = SVNClientManager.newInstance(options, repoAuth.getAccount(), repoAuth.getPassword());
             SVNLogClient client = clientManager.getLogClient();
             client.doList(url, SVNRevision.HEAD, SVNRevision.HEAD, false, false, new ISVNDirEntryHandler() {
                 @Override
@@ -311,25 +331,23 @@ public class CreateDeploymentController {
         return list;
     }
 
-    private List<Map<String, Object>> fetchGitBranches(String gitURL, ProjectModule module) {
-        try {
-            List<Map<String, Object>> branchInfoList = new ArrayList<>();
-            Map<String, String> branch2VersionMap = RepoUtil
-                .getGitAllBranchInfo(gitURL, module.getSvnAccount(), module.getSvnPassword());
-            for (Map.Entry<String, String> entry : branch2VersionMap.entrySet()) {
-                HashMap<String, Object> infoType2ValueMap = Maps.newHashMap();
-                infoType2ValueMap.put("url", entry.getKey());
-                infoType2ValueMap.put("version", entry.getValue());
-                branchInfoList.add(infoType2ValueMap);
-            }
-            if (CollectionUtils.isNotEmpty(branchInfoList)) {
-                sortBranchInfo(branchInfoList);
-            }
-            return branchInfoList;
-        } catch (GitAPIException e) {
-            logger.error("获取git 分支信息失败", e);
+    private List<Map<String, Object>> fetchGitBranches(String gitURL, ProjectModule module)
+            throws GitAPIException {
+        List<Map<String, Object>> branchInfoList = new ArrayList<>();
+        RepoAuth repoAuth = repoAuthService.get(module.getRepoAuthId());
+        Map<String, String> branch2VersionMap = RepoUtil
+            .getGitAllBranchInfo(gitURL, repoAuth.getAccount(), repoAuth.getPassword());
+        for (Map.Entry<String, String> entry : branch2VersionMap.entrySet()) {
+            HashMap<String, Object> infoType2ValueMap = Maps.newHashMap();
+            infoType2ValueMap.put("url", entry.getKey());
+            infoType2ValueMap.put("version", entry.getValue());
+            branchInfoList.add(infoType2ValueMap);
         }
-        return Collections.emptyList();
+        if (CollectionUtils.isNotEmpty(branchInfoList)) {
+            sortBranchInfo(branchInfoList);
+        }
+        return branchInfoList;
+
     }
 
     private void sortBranchInfo(List<Map<String, Object>> branchInfoList) {
@@ -358,9 +376,10 @@ public class CreateDeploymentController {
         if (StringUtils.isBlank(order.getVersionNo()) && StringUtils.isNotBlank(order.getTagName())) {
             ProjectModule module = projectModuleService.getByModuleId(order.getModuleId());
             Assert.notNull(module, "模块不存在");
-            if (module.getRepoType() == ModuleRepoType.SVN.getValue()) {
+            RepoAuth repoAuth = repoAuthService.get(module.getRepoAuthId());
+            if (repoAuth.getRepoType() == ModuleRepoType.SVN.getValue()) {
                 ensureSvnRevision(order, module);
-            } else if (module.getRepoType() == ModuleRepoType.GIT.getValue()) {
+            } else if (repoAuth.getRepoType() == ModuleRepoType.GIT.getValue()) {
                 ensureGitRevision(order, module);
             }
         }
@@ -369,7 +388,8 @@ public class CreateDeploymentController {
     private void ensureGitRevision(DeploymentOrder order, ProjectModule module) {
         String tagName = order.getTagName().trim();
         try {
-            Map<String, String> branch2VersionMap = RepoUtil.getGitAllBranchInfo(module.getRepoUrl(), module.getSvnAccount(), module.getSvnPassword());
+            RepoAuth repoAuth = repoAuthService.get(module.getRepoAuthId());
+            Map<String, String> branch2VersionMap = RepoUtil.getGitAllBranchInfo(module.getRepoUrl(),repoAuth.getAccount(), repoAuth.getPassword());
             order.setVersionNo(branch2VersionMap.get(tagName));
 
         } catch (Exception e) {
@@ -387,7 +407,8 @@ public class CreateDeploymentController {
             SVNURL url = SVNURL.parseURIEncoded(svnAddr);
 
             DefaultSVNOptions options = SVNWCUtil.createDefaultOptions(true);
-            SVNClientManager clientManager = SVNClientManager.newInstance(options, module.getSvnAccount(), module.getSvnPassword());
+            RepoAuth repoAuth = repoAuthService.get(module.getRepoAuthId());
+            SVNClientManager clientManager = SVNClientManager.newInstance(options, repoAuth.getAccount(), repoAuth.getPassword());
             SVNWCClient svnwcClient = clientManager.getWCClient();
             SVNInfo info = svnwcClient.doInfo(url, null, null);
             order.setVersionNo(info.getCommittedRevision().getNumber() + "");

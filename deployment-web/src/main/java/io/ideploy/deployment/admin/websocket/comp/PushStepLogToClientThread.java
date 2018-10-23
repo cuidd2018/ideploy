@@ -1,4 +1,4 @@
-package io.ideploy.deployment.admin.comp;
+package io.ideploy.deployment.admin.websocket.comp;
 
 import com.alibaba.fastjson.JSON;
 import io.ideploy.deployment.admin.service.deploy.DeployHistoryService;
@@ -85,7 +85,7 @@ public class PushStepLogToClientThread extends Thread {
                     if (CollectionUtils.isNotEmpty(stepLogs) || CollectionUtils.isNotEmpty(serverDeployLogs)) {
                         sendLogToClient(deployHistory, logMessage);
                     } else {
-                        logger.info("没有日志推送, historyId: " + historyId);
+                       // logger.info("没有日志推送, historyId: " + historyId);
                     }
 
                     if (deployHistory.getDeployStatus() == DeployStatus.DEPLOYED.getValue()) {

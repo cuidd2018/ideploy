@@ -25,8 +25,6 @@ public interface DeployTplArgs {
      */
     String MODULE_NAME = "\\$\\{MODULE_NAME\\}";
 
-    String APP_NAME = "\\$\\{APP_NAME\\}";
-
 
     /**
      * 发布错误日志文件路径

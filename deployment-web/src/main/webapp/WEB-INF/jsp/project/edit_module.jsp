@@ -88,16 +88,9 @@
 
                                 <div class="row">
                                     <div class="form-group">
-                                        <div class="col-md-1"></div>
-                                        <div class="col-md-1 text-right">
-                                            <select class="form-control" id="repoType">
-                                                <option value="<%=ModuleRepoType.SVN.getValue()%>">SVN</option>
-                                                <option value="<%=ModuleRepoType.GIT.getValue()%>" selected="selected">GIT</option>
-                                            </select>
-                                        </div>
+                                        <label class="col-md-2 control-label text-right">仓库地址</label>
                                         <div class="col-md-6">
-                                            <input type="text" name="repoUrl" id="repoUrl" class="form-control" value=""
-                                                   size="80"
+                                            <input type="text" name="repoUrl" id="repoUrl"  class="form-control" value=""
                                                    placeholder="svn基地址,不要包含tags/、trunk/、branches"
                                                    title="svn基地址,不要包含tags/、trunk/、branches"/>
                                         </div>
@@ -106,9 +99,22 @@
 
                                 <div class="row">
                                     <div class="form-group">
+                                        <label class="col-md-2 control-label text-right">仓库认证</label>
+                                        <div class="col-md-2" style="margin-top: 5px">
+                                            <input type="hidden" name="repoAuth" id="repoAuth"
+                                                   style="width: 100%;" required="true"/>
+                                        </div>
+                                        <div class="col-md-1" style="padding-left: 0px">
+                                            <a href="/admin/repoAuth/listRepoAuth.xhtml" class="btn btn-link">新增认证</a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="form-group">
                                         <label class="col-md-2 control-label text-right">服务名</label>
-                                        <div class="col-md-6">
-                                            <input type="text" name="appName" id="appName" class="form-control"
+                                        <div class="col-md-2">
+                                            <input type="text" name="moduleName" id="moduleName"  class="form-control"
                                                    value=""
                                                    placeholder="服务名，通常跟模块名一致"/>
                                         </div>
@@ -117,29 +123,7 @@
 
                                 <div class="row">
                                     <div class="form-group">
-                                        <label class="col-md-2 control-label text-right">模块</label>
-                                        <div class="col-md-6">
-                                            <input type="text" name="moduleName" id="moduleName" class="form-control"
-                                                   value=""
-                                                   placeholder="工程结构里的module名称，比如xxxx-impl"/>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="row">
-                                    <div class="form-group">
-                                        <label class="col-md-2 control-label text-right">帐号</label>
-                                        <div class="col-md-2">
-                                            <input type="text" name="svnAccount" class="form-control" id="svnAccount"
-                                                   value=""
-                                                   placeholder="svn/git帐号" maxlength="32"/>
-                                        </div>
-                                        <label class="col-md-2 control-label text-right">密码</label>
-                                        <div class="col-md-2">
-                                            <input type="password" name="svnPassword" class="form-control"
-                                                   id="svnPassword" value=""
-                                                   placeholder="svn/git密码" maxlength="32"/>
-                                        </div>
+                                        <label class="col-md-2 control-label text-right">流程控制</label>
                                         <%--是否是发布上线 --%>
                                         <div class="col-md-2">
                                             <div class="checkbox">
@@ -271,8 +255,10 @@
                                                              data-moduleJvmId="{{value.moduleJvmId}}">
                                                             <label class="col-md-1 control-label text-left">{{value.envName}}</label>
                                                             <div class="col-md-11">
-                                                                <input type="text" class="form-control jvmArgs"
-                                                                       placeholder="JVM参数表" value="{{value.jvmArgs}}"/>
+                                                                <textarea class="form-control jvmArgs"
+                                                                          placeholder="JVM参数表">{{value.jvmArgs}}</textarea>
+                                                                <%--<input type="text" class="form-control jvmArgs"
+                                                                       placeholder="JVM参数表" value="{{value.jvmArgs}}"/>--%>
                                                             </div>
                                                         </div>
                                                         {{/each}}
@@ -291,7 +277,7 @@
                                                     </div>
                                                     <div class="col-md-5">
                                                         <p class="text-left help-block">
-                                                            比如pf.ibeiliao.net，不需要写dev/test</p>
+                                                            比如pf.ideploy.io，不需要写dev/test</p>
                                                     </div>
                                                 </div>
                                                 <div class="form-group">
@@ -413,11 +399,11 @@
                     <div class="box-footer">
                         <div class="row">
                             <div class="col-md-12">
-                                <h4>“编译脚本”可用变量：</h4>
+                                <h4>“配置脚本”可用变量：</h4>
                                 <!-- 请勿修改下面的空格 -->
                                 <pre>
-&#36;{moduleDir}：mvn编译完成后的模块目录，绝对路径，比如 /data/project/projectA/module1
-&#36;{targetDir}：模块发布完成后所在的目录，绝对路径，比如 /data/project/projectA/module1
+&#36;{compileDir}：编译服务器代码目录，比如 /data/project/pay-parent/
+&#36;{targetDir}：编译结果文件存放目录，发布系统会把目录下文件部署到&#36;{deployDir}中
 &#36;{env}：哪个环境，例如dev/test
                                 </pre>
                             </div>
@@ -683,6 +669,7 @@
                 initGroup(serverGroups);
                 initEnv(moduleDetail.envs);
                 initJvmArgs(moduleDetail);
+                initRepoAuth(moduleDetail);
             } else {
                 BootstrapDialog.alert(json.message);
             }
@@ -695,6 +682,39 @@
         if (isMainClass(moduleInfo.restartShell)) {
             $('#jvmArgBox').show();
         }
+    }
+
+    function initRepoAuth(moduleDetail,repoAuthId) {
+      var auths = moduleDetail.auths;
+      var name = $('#repoAuth');
+      name.empty();
+      var data = [];
+
+      if (auths.length > 0) {
+        for (var i = 0; i < auths.length; i++) {
+          var item = auths[i];
+          data.push({
+            id: item.authId,
+            text: item.authName
+          });
+        }
+      }
+
+      name.select2({
+        'allowClear' : true,
+        'data': data,
+        'placeholder': '请选择一个认证信息'
+      });
+
+      loadRepoAuth(repoAuthId);
+
+    }
+
+    // 读取当前要编辑的帐号信息
+    function loadRepoAuth(authId) {
+      if (authId && authId > 0) {
+         $('#repoAuth').select2('val', authId);
+      }
     }
 
     function initEnv(envs) {
@@ -823,12 +843,9 @@
                     $('#moduleId').val(projectModule.moduleId);
                     $('#moduleNameZh').val(projectModule.moduleNameZh);
                     $('#moduleName').val(projectModule.moduleName);
-                    $('#appName').val(projectModule.appName)
                     $("input[name='moduleType'][value='" + projectModule.moduleType + "']").prop("checked", true);
                     $('#repoUrl').val(projectModule.repoUrl);
                     $('#srcPath').val(projectModule.srcPath);
-                    $('#svnAccount').val(projectModule.svnAccount);
-                    $('#svnPassword').val(projectModule.svnPassword);
                     $('#deployArgs').val(projectModule.deployArgs);
                     $('#preDeploy').val(projectModule.preDeploy);
                     $('#postDeploy').val(projectModule.postDeploy);
@@ -849,7 +866,7 @@
                     initResinConf(projectModule);
                 }
                 initEnv(moduleDetail.envs);
-
+                initRepoAuth(moduleDetail, projectModule.repoAuthId)
             } else {
                 BootstrapDialog.alert(json.message);
             }
@@ -897,7 +914,6 @@
         projectModule.moduleId = $('#moduleId').val();
         projectModule.projectId = $('#projectId').val();
         projectModule.moduleNameZh = $('#moduleNameZh').val().trim();
-        projectModule.appName = $('#appName').val().trim();
         projectModule.moduleName = $('#moduleName').val().trim();
         projectModule.moduleType = $('input:radio[name="moduleType"]:checked').val();
         projectModule.repoUrl = $('#repoUrl').val().trim();
@@ -914,8 +930,7 @@
         projectModule.restartShell = $('#restartShell').val();
 
         projectModule.needAudit = $('#needAudit').is(':checked') ? 1 : 0;
-        projectModule.svnAccount = $('#svnAccount').val().trim();
-        projectModule.svnPassword = $('#svnPassword').val().trim();
+        projectModule.repoAuthId = $('#repoAuth').val();
     }
     function buildPostData() {
         var projectModule = {};
@@ -927,13 +942,7 @@
     }
 
     function needJvmArgs() {
-        var moduleType = $('input:radio[name="moduleType"]:checked').val();
-        var restartShell = $.trim($('#restartShell').val());
-        if ((moduleType && moduleType == <%=ModuleType.WEB_PROJECT.getValue()%>)
-            || isMainClass(restartShell)) {
-            return true;
-        }
-        return false;
+        return true;
     }
 
     function buildModuleJvmData(projectModule) {
@@ -1058,21 +1067,11 @@
         if ($("#moduleNameZh").val() == '') {
             message = '模块名称不能为空';
         }
-        if ($("#appName").val() == '') {
+        if ($("#moduleName").val() == '') {
             message = '服务名不能为空';
-        }
-        if ($("#repoType").val() == '') {
-            message = '版本管理类型不能为空，请选择是SVN或GIT';
         }
         if ($("#svnCheckoutDir").val() == '') {
             message = 'svn/git 地址不能为空';
-        }
-
-        if ($("#svnAccount").val() == '') {
-            message = 'svn/git帐号不能为空';
-        }
-        if ($("#svnPassword").val() == '') {
-            message = 'svn/git密码不能为空';
         }
         if (!$("input[name=moduleType]:checked").val()) {
             message = '请选择模块类型';
@@ -1307,14 +1306,7 @@
         }
     }
 
-    function chooseModuleEmpty(obj) {
-      if(obj.checked){
-        $("#moduleName").val("");
-        $("#moduleName").attr("disabled", true);
-      }else{
-        $("#moduleName").attr("disabled", false);
-      }
-    }
+
 
     $(function() {
       $('#helpDeployArgs').popover({

@@ -31,7 +31,7 @@ public class SearchResource {
 	/**
 	 * 默认的资源路径
 	 */
-	public static final String DEFAULT_RESOURCE_PATH = "com/ibeiliao/deployment/admin/**/*.class";
+	public static final String DEFAULT_RESOURCE_PATH = "io/ideploy/deployment/admin/**/*.class";
 
 	/**
 	 * 菜单描述

@@ -6,6 +6,7 @@ import io.ideploy.deployment.cfg.AppConfigFileUtil;
 import io.ideploy.deployment.cfg.ModuleConfig;
 import io.ideploy.deployment.cmd.AnsibleCommandResult;
 import io.ideploy.deployment.cmd.CommandUtil;
+import io.ideploy.deployment.common.enums.ModuleRepoType;
 import io.ideploy.deployment.common.util.FileCompressUtil;
 import io.ideploy.deployment.common.util.FileResource;
 import io.ideploy.deployment.common.util.ModuleUtil;
@@ -16,6 +17,7 @@ import io.ideploy.deployment.compile.vo.CompileShellTemplate;
 import io.ideploy.deployment.exception.ServiceException;
 import io.ideploy.deployment.log.PushLogService;
 import io.ideploy.deployment.storage.FileStorageUtil;
+import java.net.URLEncoder;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -105,6 +107,8 @@ public abstract class AbstractCompiler {
 
         preparedDir();
 
+        checkoutCode();
+
         transferScriptToServer();
     }
 
@@ -135,6 +139,70 @@ public abstract class AbstractCompiler {
         }
     }
 
+    protected void checkoutCode(){
+        List<String> buildCheckoutDirs = Lists.newArrayList("rm -rf " + getSourceCodeDir(), "mkdir " + getSourceCodeDir());
+        String[] args = {"-i", compileConfig.getCompileServer(), "all", "-m", "shell", "-a", StringUtils.join(buildCheckoutDirs, " && ")};
+
+        AnsibleCommandResult commandResult = CommandUtil.execAnsible(CommandUtil.ansibleCmdArgs(args, 1));
+        if(commandResult != null && !commandResult.isSuccess()){
+            writeStep("服务器创建目录异常，message: "+ commandResult.getErrorMessage());
+            throw new ServiceException(ApiCode.FAILURE, "ansible创建服务器目录失败");
+        }
+
+        writeStep("开始下载编译源码");
+        String []checkoutArgs = {"-i", compileConfig.getCompileServer(), "all", "-m", "shell", "-a", buildCheckoutShell(request.getTagName(), getSourceCodeDir())};
+        commandResult = CommandUtil.execAnsible(CommandUtil.ansibleCmdArgs(checkoutArgs, 1));
+        if(commandResult != null && !commandResult.isSuccess()){
+            writeStep("服务器下载源码异常，message: "+ commandResult.getErrorMessage());
+            throw new ServiceException(ApiCode.FAILURE, "ansible下载源码失败");
+        }
+    }
+
+
+    protected String buildCheckoutShell(String tagName, String checkoutDir){
+        String repoURL = request.getSvnAddr();
+        if (request.getRepoType() == ModuleRepoType.SVN.getValue()) {
+            String checkoutShell ="svn co " + repoURL + "/" + tagName + " " + checkoutDir
+                    + " --no-auth-cache --username='" + request.getSvnUserName() + "' --password='" + request.getSvnPassword() + "'";
+            return checkoutShell;
+        }
+
+        if (tagName.startsWith("/")) {
+            tagName = tagName.substring(1, tagName.length());
+        }
+        if (tagName.endsWith("/")) {
+            tagName = tagName.substring(0, tagName.length() - 1);
+        }
+        String checkoutShell = "git clone ";
+        String[] gitURLStartArr = {"http://", "https://", "git"};
+        for (String startStr : gitURLStartArr) {
+            if (repoURL.startsWith(startStr)) {
+                String password = request.getSvnPassword();
+                try {
+                    password = URLEncoder.encode(request.getSvnPassword(), "utf-8");
+                }catch (Exception e){
+                    logger.error("", e);
+                }
+                String replaceStr = startStr + request.getSvnUserName() + ":"
+                        + password + "@";
+                checkoutShell = checkoutShell + repoURL.replaceFirst(startStr, replaceStr) + " " + checkoutDir;
+                break;
+            }
+        }
+
+
+        checkoutShell += " && cd " + checkoutDir + " && " + "git pull";
+
+        if (tagName.startsWith("branches/")) {
+            checkoutShell = checkoutShell + " && git checkout " + tagName.substring("branches/".length(), tagName.length());
+        }
+
+        if (tagName.startsWith("tags/")) {
+            checkoutShell = checkoutShell + " && git checkout " + tagName;
+        }
+        return checkoutShell;
+    }
+
     protected void transferScriptToServer() {
         if (!result.isCompileSuccess()) {
             return;
@@ -151,10 +219,8 @@ public abstract class AbstractCompiler {
         String compileShellFilePath = generateCompileShell();
         fileResources.add(FileResource.file(compileShellFilePath));
 
-        //3.oss脚本
-      //  fileResources.add(FileResource.war("shell/" + OSS_SCRIPT_NAME));
-
-        String tarFilePath = FileUtils.getTempDirectoryPath() + "/" + request.getEnv() + "_" + shortModuleName + ".tar";
+        //3.打包名
+         String tarFilePath = FileUtils.getTempDirectoryPath() + "/" + request.getEnv() + "_" + shortModuleName + ".tar";
 
 
         boolean tarResult = FileCompressUtil.archive(fileResources, tarFilePath);
@@ -198,5 +264,10 @@ public abstract class AbstractCompiler {
 
     protected String getScriptServerDir() {
         return AppConfigFileUtil.getCompileServerScriptDir() + request.getEnv() + "/" + request.getProjectName() + "/" + shortModuleName + "/";
+    }
+
+    protected String getSourceCodeDir(){
+        return AppConfigFileUtil.getCompileServerCheckoutDir() + request.getEnv() + "/" + request.getProjectName()
+                + "/" + request.getTagName();
     }
 }

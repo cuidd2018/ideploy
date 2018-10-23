@@ -38,7 +38,8 @@ public class JavaCompiler extends AbstractCompiler {
             return;
         }
         logger.info("开始执行编译脚本");
-        writeStep("开始编译项目 ... <a href=\"/admin/deploy/compileLog.xhtml?historyId=" + historyId + "\" target=\"_blank\">查看日志</a>");
+        writeStep("开始编译项目 ... <a href=\"/admin/deploy/compileLog.xhtml?historyId=" + historyId + "\" target=\"_blank\">查看日志</a>"
+                + "<a id=\"btnStopCompile\" href=\"javascript:void(0);\" onclick=\"stopCompile(" + historyId + ")\" class=\"btn btn-link\">停止编译</a>");
         long startTime = System.currentTimeMillis();
         String[] args = {"-i", compileConfig.getCompileServer(), "all", "-m", "shell", "-a", "sh " + compileShellFilePath};
         AnsibleCommandResult ansibleResult = CommandUtil.execAnsible(CommandUtil.ansibleCmdArgs(args, 1));

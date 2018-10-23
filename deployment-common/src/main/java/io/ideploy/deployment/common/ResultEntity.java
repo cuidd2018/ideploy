@@ -5,7 +5,7 @@ import io.ideploy.deployment.base.ApiCode;
 /**
  * API统一结果对象
  */
-public class CallResult<T> {
+public class ResultEntity<T> {
 
 	/** 返回代码 */
 	protected int code;
@@ -20,18 +20,18 @@ public class CallResult<T> {
 	protected boolean success;
 
 	@Deprecated
-	public CallResult() {
+	public ResultEntity() {
 	}
 
-	public static CallResult make(int code, String message){
-        return new CallResult(ApiCode.FAILURE, message, null);
+	public static ResultEntity make(int code, String message){
+        return new ResultEntity(ApiCode.FAILURE, message, null);
     }
 
-	public static<T> CallResult make(T object) {
-		return new CallResult(ApiCode.SUCCESS, "success", object);
+	public static<T> ResultEntity make(T object) {
+		return new ResultEntity(ApiCode.SUCCESS, "success", object);
 	}
 
-	private CallResult(int code, String message, T object) {
+	private ResultEntity(int code, String message, T object) {
 		setCode(code);
 		setMessage(message);
 		setObject(object);

@@ -1,0 +1,8 @@
+
+
+#2018-10-18日期
+alter table t_project_module drop column svn_account;
+alter table t_project_module drop column svn_account;
+alter table t_project_module drop column app_name;
+alter table t_project_module drop column repo_type;
+alter table t_project_module add column `repo_auth_id` int(11) NOT NULL default 0 COMMENT '仓库认证ID';

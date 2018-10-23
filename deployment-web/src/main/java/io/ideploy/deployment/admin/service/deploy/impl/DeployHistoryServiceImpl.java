@@ -14,6 +14,7 @@ import io.ideploy.deployment.admin.service.account.AdminAccountService;
 import io.ideploy.deployment.admin.service.deploy.DeployHistoryService;
 import io.ideploy.deployment.admin.service.deploy.ModuleStatusManagementService;
 import io.ideploy.deployment.admin.service.global.ProjectEnvService;
+import io.ideploy.deployment.admin.service.global.RepoAuthService;
 import io.ideploy.deployment.admin.service.project.ModuleJvmService;
 import io.ideploy.deployment.admin.service.project.ProjectAccountRelationService;
 import io.ideploy.deployment.admin.service.project.ProjectModuleService;
@@ -28,6 +29,7 @@ import io.ideploy.deployment.admin.vo.deploy.DeployHistory;
 import io.ideploy.deployment.admin.vo.deploy.DeploymentOrder;
 import io.ideploy.deployment.admin.vo.deploy.ServerDeployHistory;
 import io.ideploy.deployment.admin.vo.global.ProjectEnv;
+import io.ideploy.deployment.admin.vo.global.RepoAuth;
 import io.ideploy.deployment.admin.vo.project.ModuleJvm;
 import io.ideploy.deployment.admin.vo.project.Project;
 import io.ideploy.deployment.admin.vo.project.ProjectModule;
@@ -91,6 +93,9 @@ public class DeployHistoryServiceImpl implements DeployHistoryService {
     private ServerDeployHistoryDao serverDeployHistoryDao;
 
     @Autowired
+    private RepoAuthService repoAuthService;
+
+    @Autowired
     private ProjectEnvService projectEnvService;
 
     @Autowired
@@ -142,7 +147,6 @@ public class DeployHistoryServiceImpl implements DeployHistoryService {
         deployHistory.setCreateTime(new Date());
         deployHistory.setProjectId(module.getProjectId());
         deployHistory.setModuleName(module.getModuleName());
-        deployHistory.setAppName(module.getAppName());
         deployHistory.setResult(DeployResult.NONE.getValue());
         // 如果模块需要审核，进入审核，否则进入发布阶段
         if (needAudit(module, deployHistory)) {
@@ -363,6 +367,11 @@ public class DeployHistoryServiceImpl implements DeployHistoryService {
     }
 
     @Override
+    public void stopCompile(int historyId, long accountId) {
+
+    }
+
+    @Override
     public List<Project> getProjectByServerDeployIds(List<Integer> serverDeployIdList) {
         if (!CollectionUtils.isEmpty(serverDeployIdList)) {
             Set<Integer> projectIdSet = new HashSet<>();
@@ -465,7 +474,6 @@ public class DeployHistoryServiceImpl implements DeployHistoryService {
         po.setProjectId(module.getProjectId());
         po.setModuleId(module.getModuleId());
         po.setModuleName(module.getModuleName());
-        po.setAppName(module.getAppName());
         po.setVersionNo("");
         po.setIsRestart(Constants.TRUE);
         po.setEnvId(serverGroup.getEnvId());
@@ -536,8 +544,7 @@ public class DeployHistoryServiceImpl implements DeployHistoryService {
             Assert.hasText(module.getRestartShell(), "重启脚本为空，请先完善模块配置");
         }
         Assert.hasText(module.getCompileShell(), "编译脚本为空，请先完善模块配置");
-        Assert.hasText(module.getSvnAccount(), "svn/git帐号为空，请先完善模块配置");
-        Assert.hasText(module.getSvnPassword(), "svn/git密码为空，请先完善模块配置");
+        Assert.isTrue(module.getRepoAuthId() > 0, "仓库认证ID为空，请先完善模块配置");
     }
 
     private void checkProjectAuthorization(DeploymentOrder order) {
@@ -983,12 +990,16 @@ public class DeployHistoryServiceImpl implements DeployHistoryService {
             compileRequest.setTagName(deployHistory.getTagName());
             compileRequest.setSvnAddr(module.getRepoUrl());
 
-            compileRequest.setSvnUserName(module.getSvnAccount());
-            compileRequest.setSvnPassword(module.getSvnPassword());
+            RepoAuth repoAuth = repoAuthService.get(module.getRepoAuthId());
+            compileRequest.setSvnUserName(repoAuth.getAccount());
+            compileRequest.setSvnPassword(repoAuth.getPassword());
+            compileRequest.setRepoType((short)repoAuth.getRepoType());
+
+
             compileRequest.setModuleId(module.getModuleId());
             compileRequest.setProjectId(module.getProjectId());
             compileRequest.setVersion(deployHistory.getVersionNo());
-            compileRequest.setRepoType(module.getRepoType());
+
 
             compileRequest.setForceCompile(deployHistory.getForceCompile());
             compileRequest.setModuleType(module.getModuleType());
@@ -1003,7 +1014,6 @@ public class DeployHistoryServiceImpl implements DeployHistoryService {
             request.setSaveFileName(getSaveFileName());
 
             request.setModuleName(deployHistory.getModuleName());
-            request.setAppName(deployHistory.getAppName());
 
             CompileConfig compileConfig= new CompileConfig();
 
@@ -1041,12 +1051,13 @@ public class DeployHistoryServiceImpl implements DeployHistoryService {
         }
 
         private String readFinalName(ProjectModule module) throws Exception {
-            if (module.getRepoType() == ModuleRepoType.SVN.getValue()) {
+            RepoAuth repoAuth = repoAuthService.get(module.getRepoAuthId());
+            if (repoAuth.getRepoType() == ModuleRepoType.SVN.getValue()) {
                 String pomUrl = RepoUtil
                     .getPomRepoUrl(module.getRepoUrl(), deployHistory.getTagName(), module.getModuleName());
-                return RepoUtil.getFinalNameForSvn(pomUrl, module.getSvnAccount(), module.getSvnPassword());
+                return RepoUtil.getFinalNameForSvn(pomUrl, repoAuth.getAccount(), repoAuth.getPassword());
             }
-            return RepoUtil.getFinalNameForGit(module.getModuleName(), module.getRepoUrl(), module.getSvnAccount(), module.getSvnPassword(), deployHistory.getTagName());
+            return RepoUtil.getFinalNameForGit(module.getModuleName(), module.getRepoUrl(), repoAuth.getAccount(), repoAuth.getPassword(), deployHistory.getTagName());
         }
 
         private String getModuleJvmArgs(ProjectModule module) {

@@ -86,8 +86,6 @@ public class ModuleServiceTest extends
         module.setStopShell("6.sh");
         module.setProjectId(1);
         module.setRepoUrl("http://svn");
-        module.setSvnAccount("1234");
-        module.setSvnPassword("345");
         module.setSrcPath("svn://11");
 
     }

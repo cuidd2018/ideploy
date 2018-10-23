@@ -4,6 +4,7 @@ import io.ideploy.deployment.admin.common.RestResult;
 import io.ideploy.deployment.base.ApiCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * @description:
  * @date: Created in 16:38 2018/8/29
  */
+@ControllerAdvice
 public class DefaultExpAdvice {
 
     private static Logger logger= LoggerFactory.getLogger(DefaultExpAdvice.class);

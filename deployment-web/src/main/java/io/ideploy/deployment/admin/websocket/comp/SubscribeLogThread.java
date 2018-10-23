@@ -1,4 +1,4 @@
-package io.ideploy.deployment.admin.comp;
+package io.ideploy.deployment.admin.websocket.comp;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -58,53 +58,44 @@ public class SubscribeLogThread extends Thread {
                     logger.info("接收到通道:{} 发布的信息, message: {}", channel, message);
                     try {
 
-                        //向用户推送监控的发布服务器信息
-                        List<ServerCollectLog> logList = JSONArray
-                                .parseArray(message, ServerCollectLog.class);
-
-                        //发布服务器对应的模块id  map
-                        Map<Integer, Integer> serverDeployId2ModuleIdMap = new HashMap<>();
+                        /** 解析收到订阅推送过来的报文 **/
+                        List<ServerCollectLog> logList = JSONArray.parseArray(message, ServerCollectLog.class);
 
                         for (ServerCollectLog log : logList) {
 
-//                        Set<WebSocketSession> sessions = serverDeployRelates.get(log.getId());
-                            Set<WebSocketSession> sessions = LogIdToSessionHolder.getInstance()
-                                    .get(log.getId());
+                            /*** 当前发布ID关联的所有的websocket session ***/
+                            Set<WebSocketSession> sessions = LogIdToSessionHolder.getInstance().get(log.getId());
 
-                            if (CollectionUtils.isNotEmpty(sessions)) {
-
-                                //推送信息
-                                ShellLogResponseMessage responseMessage = new ShellLogResponseMessage();
-
-//                            responseMessage.setStepLogs(readStepLogs(serverDeployId2ModuleIdMap, log));
-
-                                ShellLogResponseMessage.ServerShellLog shellLog = new ShellLogResponseMessage.ServerShellLog();
-
-                                shellLog.setServerDeployId(log.getId());
-                                shellLog.setLog(log.getContent());
-
-                                List<ShellLogResponseMessage.ServerShellLog> shellLogList = new ArrayList<>();
-                                shellLogList.add(shellLog);
-                                responseMessage.setServerLogs(shellLogList);
-                                responseMessage.setCode(ApiCode.SUCCESS);
-                                responseMessage
-                                        .setType(WebSocketRequestType.DEPLOY_SHELL_LOG.getName());
-
-                                String messageStr = JSONObject.toJSONString(responseMessage);
-
-                                //向监听用户发送消息
-                                for (WebSocketSession session : sessions) {
-                                    if (session.isOpen()) {
-                                        try {
-                                            session.sendMessage(new TextMessage(messageStr));
-                                        } catch (Exception e) {
-                                            logger.error("发送推送日志消息失败 | msg:{}", e.getMessage(), e);
-                                        }
-                                    }
-
-                                }
-
+                            /*** 当前websocket链接不存在，丢弃日志消息 ***/
+                            if (CollectionUtils.isEmpty(sessions)) {
+                                continue;
                             }
+
+                            /** 组装待推送的消息报文 **/
+                            ShellLogResponseMessage responseMessage = new ShellLogResponseMessage();
+                            ShellLogResponseMessage.ServerShellLog shellLog = new ShellLogResponseMessage.ServerShellLog();
+                            shellLog.setServerDeployId(log.getId());
+                            shellLog.setLog(log.getContent());
+                            List<ShellLogResponseMessage.ServerShellLog> shellLogList = new ArrayList<>();
+                            shellLogList.add(shellLog);
+                            responseMessage.setServerLogs(shellLogList);
+                            responseMessage.setCode(ApiCode.SUCCESS);
+                            responseMessage.setType(WebSocketRequestType.DEPLOY_SHELL_LOG.getName());
+
+                            String messageStr = JSONObject.toJSONString(responseMessage);
+
+                            /** 向监听用户推送报文 **/
+                            for (WebSocketSession session : sessions) {
+                                if (!session.isOpen()) {
+                                   continue;
+                                }
+                                try {
+                                    session.sendMessage(new TextMessage(messageStr));
+                                } catch (Exception e) {
+                                    logger.error("发送推送日志消息失败 | msg:{}", e.getMessage(), e);
+                                }
+                            }
+
                         } // end for
                     } catch (Exception e) {
                         logger.error("处理订阅的日志更改信息失败 | msg:{}", e.getMessage(), e);

@@ -4,12 +4,15 @@ import com.google.common.collect.Lists;
 import io.ideploy.deployment.admin.common.RestResult;
 import io.ideploy.deployment.admin.context.AdminContext;
 import io.ideploy.deployment.admin.service.global.ProjectEnvService;
+import io.ideploy.deployment.admin.service.global.RepoAuthService;
 import io.ideploy.deployment.admin.service.project.ProjectModuleService;
 import io.ideploy.deployment.admin.service.project.ProjectService;
 import io.ideploy.deployment.admin.service.server.ServerGroupService;
 import io.ideploy.deployment.admin.utils.resource.Menu;
 import io.ideploy.deployment.admin.utils.resource.MenuResource;
+import io.ideploy.deployment.admin.vo.global.AuthBrief;
 import io.ideploy.deployment.admin.vo.global.ProjectEnv;
+import io.ideploy.deployment.admin.vo.global.RepoAuth;
 import io.ideploy.deployment.admin.vo.project.*;
 import io.ideploy.deployment.admin.vo.project.ModuleDetailInfo;
 import io.ideploy.deployment.admin.vo.project.ProjectModule;
@@ -20,6 +23,7 @@ import io.ideploy.deployment.cmd.CommandUtil;
 import io.ideploy.deployment.admin.vo.project.AliyunEcs;
 import io.ideploy.deployment.admin.vo.project.ModuleJvm;
 import io.ideploy.deployment.admin.vo.project.Project;
+import io.ideploy.deployment.common.util.VOUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,6 +60,9 @@ public class ViewModuleController {
 
     @Autowired
     private ServerGroupService serverGroupService;
+
+    @Autowired
+    private RepoAuthService repoAuthService;
 
     /**
      * 编辑或者添加项目模块
@@ -106,6 +113,7 @@ public class ViewModuleController {
     @ResponseBody
     @MenuResource("获取模块数据")
     public RestResult getModule(int moduleId) {
+        long uid = AdminContext.getAccountId();
 
         ModuleDetailInfo moduleDetailInfo = new ModuleDetailInfo();
         ProjectModule projectModule = projectModuleService.getByModuleId(moduleId);
@@ -116,6 +124,9 @@ public class ViewModuleController {
         moduleDetailInfo.setProject(project);
         moduleDetailInfo.setProjectModule(projectModule);
         moduleDetailInfo.setEnvs(projectEnvService.findAllEnv());
+
+        List<RepoAuth> authList = repoAuthService.findRepoAuthList(uid,"",1, 1000);
+        moduleDetailInfo.setAuths(VOUtil.fromList(authList, AuthBrief.class));
 
         return new RestResult<>(moduleDetailInfo);
     }

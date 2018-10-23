@@ -26,6 +26,10 @@ public class LocalCommand implements Command {
      */
     public static final int MAX_TIMEOUT = 500;
 
+    private static final String CHARSET = "UTF-8";
+
+    private static String []envs = new String[]{"LANG="+CHARSET};
+
     protected static final Logger logger = LoggerFactory.getLogger(LocalCommand.class);
 
     private Process process;
@@ -35,9 +39,9 @@ public class LocalCommand implements Command {
     public CommandResult exec(String[] cmdArray) {
         CommandResult result = new CommandResult();
         try {
-            logger.info("LocalCommand.exec 命令：" + StringUtils.join(cmdArray, " "));
+            //logger.info("LocalCommand.exec 命令：" + StringUtils.join(cmdArray, " "));
 
-            process = Runtime.getRuntime().exec(cmdArray);
+            process = Runtime.getRuntime().exec(cmdArray, envs);
 
 
             readSuccessMessage(result);
@@ -58,7 +62,7 @@ public class LocalCommand implements Command {
         } catch (Exception e) {
             result.setSuccess(false);
             result.setMessage(e.getMessage());
-            logger.error("执行local脚本失败", e);
+            logger.error("执行local脚本失败，执行命令：{}", StringUtils.join(cmdArray, " "),e);
         }
         return result;
     }
@@ -77,12 +81,11 @@ public class LocalCommand implements Command {
 
     protected String readMessage(InputStream inputStream) throws IOException, InterruptedException {
         try {
-            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, CHARSET));
             StringBuilder builder = new StringBuilder();
             String s1;
             while ((s1 = reader.readLine()) != null) {
                 builder.append(s1);
-                System.out.println(s1);
             }
             return builder.toString();
         } finally {

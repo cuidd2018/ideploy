@@ -131,7 +131,7 @@ public abstract class AbstractTransferService {
             dir.mkdirs();
         }
 
-        String fullPathFileName = downloadDir + request.getAppName() + FileStorageUtil.EXT;
+        String fullPathFileName = downloadDir + request.getModuleName() + FileStorageUtil.EXT;
         File file = new File(fullPathFileName);
         if (file.exists()) {
             file.delete();

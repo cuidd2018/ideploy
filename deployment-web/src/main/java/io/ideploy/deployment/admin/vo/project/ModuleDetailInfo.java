@@ -1,8 +1,11 @@
 package io.ideploy.deployment.admin.vo.project;
 
+import io.ideploy.deployment.admin.vo.global.AuthBrief;
 import io.ideploy.deployment.admin.vo.global.ProjectEnv;
+import io.ideploy.deployment.admin.vo.global.RepoAuth;
 import io.ideploy.deployment.admin.vo.server.ServerGroup;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -31,6 +34,12 @@ public class ModuleDetailInfo {
      * 所有的环境 (仅作为页面初始化渲染 环境所用)
      */
     private List<ProjectEnv> envs;
+
+    /***
+     * 源码仓库认证信息
+     */
+    private List<AuthBrief> auths = new ArrayList<>();
+
 
     /**
      * 模块的jvm参数 (仅用于 添加的时候初始化各个环境对应的jvm参数)
@@ -75,6 +84,14 @@ public class ModuleDetailInfo {
 
     public void setEnvs(List<ProjectEnv> envs) {
         this.envs = envs;
+    }
+
+    public List<AuthBrief> getAuths() {
+        return auths;
+    }
+
+    public void setAuths(List<AuthBrief> auths) {
+        this.auths = auths;
     }
 
 }

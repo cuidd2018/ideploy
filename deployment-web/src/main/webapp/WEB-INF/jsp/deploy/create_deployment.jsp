@@ -365,7 +365,9 @@
     function refreshRepository() {
         if (!loadingReposotory) {
             loadingReposotory = true;
-            $('#refreshRepoBtn').html('<i class="fa fa-fw fa-spinner"></i>');
+            $('#tagList').html("");
+            $.bootstrapLoading.start({ loadingTips: "拉取分支列表，请稍候..." });
+            //$('#refreshRepoBtn').html('<i class="fa fa-fw fa-spinner"></i>');
             $.getJSON("/admin/deploy/listRepository", {'moduleId': $('#moduleId').val()}, function (json) {
                 if (json.success) {
                     var tagList = $('#tagList');
@@ -375,9 +377,27 @@
                         var row = json.object[i];
                         tagList.append('<option value="' + row['version'] + '">' + row['url'] + '</option>')
                     }
+                }else{
+                  toastr.options = {
+                    closeButton: false,
+                    debug: false,
+                    progressBar: false,
+                    positionClass: "toast-top-full-width",
+                    onclick: null,
+                    showDuration: "300",
+                    hideDuration: "600",
+                    timeOut: "1000",
+                    extendedTimeOut: "300",
+                    showEasing: "swing",
+                    hideEasing: "linear",
+                    showMethod: "fadeIn",
+                    hideMethod: "fadeOut"
+                  };
+                  toastr.error("拉取分支失败！"+json.message);
                 }
                 loadingReposotory = false;
-                $('#refreshRepoBtn').html('<i class="fa fa-fw fa-refresh"></i>');
+                //$('#refreshRepoBtn').html('<i class="fa fa-fw fa-refresh"></i>');
+                $.bootstrapLoading.end();
             });
         }
     }

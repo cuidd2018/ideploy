@@ -84,7 +84,6 @@ public class ProjectModuleServiceImpl implements ProjectModuleService {
         validateModule(projectModule);
 
         ProjectModulePO projectModulePO = VOUtil.from(projectModule, ProjectModulePO.class);
-        encodeAccountAndPassword(projectModulePO);
         initEmptyValue(projectModulePO);
 
         if (projectModule.getModuleId() > 0) {
@@ -245,19 +244,6 @@ public class ProjectModuleServiceImpl implements ProjectModuleService {
         moduleJvmService.updateModuleJvm(oldModuleJvms);
     }
 
-    private void encodeAccountAndPassword(ProjectModulePO projectModulePO) {
-        if (StringUtils.isNotBlank(projectModulePO.getSvnAccount())) {
-            projectModulePO.setSvnAccount(StaticKeyHelper.encryptKey(projectModulePO.getSvnAccount().trim()));
-        } else {
-            projectModulePO.setSvnAccount("");
-        }
-        if (StringUtils.isNotBlank(projectModulePO.getSvnPassword())) {
-            projectModulePO.setSvnPassword(StaticKeyHelper.encryptKey(projectModulePO.getSvnPassword().trim()));
-        } else {
-            projectModulePO.setSvnPassword("");
-        }
-    }
-
     private void saveServerGroupAndServer(List<ServerGroup> groups, int moduleId) {
         if (CollectionUtils.isEmpty(groups)) {
             return;
@@ -362,8 +348,6 @@ public class ProjectModuleServiceImpl implements ProjectModuleService {
         ProjectModulePO projectModulePO = projectModuleDao.get(moduleId);
         if (projectModulePO != null) {
             ProjectModule projectModule = VOUtil.from(projectModulePO, ProjectModule.class);
-
-            decodeAccountAndPassword(projectModule);
 
             List<ModuleJvm> moduleJvmArgses = buildModuleJvms(moduleId);
 
@@ -610,14 +594,4 @@ public class ProjectModuleServiceImpl implements ProjectModuleService {
         moduleJvmService.deleteByModuleId(moduleId);
     }
 
-    private void decodeAccountAndPassword(ProjectModule projectModule) {
-        if (projectModule != null) {
-            if (StringUtils.isNotEmpty(projectModule.getSvnAccount())) {
-                projectModule.setSvnAccount(StaticKeyHelper.descryptKey(projectModule.getSvnAccount()));
-            }
-            if (StringUtils.isNotEmpty(projectModule.getSvnPassword())) {
-                projectModule.setSvnPassword(StaticKeyHelper.descryptKey(projectModule.getSvnPassword()));
-            }
-        }
-    }
 }

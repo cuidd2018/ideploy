@@ -125,7 +125,7 @@ public class DeployShellTemplate {
 
     public String generateDeployShellFile() throws IOException {
 
-        String tmpShellFilePath = FileUtils.getTempDirectoryPath() + "/setup_" + request.getAppName() + ".sh";
+        String tmpShellFilePath = FileUtils.getTempDirectoryPath() + "/setup_" + request.getModuleName() + ".sh";
         FileWriter writer = null;
 
         replaceDeployArgs();
@@ -174,8 +174,8 @@ public class DeployShellTemplate {
 
     private void replaceDecompressArgs() {
         deployTplContents = deployTplContents
-                .replaceAll(DeployTplArgs.PID_FILE, request.getAppName() + ".pid")
-                .replaceAll(DeployTplArgs.MODULE_TAR_FILE, request.getAppName() + ".tar.gz");
+                .replaceAll(DeployTplArgs.PID_FILE, request.getModuleName() + ".pid")
+                .replaceAll(DeployTplArgs.MODULE_TAR_FILE, request.getModuleName() + ".tar.gz");
     }
 
     private void replaceWebModuleArgs() {
@@ -198,14 +198,12 @@ public class DeployShellTemplate {
 
     private void replaceCollectLogArgs() {
 
-        String deployLogPath = "/tmp/deploy_" + request.getAppName() + ".log";
+        String deployLogPath = "/tmp/deploy_" + request.getModuleName() + ".log";
 
         //String moduleErrLogPath = AppConfigFileUtil.getServerFileDir() + request.getProjectName() + "/" + request.getAppName() + "_err.log";
-        String moduleErrLogPath = transferConfig.getDeployDir() + "/" + request.getAppName() + "_err.log";
+        String moduleErrLogPath = transferConfig.getDeployDir() + "/" + request.getModuleName() + "_err.log";
 
-        deployTplContents = deployTplContents.replaceAll(DeployTplArgs.MODULE_NAME, shortModuleName);
-
-        deployTplContents = deployTplContents.replaceAll(DeployTplArgs.APP_NAME, request.getAppName());
+        deployTplContents = deployTplContents.replaceAll(DeployTplArgs.MODULE_NAME, request.getModuleName());
 
         deployTplContents = deployTplContents.replaceAll(DeployTplArgs.ENV, request.getEnv());
 
@@ -318,8 +316,8 @@ public class DeployShellTemplate {
         // 模块类型 为 独立进程的
         if (request.getModuleType() == ModuleType.SERVICE.getValue()) {
             //本地生成的脚本 dubboStartupShellPath，dubbo重启脚本地址为/data/project/shell/项目名/模块名/restart_module名.sh
-            moduleDeployShell = "sh " + getScriptServerDir() + "/restart_" + request.getAppName() + ".sh" + " restart";
-            moduleStopShell = "sh " + getScriptServerDir() + "/restart_" + request.getAppName() + ".sh" + " stop";
+            moduleDeployShell = "sh " + getScriptServerDir() + "/restart_" + request.getModuleName() + ".sh" + " restart";
+            moduleStopShell = "sh " + getScriptServerDir() + "/restart_" + request.getModuleName() + ".sh" + " stop";
         }
     }
 

@@ -54,7 +54,7 @@ public class RestartShellTemplate {
      * 生成restart脚本的文件
      */
     public String generateRestartShellFile() throws IOException {
-        String restartShellFilePath = FileUtils.getTempDirectoryPath() + "/restart_" + request.getAppName() + ".sh";
+        String restartShellFilePath = FileUtils.getTempDirectoryPath() + "/restart_" + request.getModuleName() + ".sh";
         FileWriter writer = null;
 
         replaceStartupTplArgs();

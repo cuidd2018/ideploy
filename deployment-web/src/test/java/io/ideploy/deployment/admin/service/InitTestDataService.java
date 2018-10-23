@@ -135,11 +135,8 @@ public class InitTestDataService {
         module.setPostShell("");
         module.setRestartShell("/usr/local/resinpro/bin/resin.sh restart");
         module.setRepoUrl("https://a.b.com/test-project");
-        module.setRepoType(ModuleRepoType.SVN.getValue());
         module.setSrcPath("");
         module.setStopShell("");
-        module.setSvnAccount("test-account");
-        module.setSvnPassword("test-password");
         module.setNeedAudit(Constants.TRUE);
 
         ProjectEnv env = envs.get(0);

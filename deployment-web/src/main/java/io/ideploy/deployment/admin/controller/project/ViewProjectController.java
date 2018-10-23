@@ -1,5 +1,7 @@
 package io.ideploy.deployment.admin.controller.project;
 
+import io.ideploy.deployment.admin.service.global.RepoAuthService;
+import io.ideploy.deployment.admin.vo.global.RepoAuth;
 import io.ideploy.deployment.compile.config.CompileConfig;
 import org.apache.commons.collections.CollectionUtils;
 import com.google.common.collect.ArrayListMultimap;
@@ -92,6 +94,9 @@ public class ViewProjectController {
 
     @Autowired
     private DeployHistoryService deployHistoryService;
+
+    @Autowired
+    private RepoAuthService repoAuthService;
 
     @Autowired
     private ModuleJvmService moduleJvmService;
@@ -244,7 +249,6 @@ public class ViewProjectController {
             request.setSaveFileName(null);
             request.setModuleName(module.getModuleName());
             request.setEnv(env.getEnvName());
-            request.setAppName(module.getAppName());
             request.setProjectName(project.getProjectNo());
             request.setRestartShell(module.getRestartShell());
             request.setJvmArgs(getModuleJvmArgs(module.getModuleId(), serverGroup.getEnvId()));
@@ -281,15 +285,16 @@ public class ViewProjectController {
     }
 
     private String readFinalName(ProjectModule module, String branchName) throws Exception {
+        RepoAuth repoAuth = repoAuthService.get(module.getRepoAuthId());
         // 读取final name默认采用 trunk 读取
-        if (module.getRepoType() == ModuleRepoType.SVN.getValue()) {
+        if (repoAuth.getRepoType() == ModuleRepoType.SVN.getValue()) {
             if (StringUtils.isBlank(branchName)) {
                 branchName = RepositoryConstants.TRUNK.substring(1);
             }
             String pomUrl = RepoUtil.getPomRepoUrl(module.getRepoUrl(), branchName, module.getModuleName());
-            return RepoUtil.getFinalNameForSvn(pomUrl, module.getSvnAccount(), module.getSvnPassword());
+            return RepoUtil.getFinalNameForSvn(pomUrl,repoAuth.getAccount(), repoAuth.getPassword());
         }
-        return RepoUtil.getFinalNameForGit(module.getModuleName(), module.getRepoUrl(), module.getSvnAccount(), module.getSvnPassword(), branchName);
+        return RepoUtil.getFinalNameForGit(module.getModuleName(), module.getRepoUrl(), repoAuth.getAccount(), repoAuth.getPassword(), branchName);
     }
 
     private String getModuleJvmArgs(int moduleId, int envId) {

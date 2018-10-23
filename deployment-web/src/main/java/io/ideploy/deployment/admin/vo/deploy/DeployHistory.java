@@ -90,10 +90,6 @@ public class DeployHistory implements Serializable {
      */
     private String moduleName;
 
-    /***
-     * 应用名
-     */
-    private String appName;
 
     /**
      * 环境
@@ -403,11 +399,4 @@ public class DeployHistory implements Serializable {
         this.serverStrategy = serverStrategy;
     }
 
-    public String getAppName() {
-        return appName;
-    }
-
-    public void setAppName(String appName) {
-        this.appName = appName;
-    }
 }

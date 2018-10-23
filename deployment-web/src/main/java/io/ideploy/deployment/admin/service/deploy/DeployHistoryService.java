@@ -138,6 +138,13 @@ public interface DeployHistoryService {
      */
     void startDeploy(int historyId, long accountId);
 
+    /***
+     * 停止编译，提前结束发布
+     * @param historyId
+     * @param accountId
+     */
+    void stopCompile(int historyId, long accountId);
+
     /**
      * 根据 服务器发布id 获取对应的项目
      *

@@ -11,10 +11,9 @@ import io.ideploy.deployment.admin.service.account.LdapAccountService;
 import io.ideploy.deployment.admin.utils.resource.MenuResource;
 import io.ideploy.deployment.admin.vo.account.AdminAccount;
 import io.ideploy.deployment.base.ApiCode;
-import io.ideploy.deployment.common.CallResult;
+import io.ideploy.deployment.common.ResultEntity;
 import io.ideploy.deployment.common.util.ParameterUtil;
 import io.ideploy.deployment.encrypt.ValueEncoder;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,11 +91,11 @@ public class WelcomeController {
             adminAccount = adminAccountService.getByAccount(account, accountType);
         }
         else{
-            CallResult<AdminAccount> callResult = ldapAccountService.login(account, password);
-            if(callResult.isFailue()){
-                return new RestResult(ApiCode.FAILURE, callResult.getMessage());
+            ResultEntity<AdminAccount> resultEntity = ldapAccountService.login(account, password);
+            if(resultEntity.isFailue()){
+                return new RestResult(ApiCode.FAILURE, resultEntity.getMessage());
             }
-            adminAccount= callResult.getObject();
+            adminAccount= resultEntity.getObject();
         }
 
         if (adminAccount == null){

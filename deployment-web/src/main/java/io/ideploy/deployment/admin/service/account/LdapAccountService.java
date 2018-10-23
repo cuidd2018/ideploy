@@ -1,7 +1,7 @@
 package io.ideploy.deployment.admin.service.account;
 
 import io.ideploy.deployment.admin.vo.account.AdminAccount;
-import io.ideploy.deployment.common.CallResult;
+import io.ideploy.deployment.common.ResultEntity;
 
 /**
  * @author: code4china
@@ -15,7 +15,7 @@ public interface LdapAccountService {
      * @param ldapId
      * @return
      */
-    CallResult<AdminAccount> login(String ldapId, String password);
+    ResultEntity<AdminAccount> login(String ldapId, String password);
 
     
 }

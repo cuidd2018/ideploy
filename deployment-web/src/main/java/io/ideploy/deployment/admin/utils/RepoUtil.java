@@ -196,6 +196,7 @@ public class RepoUtil {
                 .setHeads(true)
                 .setCredentialsProvider(cp)
                 .setRemote(gitRemoteURL)
+                .setTimeout(8)  //单位(s)
                 .setTags(true)
                 .call();
 

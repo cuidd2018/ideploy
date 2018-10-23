@@ -1,4 +1,4 @@
-package io.ideploy.deployment.admin.comp;
+package io.ideploy.deployment.admin.websocket.comp;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

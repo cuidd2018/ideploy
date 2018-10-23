@@ -77,7 +77,7 @@
                             <div class="row form-group">
                                 <label class="col-md-2 control-label text-right">项目&模块</label>
                                 <div class="col-md-10">
-                                    ${history.projectName} , ${history.appName}
+                                    ${history.projectName} , ${history.moduleName}
                                 </div>
                             </div>
                             <div class="row form-group">
@@ -285,6 +285,17 @@
                 $('#deployButton').prop('disabled', 'false');
             }
         }, 'json');
+    }
+
+    function stopCompile() {
+      $('#btnStopCompile').prop('disabled', 'true');
+      $.post('/admin/deploy/stopCompile.do', {
+        'historyId': historyId
+      }, function (json) {
+        if (!json.success) {
+          BootstrapDialog.alert(json.message);
+        }
+      }, 'json');
     }
 
     function sendHeartbeat() {

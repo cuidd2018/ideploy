@@ -24,8 +24,6 @@ public class ProjectModule implements Serializable {
 	/** 模块中文名称 */
 	private String moduleNameZh;
 
-	private String appName;
-
 	/** 模块名称 */
 	private String moduleName;
 
@@ -53,12 +51,6 @@ public class ProjectModule implements Serializable {
 	/** 日志名称，读取日志并返回 */
 	private String logName = "";
 
-	/**
-     *  版本管理类型 1-svn 2-git
-     *  @see io.ideploy.deployment.common.enums.ModuleRepoType
-     */
-	private short repoType = ModuleRepoType.SVN.getValue();
-
 	/** 版本管理地址，比如：svn://a.b.com/project/tags */
 	private String repoUrl;
 
@@ -80,11 +72,10 @@ public class ProjectModule implements Serializable {
 	/** 是否需要审核，0不需要，1需要 */
 	private short needAudit = 0;
 
-	/** svnAccount */
-	private String svnAccount;
-
-	/** svnPassword */
-	private String svnPassword;
+    /***
+     * 当前已选择的源码认证ID
+     */
+    private int repoAuthId;
 
 	/**
 	 * 服务器组
@@ -181,13 +172,6 @@ public class ProjectModule implements Serializable {
 		return logName;
 	}
 
-	public void setRepoType(short repoType) {
-		this.repoType = repoType;
-	}
-
-	public short getRepoType() {
-		return repoType;
-	}
 
 	public void setRepoUrl(String repoUrl) {
 		this.repoUrl = repoUrl;
@@ -245,21 +229,6 @@ public class ProjectModule implements Serializable {
 		return needAudit;
 	}
 
-	public void setSvnAccount(String svnAccount) {
-		this.svnAccount = svnAccount;
-	}
-
-	public String getSvnAccount() {
-		return svnAccount;
-	}
-
-	public void setSvnPassword(String svnPassword) {
-		this.svnPassword = svnPassword;
-	}
-
-	public String getSvnPassword() {
-		return svnPassword;
-	}
 
 	public List<ServerGroup> getServerGroups() {
 		return serverGroups;
@@ -293,12 +262,13 @@ public class ProjectModule implements Serializable {
         this.postDeploy = postDeploy;
     }
 
-    public String getAppName() {
-        return appName;
+
+    public int getRepoAuthId() {
+        return repoAuthId;
     }
 
-    public void setAppName(String appName) {
-        this.appName = appName;
+    public void setRepoAuthId(int repoAuthId) {
+        this.repoAuthId = repoAuthId;
     }
 
     public String toString() {

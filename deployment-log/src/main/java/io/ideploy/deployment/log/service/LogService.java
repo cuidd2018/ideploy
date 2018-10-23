@@ -36,8 +36,10 @@ public class LogService {
         try {
             ServerCollectLog serverShellLog = new ServerCollectLog(id, logType, content);
             if (logType == LogType.SERVER_DEPLOY_LOG.getType()) {
+                /** deployment:history:" + historyId + ":server:log" (每台服务器的启动过程的日志) **/
                 collectServerDeployLog(serverShellLog);
             }
+            /** deployment:server_deploy_log (存储服务器发布日志记录的key)**/
             redis.rpush(RedisLogKey.getServerDeploymentKey(), JSONObject.toJSONString(serverShellLog));
 
             return true;

@@ -107,12 +107,12 @@ public class JavaTransferService extends AbstractTransferService {
             return;
         }
 
-        String taredFilePath = FileUtils.getTempDirectoryPath() + "/transfer_" + request.getAppName() + ".tar";
+        String taredFilePath = FileUtils.getTempDirectoryPath() + "/transfer_" + request.getModuleName() + ".tar";
         boolean localTarResult = FileCompressUtil.archive(fileResources, taredFilePath);
 
         unTarShell2Server(taredFilePath, localTarResult);
 
-        result.setSetupShellPath(getScriptServerDir() + "/setup_" + request.getAppName() + ".sh");
+        result.setSetupShellPath(getScriptServerDir() + "/setup_" + request.getModuleName() + ".sh");
 
         FileUtils.deleteQuietly(new File(taredFilePath));
         FileUtils.deleteQuietly(new File(shellFilePath));
@@ -252,7 +252,7 @@ public class JavaTransferService extends AbstractTransferService {
             return null;
         }
 
-        RestartShellTemplate shellTemplate = new RestartShellTemplate(request.getAppName(), request, isStop());
+        RestartShellTemplate shellTemplate = new RestartShellTemplate(request.getModuleName(), request, isStop());
 
         String restartShellFilePath = null;
         try {

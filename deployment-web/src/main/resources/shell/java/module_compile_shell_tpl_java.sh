@@ -34,18 +34,6 @@ checkNeedCompile() {
     fi
 }
 
-checkoutBranch() {
-    rm -rf ${BRANCH_DIR}
-    mkdir -p ${BRANCH_DIR}
-    ${CHECKOUT_SHELL}
-    checkoutResult=$?
-    if [ $checkoutResult -ne 0 ]; then
-        echo 'checkout代码出错，退出'>> ${COMPILE_LOG}
-        rm -rf ${BRANCH_DIR}
-        exit 1
-    fi
-}
-
 compileModule() {
 
     mkdir -p ${BRANCH_DIR}/${MODULE_NAME}
@@ -56,6 +44,7 @@ compileModule() {
     else
        cd ${BRANCH_DIR}/${MODULE_NAME}
        if [ ! -e ${BRANCH_DIR}/${MODULE_NAME}/pom.xml ]; then
+          logErrorInfo "pom.xml文件不存在"
           exit 1
        fi
     fi
@@ -67,8 +56,8 @@ compileModule() {
     echo '准备开始编译 ...'>> ${LOG_FILE}
     ${MVN_SHELL} > ${COMPILE_LOG}
     mvnCompileResult=$?
-    if [ $mvnCompileResult -ne 0 ]; then
-        echo 'mvn编译出错，退出'>> ${LOG_FILE}
+    if [ ${mvnCompileResult} -ne 0 ]; then
+        logErrorInfo "mvn编译出错，退出"
         rm -rf ${BRANCH_DIR}
         exit 1
     fi
@@ -80,8 +69,8 @@ copyCompiledFile() {
     mkdir -p ${COMPILED_FILE_DIR}
     ${MVN_CP_SHELL}
     copyResult=$?
-    if [ $copyResult -ne 0 ]; then
-        echo 'mvn编译出错，退出'>> ${LOG_FILE}
+    if [ ${copyResult} -ne 0 ]; then
+        logErrorInfo "复制编译编译结果失败，退出"
         rm -rf ${BRANCH_DIR}
         exit 1
     fi
@@ -104,8 +93,8 @@ tarCompiledFile() {
     tarFileResult=$?
     echo 'tar打包完成'>> ${LOG_FILE}
     rm -rf ${MODULE_NAME}
-    if [ $tarFileResult -ne 0 ]; then
-        echo "tar打包失败: ${tarFileResult}，退出">> ${LOG_FILE}
+    if [ ${tarFileResult} -ne 0 ]; then
+        logErrorInfo "tar打包失败: ${tarFileResult}，退出"
         rm -rf ${BRANCH_DIR}
         exit 1
     fi
@@ -114,10 +103,16 @@ tarCompiledFile() {
     mv ${MODULE_TAR_FILE} ${LOCAL_STORAGE_DIR}/${SAVE_FILE_NAME}
 }
 
+logErrorInfo(){
+    echo $1>> ${LOG_FILE}
+    echo $1 >&2
+}
+
 forceCompile=${FORCE_COMPILE}
 checkNeedCompile
-if [ $needCompile == 1 ] || [ $forceCompile == 1 ]; then
-        checkoutBranch
+if [ ${needCompile} == 1 ] || [ ${forceCompile} == 1 ]; then
+        logErrorInfo "测试返回字符串"
+        exit 1
         compileModule
         generateTarAndMd5
     else

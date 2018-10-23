@@ -47,9 +47,6 @@ public class TransferRequest {
      */
     private String moduleName;
 
-    private String appName;
-
-
     /**
      * 环境
      */
@@ -302,11 +299,4 @@ public class TransferRequest {
         this.postDeploy = postDeploy;
     }
 
-    public String getAppName() {
-        return appName;
-    }
-
-    public void setAppName(String appName) {
-        this.appName = appName;
-    }
 }
