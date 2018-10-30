@@ -248,7 +248,7 @@ public abstract class AbstractTransferService {
             //String hostFilePath = generateHostFile();
 
             String[] args = {"ansible", "-i", ip+",", "all", "-m", "shell", "-a",
-                    "nohup sh " + result.getSetupShellPath()};
+                    "sh " + result.getSetupShellPath() + " " + deployType.getName() + " " + ip};
             logger.info("执行启动脚本的ansible" + StringUtils.join(args, " "));
 
             execAnsibleCommand(CommandUtil.ansibleCmdArgs(args, 2));

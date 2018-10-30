@@ -26,7 +26,7 @@ checkNeedCompile() {
             # 解压
             mkdir -p ${BRANCH_DIR}
             tar -xf ${BRANCH_TAR_FILE} -C ./
-            copyCompiledFile
+            echo "检测到已经存在编译好的文件,直接跳过编译" > ${COMPILE_LOG}
             needCompile=0
         else
             rm -f ${BRANCH_TAR_FILE} ${BRANCH_MD5_FILE}
@@ -62,10 +62,10 @@ compileModule() {
         exit 1
     fi
     echo '编译结束 ...'>> ${LOG_FILE}
-    copyCompiledFile
 }
 
 copyCompiledFile() {
+    echo '准备复制编译结果 ...'>> ${LOG_FILE}
     mkdir -p ${COMPILED_FILE_DIR}
     ${MVN_CP_SHELL}
     copyResult=$?
@@ -103,21 +103,31 @@ tarCompiledFile() {
     mv ${MODULE_TAR_FILE} ${LOCAL_STORAGE_DIR}/${SAVE_FILE_NAME}
 }
 
+#输出错误流
 logErrorInfo(){
     echo $1>> ${LOG_FILE}
     echo $1 >&2
 }
 
+
+#forceCompile是否强制编译
 forceCompile=${FORCE_COMPILE}
-checkNeedCompile
-if [ ${needCompile} == 1 ] || [ ${forceCompile} == 1 ]; then
-        logErrorInfo "测试返回字符串"
-        exit 1
-        compileModule
-        generateTarAndMd5
+if [ ${forceCompile} == 1 ]; then
+      needCompile=1
     else
-       echo "检测到已经存在编译好的文件,直接跳过编译" > ${COMPILE_LOG}
+      #检查是否本地存在历史版本，跳过编译
+      checkNeedCompile
 fi
+
+if [ ${needCompile} == 1 ]; then
+      compileModule
+      generateTarAndMd5
+fi
+
+#复制编译结果文件
+copyCompiledFile
+
+#压缩编译结果文件
 tarCompiledFile
 
 echo '编译结束，shell退出' >> ${LOG_FILE}

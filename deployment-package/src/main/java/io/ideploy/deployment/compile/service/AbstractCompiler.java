@@ -115,6 +115,8 @@ public abstract class AbstractCompiler {
     protected abstract void doCompile();
 
     protected void afterCompile() {
+
+
         if (!result.isCompileSuccess()) {
             return;
         }
@@ -140,7 +142,7 @@ public abstract class AbstractCompiler {
     }
 
     protected void checkoutCode(){
-        List<String> buildCheckoutDirs = Lists.newArrayList("rm -rf " + getSourceCodeDir(), "mkdir " + getSourceCodeDir());
+        List<String> buildCheckoutDirs = Lists.newArrayList("rm -rf " + getSourceCodeDir(), "mkdir -p " + getSourceCodeDir());
         String[] args = {"-i", compileConfig.getCompileServer(), "all", "-m", "shell", "-a", StringUtils.join(buildCheckoutDirs, " && ")};
 
         AnsibleCommandResult commandResult = CommandUtil.execAnsible(CommandUtil.ansibleCmdArgs(args, 1));
@@ -228,7 +230,15 @@ public abstract class AbstractCompiler {
 
         if (tarResult) {
             String[] args = {"-i", compileConfig.getCompileServer(), "all", "-m", "unarchive", "-a", "src=" + tarFilePath + " dest=" + getScriptServerDir() + " mode=755"};
-            CommandUtil.execAnsible(CommandUtil.ansibleCmdArgs(args, 1));
+            AnsibleCommandResult cmdTarResult = CommandUtil.execAnsible(CommandUtil.ansibleCmdArgs(args, 1));
+            if(cmdTarResult == null || !cmdTarResult.isSuccess()){
+                result.setCompileSuccess(false);
+                String errMsg = cmdTarResult.getErrorMessage();
+                if(StringUtils.isBlank(errMsg)){
+                    errMsg = cmdTarResult.getMessage();
+                }
+                writeStep("解压编译脚本失败，message: "+errMsg);
+            }
         } else {
             writeStep("传输编译相关脚本到服务器失败");
         }

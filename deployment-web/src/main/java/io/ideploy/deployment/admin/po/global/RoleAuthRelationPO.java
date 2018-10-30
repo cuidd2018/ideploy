@@ -8,13 +8,13 @@ import java.util.Date;
  * @description:
  * @date: Created in 14:37 2018/10/12
  */
-public class RepoAuthRelationPO implements Serializable{
+public class RoleAuthRelationPO implements Serializable{
 
     private int id;
 
-    private long uid;
+    private int roleId;
 
-    private int repoAuthId;
+    private int authId;
 
     private Date createTime;
 
@@ -28,20 +28,20 @@ public class RepoAuthRelationPO implements Serializable{
         this.id = id;
     }
 
-    public long getUid() {
-        return uid;
+    public int getRoleId() {
+        return roleId;
     }
 
-    public void setUid(long uid) {
-        this.uid = uid;
+    public void setRoleId(int roleId) {
+        this.roleId = roleId;
     }
 
-    public int getRepoAuthId() {
-        return repoAuthId;
+    public int getAuthId() {
+        return authId;
     }
 
-    public void setRepoAuthId(int repoAuthId) {
-        this.repoAuthId = repoAuthId;
+    public void setAuthId(int authId) {
+        this.authId = authId;
     }
 
     public Date getCreateTime() {

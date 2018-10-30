@@ -664,12 +664,15 @@ public class DeployHistoryServiceImpl implements DeployHistoryService {
                     if (needCompile() && (!isRollBack(deployHistory))) {
                         compileSuccess = compileModule(module, project);
                     }
+                    /** 编译完成，更新状态 **/
+                    deployHistoryDao.updateStatus(deployHistory.getHistoryId(), DeployStatus.COMPILED.getValue(), DeployStatus.DEPLOYING.getValue());
+
                     if (compileSuccess) {
                         transferAndDeploy(module, project);
                     }
 
                     short result = getDeployResult();
-                    rows = deployHistoryDao.updateResultAndStatus(deployHistory.getHistoryId(), result, total, success, DeployStatus.DEPLOYED.getValue(), DeployStatus.DEPLOYING.getValue());
+                    rows = deployHistoryDao.updateResultAndStatus(deployHistory.getHistoryId(), result, total, success, DeployStatus.DEPLOYED.getValue(), DeployStatus.COMPILED.getValue());
 
                     if (result == DeployResult.SUCCESS.getValue() && module.getModuleType() == ModuleType.WEB_PROJECT.getValue()) {
                         projectModuleService.setResinConfCreated(moduleId);

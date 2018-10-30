@@ -454,11 +454,11 @@ CREATE TABLE `t_repo_auth` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='仓库访问配置';
 
 
-DROP TABLE IF EXISTS `t_repo_auth_relation`;
+DROP TABLE IF EXISTS `t_role_auth_relation`;
 CREATE TABLE `t_repo_auth_relation` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID',
   `auth_id` int(11) NOT NULL DEFAULT '0' COMMENT '创建者ID',
-  `uid` varchar(30) NOT NULL COMMENT '名称',
+  `role_id` varchar(30) NOT NULL COMMENT '角色ID',
   `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `update_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),

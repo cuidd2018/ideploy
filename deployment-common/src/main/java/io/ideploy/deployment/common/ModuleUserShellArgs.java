@@ -13,11 +13,11 @@ public interface ModuleUserShellArgs {
     String compileDir = "compileDir";
 
     // 提供给用户 调用的复制文件的目的目录参数
-    String TARGET_DIR = "targetDir";
+    String targetDir = "targetDir";
 
     // 提供给用户 调用的复制文件的目的目录参数
-    String ENV = "env";
+    String env = "env";
 
     // 提供给用户 在编写resin启动脚本 对应 -conf 参数的值
-    String CONF = "conf";
+    String conf = "conf";
 }

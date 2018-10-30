@@ -80,6 +80,8 @@ public class ViewModuleController {
     @ResponseBody
     @MenuResource("加载初始化的项目和服务器组数据")
     public RestResult loadModuleBaseInfo(int projectId) {
+        long uid = AdminContext.getAccountId();
+
         Project project = projectService.getProject(projectId);
         ModuleDetailInfo moduleDetailInfo = new ModuleDetailInfo();
         moduleDetailInfo.setProject(project);
@@ -89,6 +91,9 @@ public class ViewModuleController {
 
         List<ModuleJvm> moduleJvmArgses = buildModuleJvms(allEnv);
         moduleDetailInfo.setModuleJvms(moduleJvmArgses);
+
+        List<RepoAuth> authList = repoAuthService.findRepoAuthList(uid,"",1, 1000);
+        moduleDetailInfo.setAuths(VOUtil.fromList(authList, AuthBrief.class));
 
         return new RestResult<>(moduleDetailInfo);
     }

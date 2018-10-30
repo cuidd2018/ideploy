@@ -58,4 +58,18 @@ public class RuntimeTest {
         }
     }
 
+    @Test
+    public void testErrInput()throws Exception{
+        Process process = Runtime.getRuntime().exec("sh /Users/dylanli/test.sh");
+        process.waitFor(399, TimeUnit.SECONDS);
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(process.getErrorStream(),"UTF-8"));
+        StringBuilder builder = new StringBuilder();
+        String s1;
+        while ((s1 = reader.readLine()) != null) {
+            builder.append(s1);
+        }
+        System.out.println(builder);
+    }
+
 }

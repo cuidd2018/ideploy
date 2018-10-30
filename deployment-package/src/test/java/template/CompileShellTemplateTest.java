@@ -1,10 +1,12 @@
 package template;
 
+import io.ideploy.deployment.common.ModuleUserShellArgs;
 import io.ideploy.deployment.common.enums.ModuleRepoType;
 import io.ideploy.deployment.common.enums.ModuleType;
 import io.ideploy.deployment.common.util.EncryptUtil;
 import io.ideploy.deployment.compile.vo.CompileRequest;
 import io.ideploy.deployment.compile.vo.CompileShellTemplate;
+import io.ideploy.deployment.constant.tpl.CompileTplArgs;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 
@@ -40,7 +42,7 @@ public class CompileShellTemplateTest {
         compileRequest.setRepoType(ModuleRepoType.GIT.getValue());
         compileRequest.setTagName("/master");
         compileRequest.setSvnAddr("http://gits-lan.ibeiliao.net/platform/platform-parent.git");
-        compileRequest.setCompileShell("mvn -P=${env} -Dmaven.test.skip=true -U clean install \n cp -R ${moduleDir}*.war ${targetDir} ");
+        compileRequest.setCompileShell("mvn -P=${env} -Dmaven.test.skip=true -U clean install \n cp -R ${"+ ModuleUserShellArgs.compileDir+"}*.war ${targetDir} ");
         return compileRequest;
     }
 
@@ -92,7 +94,7 @@ public class CompileShellTemplateTest {
         CompileRequest request = new CompileRequest();
         request.setModuleName("support-kms-front");
         request.setModuleId(29);
-        request.setCompileShell("cp -rf ${moduleDir} ${targetDir}");
+        request.setCompileShell("cp -rf ${compileDir} ${targetDir}");
         request.setEnv("dev");
         request.setRepoType(ModuleRepoType.SVN.getValue());
         request.setSvnAddr("http://svn.ibeiliao.net/svn/beiliao/beiliao/support-kms-parent");

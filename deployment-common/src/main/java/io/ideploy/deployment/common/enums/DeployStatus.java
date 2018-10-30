@@ -33,6 +33,11 @@ public enum DeployStatus {
     DEPLOYING((short)5),
 
     /**
+     * 编译完成
+     */
+    COMPILED((short)6),
+
+    /**
      * 已经发布
      * 结果看 @see {@link DeployResult}
      */

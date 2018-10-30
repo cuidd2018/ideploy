@@ -201,7 +201,7 @@ public class DeployShellTemplate {
         String deployLogPath = "/tmp/deploy_" + request.getModuleName() + ".log";
 
         //String moduleErrLogPath = AppConfigFileUtil.getServerFileDir() + request.getProjectName() + "/" + request.getAppName() + "_err.log";
-        String moduleErrLogPath = transferConfig.getDeployDir() + "/" + request.getModuleName() + "_err.log";
+        String moduleErrLogPath =  "/tmp/deploy_" + request.getModuleName() + "_err.log";
 
         deployTplContents = deployTplContents.replaceAll(DeployTplArgs.MODULE_NAME, request.getModuleName());
 
@@ -236,11 +236,11 @@ public class DeployShellTemplate {
 
         replacePrePostDeploy();
 
-        if (moduleDeployShell.contains("{" + ModuleUserShellArgs.CONF + "}")) {
-            moduleDeployShell = moduleDeployShell.replaceAll("\\$\\{" + ModuleUserShellArgs.CONF + "}", ModuleUtil.getModuleConfDir(request.getProjectName(), shortModuleName) + getResinXmlName());
+        if (moduleDeployShell.contains("{" + ModuleUserShellArgs.conf + "}")) {
+            moduleDeployShell = moduleDeployShell.replaceAll("\\$\\{" + ModuleUserShellArgs.conf + "}", ModuleUtil.getModuleConfDir(request.getProjectName(), shortModuleName) + getResinXmlName());
         }
-        if (moduleStopShell.contains("{" + ModuleUserShellArgs.CONF + "}")) {
-            moduleStopShell = moduleStopShell.replaceAll("\\$\\{" + ModuleUserShellArgs.CONF + "}", ModuleUtil.getModuleConfDir(request.getProjectName(), shortModuleName) + getResinXmlName());
+        if (moduleStopShell.contains("{" + ModuleUserShellArgs.conf + "}")) {
+            moduleStopShell = moduleStopShell.replaceAll("\\$\\{" + ModuleUserShellArgs.conf + "}", ModuleUtil.getModuleConfDir(request.getProjectName(), shortModuleName) + getResinXmlName());
         }
 
         deployTplContents = deployTplContents

@@ -252,10 +252,10 @@ public class CompileShellTemplate {
             compileShell = compileShell.replaceAll("\\$\\{" + ModuleUserShellArgs.compileDir + "}", checkoutDir + "/");
         }
         String mvnTargetFileDir = getMvnTargetModuleDir();
-        if (compileShell.contains("${" + ModuleUserShellArgs.TARGET_DIR + "}")) {
-            compileShell = compileShell.replaceAll("\\$\\{" + ModuleUserShellArgs.TARGET_DIR + "}", mvnTargetFileDir);
+        if (compileShell.contains("${" + ModuleUserShellArgs.targetDir + "}")) {
+            compileShell = compileShell.replaceAll("\\$\\{" + ModuleUserShellArgs.targetDir + "}", mvnTargetFileDir);
         }
-        compileShell = compileShell.replaceAll("\\$\\{" + ModuleUserShellArgs.ENV + "}", compileRequest.getEnv());
+        compileShell = compileShell.replaceAll("\\$\\{" + ModuleUserShellArgs.env + "}", compileRequest.getEnv());
         // 2. 逐条处理
         String copyShell = "";
         String[] userCompileShellList = compileShell.split("\n");
@@ -270,7 +270,8 @@ public class CompileShellTemplate {
                 // 判断是否是是复制, 改为 yes 2>/dev/null | cp 实现拷贝覆盖(2>/dev/null 是为了忽略yes的错误信息)
                 if (shell.startsWith("cp ") && !shell.contains("/dev/null")) {
                     //compileTplContent = compileTplContent.replaceAll(MVN_CP_SHELL, shell.replace("cp ", "yes 2>/dev/null | cp "));
-                    copyShell +=shell.replace("cp ", "yes 2>/dev/null | cp ");
+                    //copyShell +=shell.replace("cp ", "yes 2>/dev/null | cp ");
+                    copyShell +=shell;
                 }
                 else{
                     copyShell +="\n"+shell;

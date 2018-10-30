@@ -1,6 +1,8 @@
 package io.ideploy.deployment.admin.service.global;
 
 import io.ideploy.deployment.admin.vo.global.RepoAuth;
+import io.ideploy.deployment.admin.vo.global.RoleAuthRelation;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -17,4 +19,8 @@ public interface RepoAuthService {
     void save(RepoAuth repoAuth);
 
     RepoAuth get(int authId);
+
+    List<RoleAuthRelation> listByAuthId(int authId);
+
+    void saveRoleAuth(long uid, int authId, Collection<Integer> roleIds);
 }

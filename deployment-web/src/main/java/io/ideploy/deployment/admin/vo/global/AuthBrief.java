@@ -11,6 +11,9 @@ public class AuthBrief {
 
     private long creatorId;
 
+    /** 认证类型 0-私有  1-角色（角色关联引进来的仓库，减少仓库权限配置） **/
+    private int ownType;
+
     private String authName;
 
     private String authDesc;
@@ -55,5 +58,13 @@ public class AuthBrief {
 
     public void setRepoType(int repoType) {
         this.repoType = repoType;
+    }
+
+    public int getOwnType() {
+        return ownType;
+    }
+
+    public void setOwnType(int ownType) {
+        this.ownType = ownType;
     }
 }

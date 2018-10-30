@@ -21,4 +21,5 @@ public interface PushLogService {
      * @param historyId
      */
     void clear(int historyId);
+
 }

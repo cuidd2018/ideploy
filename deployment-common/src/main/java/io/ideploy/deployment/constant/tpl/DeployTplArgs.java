@@ -34,7 +34,7 @@ public interface DeployTplArgs {
     /**
      * 发布错误日志文件路径
      */
-    String MODULE_ERR_LOG = "\\$\\{MODULE_ERR_LOG\\}";
+    String MODULE_ERR_LOG = "\\$\\{DEPLOY_ERR_LOG\\}";
 
 
     /**

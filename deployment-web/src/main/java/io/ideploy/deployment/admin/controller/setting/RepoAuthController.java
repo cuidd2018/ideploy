@@ -3,12 +3,21 @@ package io.ideploy.deployment.admin.controller.setting;
 import io.ideploy.deployment.admin.common.PageResult;
 import io.ideploy.deployment.admin.common.RestResult;
 import io.ideploy.deployment.admin.context.AdminContext;
+import io.ideploy.deployment.admin.service.account.AdminAccountService;
+import io.ideploy.deployment.admin.service.account.RoleService;
 import io.ideploy.deployment.admin.service.global.RepoAuthService;
 import io.ideploy.deployment.admin.utils.resource.Menu;
 import io.ideploy.deployment.admin.utils.resource.MenuResource;
+import io.ideploy.deployment.admin.vo.account.Role;
 import io.ideploy.deployment.admin.vo.global.RepoAuth;
+import io.ideploy.deployment.admin.vo.global.RoleAuthDetail;
+import io.ideploy.deployment.admin.vo.global.RoleAuthRelation;
 import io.ideploy.deployment.base.ApiCode;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -27,6 +36,12 @@ public class RepoAuthController {
 
     @Autowired
     private RepoAuthService repoAuthService;
+
+    @Autowired
+    private RoleService roleService;
+
+    @Autowired
+    private AdminAccountService adminAccountService;
 
     /**
      * 查看环境
@@ -60,8 +75,29 @@ public class RepoAuthController {
     @ResponseBody
     @RequestMapping("getAuth")
     @MenuResource("查询配置详情")
-    public RestResult<RepoAuth> getAuth(int authId) {
-        return new RestResult<>(repoAuthService.get(authId));
+    public RestResult<RoleAuthDetail> getAuth(int authId) {
+        RoleAuthDetail detail = new RoleAuthDetail();
+        if(authId > 0){
+            RepoAuth repoAuth = repoAuthService.get(authId);
+            detail.setRepoAuth(repoAuth);
+        }
+
+        boolean adminUser =  adminAccountService.isSuperAdmin(AdminContext.getAccountId());
+        if(adminUser){
+            List<Role> roles = roleService.listAll();
+            detail.setAdminUser(adminUser);
+            detail.setRoles(roles);
+
+            List<RoleAuthRelation> roleAuths = repoAuthService.listByAuthId(authId);
+            if(CollectionUtils.isNotEmpty(roleAuths)){
+                List<Integer> existRoleIds = new ArrayList<>();
+                for(RoleAuthRelation relation: roleAuths){
+                    existRoleIds.add(relation.getRoleId());
+                }
+                detail.setExistRoleIds(existRoleIds);
+            }
+        }
+        return new RestResult<>(detail);
     }
 
     /**
@@ -70,7 +106,7 @@ public class RepoAuthController {
     @ResponseBody
     @RequestMapping("save.do")
     @MenuResource("保存权限配置")
-    public RestResult<Object> save(int authId, String authName, String authDesc, int repoType, String account, String password) {
+    public RestResult<Object> save(int authId, String authName, String authDesc, int repoType, String roleIds, String account, String password) {
         if (StringUtils.isBlank(authName) || StringUtils.isBlank(authDesc) || StringUtils.isBlank(account)) {
             return new RestResult<>(ApiCode.PARAMETER_ERROR, "参数不能为空");
         }
@@ -87,6 +123,14 @@ public class RepoAuthController {
         }
         repoAuthService.save(repoAuth);
 
+        if(adminAccountService.isSuperAdmin(AdminContext.getAccountId())){
+            Set<Integer> roleIdSet = new HashSet<>();
+            String[] roleIdStrs = roleIds.split(",");
+            for(String str: roleIdStrs){
+                roleIdSet.add(Integer.parseInt(str));
+            }
+            repoAuthService.saveRoleAuth(uid, authId, roleIdSet);
+        }
         return new RestResult<>(null);
     }
 

@@ -41,7 +41,8 @@
 										<tr>
 											<th>ID</th>
 											<th>名称</th>
-                                            <th>类型</th>
+                                            <th>所有者</th>
+                                            <th>仓库</th>
 											<th>描述</th>
 											<th>操作</th>
 										</tr>
@@ -54,6 +55,14 @@
 												</td>
 												<td>{{value.authName}}</td>
                                                 <td>
+                                                    {{if value.ownType == 0}}
+                                                    私有
+                                                    {{/if}}
+                                                    {{if value.ownType == 1}}
+                                                    公共
+                                                    {{/if}}
+                                                </td>
+                                                <td>
                                                     {{if value.repoType == <%=ModuleRepoType.GIT.getValue()%>}}
                                                     GIT
                                                     {{/if}}
@@ -63,8 +72,10 @@
                                                 </td>
 												<td>{{value.authDesc}}</td>
 												<td>
+                                                    {{if value.ownType == 0}}
 													<a href="javascript:void(0)" data-toggle="modal" data-target="#configModal"  onclick="editRepoAuth({{value.authId}})">修改</a>
-												</td>
+                                                    {{/if}}
+                                                </td>
 											</tr>
 											{{/each}}
 										</script>
@@ -106,6 +117,13 @@
                                         <label>
                                             <input type="radio" id="svnRepoType"  name="repoType" value="<%=ModuleRepoType.SVN.getValue()%>" >SVN
                                         </label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="control-label col-sm-3">角色关联:</label>
+                                    <div class="col-sm-9">
+                                        <input type="hidden" name="roleId" id="roleId" style="width: 100%;" required="true"/>
                                     </div>
                                 </div>
 
@@ -175,6 +193,12 @@
         $('#authDesc').val('');
         $('#password').val('');
         $('#account').val('');
+
+        $.get('/admin/repoAuth/getAuth', {
+            authId: "0"
+        }, function (json) {
+          loadRepoRoles(json);
+        }, 'json');
     }
 
     // 修改
@@ -185,20 +209,56 @@
             authId: $('#authId').val()
         }, function (json) {
             if (json.success) {
-              $('#account').val(json.object.account);
-              $('#authName').val(json.object.authName);
+              var repoAuth = json.object.repoAuth;
+              $('#account').val(repoAuth.account);
+              $('#authName').val(repoAuth.authName);
               $('#authName').attr("readonly", true);
-              $('#authDesc').val(json.object.authDesc);
-              if(json.object.repoType == <%=ModuleRepoType.GIT.getValue()%>){
+              $('#authDesc').val(repoAuth.authDesc);
+              if(repoAuth.repoType == <%=ModuleRepoType.GIT.getValue()%>){
                 $('#gitRepoType').attr("checked","checked");
               }
               else{
                 $('#svnRepoType').attr("checked","checked");
               }
+
+              loadRepoRoles(json);
+
             } else {
               BootstrapDialog.alert(json.message);
             }
         }, 'json');
+    }
+
+    function loadRepoRoles(json) {
+        var roles = json.object.roles;
+        var name = $('#roleId');
+        name.empty();
+        var data = [];
+
+        if (roles.length > 0) {
+        for (var i = 0; i < roles.length; i++) {
+          var item = roles[i];
+          data.push({
+            id: item.roleId,
+            text: item.roleName
+          });
+        }
+        }
+        name.select2({
+        'allowClear' : true,
+        'data': data,
+        'multiple': true,
+        'placeholder': '请选择一个角色'
+        });
+        var existRoleIds = json.object.existRoleIds;
+        if(existRoleIds){
+          $('#roleId').select2('val', existRoleIds).trigger("change");
+          /*for (var i = 0; i < existRoleIds.length; i++) {
+            var item = existRoleIds[i];
+
+          }*/
+        }
+
     }
 
     function save() {
@@ -208,13 +268,15 @@
         var account = $('#account').val();
         var password = $('#password').val();
         var authDesc = $('#authDesc').val();
+        var roleIds = $('#roleId').val();
         $.post('/admin/repoAuth/save.do', {
             authId: authId,
             authName: authName,
 			repoType: repoType,
             account: account,
             password: password,
-            authDesc: authDesc
+            authDesc: authDesc,
+            roleIds: roleIds,
         }, function (json) {
             $('#configModal').modal('hide');
             if (json.success) {

@@ -200,8 +200,7 @@ public class SearchResource {
 							.getMetadataReader(resource);
 					if (meta != null) {
 						try {
-							Class<?> classZ = Class.forName(meta
-									.getClassMetadata().getClassName(), false,
+							Class<?> classZ = Class.forName(meta.getClassMetadata().getClassName(), false,
 									SearchResource.class.getClassLoader());
 							// 如果类是资源类，则加载信息
 							if (classZ.isAnnotationPresent(Menu.class)) {
@@ -209,8 +208,7 @@ public class SearchResource {
 								RequestMapping classPath = classZ.getAnnotation(RequestMapping.class);
 
 								String name = menu.name();
-								menuList.add(new MenuDesc(menu.name(), menu
-										.parent(), menu.sequence()));
+								menuList.add(new MenuDesc(menu.name(), menu.parent(), menu.sequence()));
 
 								Method[] methods = classZ.getMethods();
 								String classPathValue = "";
@@ -225,26 +223,21 @@ public class SearchResource {
 									}
 								}
 								for (Method method : methods) {
-									if (method
-											.isAnnotationPresent(MenuResource.class)) {
-										MenuResource res = method
-												.getAnnotation(MenuResource.class);
-										RequestMapping path = method
-												.getAnnotation(RequestMapping.class);
+									if (method.isAnnotationPresent(MenuResource.class)) {
+										MenuResource res = method.getAnnotation(MenuResource.class);
+										RequestMapping path = method.getAnnotation(RequestMapping.class);
 
 										if (classPath != null && path != null
 												&& path.value() != null && path.value().length > 0) {
 											String resName = res.value();
 											String urlPath = (classPathValue + path.value()[0]).replace("//", "/");
 
-											resourceList.add(new MenuResourceDesc(
-													resName, urlPath, name));
+											resourceList.add(new MenuResourceDesc(resName, urlPath, name));
 										}
 
 									} else {
 										if (excute.get(method.getName()) == null) {
 											// ignore
-											;
 										}
 									}
 								}
@@ -262,8 +255,7 @@ public class SearchResource {
 		// 根元素
 		MenuItem root = new MenuItem("root", "", true);
 		// 临时map，保存菜单信息: <菜单名, 菜单数据>
-		Map<String, MenuItem> tmpMap = new HashMap<String, MenuItem>(
-				menuList.size() * 4 / 3 + 16);
+		Map<String, MenuItem> tmpMap = new HashMap<String, MenuItem>(menuList.size() * 4 / 3 + 16);
 		int appendCount = 0; // 记录菜单移到队尾的情况，正常不应该超过menuList.size()
 		for (int i = 0; i < menuList.size();) {
 			MenuDesc menu = menuList.get(i);

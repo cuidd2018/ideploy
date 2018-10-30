@@ -3,6 +3,7 @@
 <%@ page import="io.ideploy.deployment.common.Constants" %>
 <%@ page import="io.ideploy.deployment.cfg.AppConfigFileUtil" %>
 <%@ page import="io.ideploy.deployment.common.util.JvmArgUtil" %>
+<%@ page import="io.ideploy.deployment.common.ModuleUserShellArgs" %>
 <%@ taglib uri="http://www.springframework.org/tags/form" prefix="form" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -627,26 +628,36 @@
                     $('#stopShell').val("# web项目stop指令\n" + containerShell + " stop");
                 }
                 if (compileShell == '' || !compileShellChanged) {
-                    $('#compileShell').val("mvn -P=$" + "{env} -Dmaven.test.skip=true -U clean install\ncp -f $" + "{moduleDir}/target/*.war $" + "{targetDir}");
+                    $('#compileShell').val("mvn -P=$" + "{env} -Dmaven.test.skip=true -U clean install\ncp -f "+calcModulePath()+"/target/*.war $" + "{targetDir}");
                 }
             } else if (moduleType == <%=ModuleType.SERVICE.getValue()%>) {
                 if (restartShell == '' || !restartShellChanged) {
                     $('#restartShell').val("com.alibaba.dubbo.container.Main");
                 }
                 if (compileShell == '' || !compileShellChanged) {
-                    $('#compileShell').val("mvn -P=$" + "{env} -Dmaven.test.skip=true -U clean install\ncp `find $" + "{moduleDir}/target/ -name \"*.jar\"` $" + "{targetDir}");
+                    $('#compileShell').val("mvn -P=$" + "{env} -Dmaven.test.skip=true -U clean install\ncp `find "+calcModulePath()+"/target/ -name \"*.jar\"` $" + "{targetDir}");
                 }
                 if (!stopShellChanged && isMainClass($('#restartShell').val())) {
                     $('#stopShell').val('');
                 }
             } else if (moduleType == <%=ModuleType.STATIC.getValue()%>) {
                 $('#restartShell').val("");
-                $('#compileShell').val("cp -rf $" + "{moduleDir} $" + "{targetDir}");
+                $('#compileShell').val("cp -rf "+calcModulePath()+" $" + "{targetDir}");
                 $('#stopShell').val('');
             }
         }
 
         showJvmArgs();
+    }
+
+    function calcModulePath() {
+      var path = "$" + "{<%= ModuleUserShellArgs.compileDir%>}";
+      var moduleName = $('#moduleName').val();
+      if(moduleName && moduleName!=''){
+        moduleName="/"+moduleName;
+      }
+      path += moduleName;
+      return path;
     }
 
     function isMainClass(restartShell) {
@@ -1331,8 +1342,8 @@
       $('#helpCompileShell').popover({
         content: '参考如下，<span class="text-danger">每行一条指令</span>：<br/>' +
         'mvn -P=&#36;{env} -Dmaven.test.skip=true -U clean install<br/>' +
-        'cp -f &#36;{moduleDir}/target/*.<b>jar</b> &#36;{targetDir}<br/>' +
-        '或cp -f &#36;{moduleDir}/target/*.<b>war</b> &#36;{targetDir}',
+        'cp -f &#36;{compileDir}/pay-impl/target/*.<b>jar</b> &#36;{targetDir}<br/>' +
+        '或cp -f &#36;{compileDir}/pay-impl/target/*.<b>war</b> &#36;{targetDir}',
         trigger: 'click',
         placement: 'bottom',
         html: 'true',

@@ -1,4 +1,6 @@
+<%@ page import="io.ideploy.deployment.admin.controller.deploy.CompileLogController" %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <meta http-equiv="content-type" content="text/html;charset=UTF-8">
@@ -13,7 +15,7 @@
     </style>
 </head>
 <body>
-<h3>编译中……</h3>
+<h3 id="title">${title}</h3>
 <div id="logBody">
 </div>
 <script type="text/javascript">
@@ -40,16 +42,24 @@
         $.getJSON("/admin/deploy/getCompileLog", {'historyId': historyId, "offset": offset}, function (data) {
             var logs = data.logs;
             offset = data.offset;
+            var fetchNext = ${fetchNext};
             if (logs && logs.length && logs.length > 0) {
                 var logBody = $('#logBody');
                 for (var i = 0; i < logs.length; i++) {
                     var log = logs[i];
+                    if("<%=CompileLogController.LOG_FINISHED%>" == log){
+                        fetchNext = false; //编译日志
+                        $("#title").html("编译结束");
+                        continue;
+                    }
                     log = log.replace(/\n/gi, '<br/>');
                     logBody.append(log + '<br/>');
                 }
                 $(document.body).scrollTop($(document.body)[0].scrollHeight);
             }
-            window.setTimeout(loadLog, interval);
+            if(fetchNext) {
+              window.setTimeout(loadLog, interval);
+            }
         });
     }
 </script>

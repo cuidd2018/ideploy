@@ -226,19 +226,20 @@ public class MenuServiceImpl implements MenuService {
 		}
 
 		if (res == null) {
-			// 新增资源
-			res = new UrlResourcePO();
-			res.setResId(generateIdForName(false, item.getName(), item.getUrl()));
-			res.setParentResId(0); // 暂时没有 parentResId
-			res.setCreateTime(new Date());
-			res.setLastModify(res.getCreateTime());
-			res.setAppId(appId);
-			res.setUrlName(item.getName());
-			res.setOperator(AdminContext.getAccountId());
-			res.setSequence(0);
-			res.setUri(item.getUrl());
-			urlResourceDao.save(res);
-			res = urlResourceDao.getByAppIdAndUri(appId, item.getUrl());
+		    int resId = generateIdForName(false, item.getName(), item.getUrl());
+            // 新增资源
+            res = new UrlResourcePO();
+            res.setResId(resId);
+            res.setParentResId(0); // 暂时没有 parentResId
+            res.setCreateTime(new Date());
+            res.setLastModify(res.getCreateTime());
+            res.setAppId(appId);
+            res.setUrlName(item.getName());
+            res.setOperator(AdminContext.getAccountId());
+            res.setSequence(0);
+            res.setUri(item.getUrl());
+            urlResourceDao.save(res);
+            res = urlResourceDao.getByAppIdAndUri(appId, item.getUrl());
 		}
 		else {
 			// 更新资源

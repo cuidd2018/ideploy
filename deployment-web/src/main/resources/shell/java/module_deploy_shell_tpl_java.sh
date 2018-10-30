@@ -24,13 +24,20 @@ if [ $webProjectFlag -eq 1 ]; then
 fi
 
 #内网地址
-inner_ip=$(/sbin/ifconfig -a |egrep -A 1 'enp3s0|eth0|en0' |tail -n 1| awk '{print $2}')
+if [ ! -z $2 ];then
+  inner_ip=$2
+fi
+if [ -z "${inner_ip}" ];then
+  inner_ip=$(/sbin/ifconfig -a |egrep -A 1 'enp3s0|eth0|en0' |tail -n 1| awk '{print $2}')
+fi
+
 
 if [ "$deployType" != "restart" ];then
     ${PYTHON_COLLECT_LOG}
 fi
 
 # 错误日志文件
+MODULE_ERR_LOG=${DEPLOY_ERR_LOG}
 touch ${MODULE_ERR_LOG}
 cat /dev/null >${MODULE_ERR_LOG}
 

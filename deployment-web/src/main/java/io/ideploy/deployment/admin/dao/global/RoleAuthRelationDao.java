@@ -1,7 +1,8 @@
 package io.ideploy.deployment.admin.dao.global;
 
 import io.ideploy.deployment.admin.po.global.RepoAuthPO;
-import io.ideploy.deployment.admin.po.global.RepoAuthRelationPO;
+import io.ideploy.deployment.admin.po.global.RoleAuthRelationPO;
+import io.ideploy.deployment.admin.vo.global.RoleAuthRelation;
 import io.ideploy.deployment.datasource.MyBatisDao;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
@@ -12,14 +13,17 @@ import org.apache.ibatis.annotations.Param;
  * @date: Created in 14:36 2018/10/12
  */
 @MyBatisDao
-public interface RepoAuthRelationDao {
+public interface RoleAuthRelationDao {
 
-    void save(RepoAuthRelationPO repoAuthRelationPO);
+    void save(RoleAuthRelationPO roleAuthRelationPO);
 
     int deleteById(@Param("id")int id);
 
+    int deleteByAuthId(@Param("authId")int authId);
+
     int update(@Param("id") int id, @Param("authId") int authId);
 
-    List<RepoAuthPO> listAllAuths(@Param("uid")long uid);
+    List<RepoAuthPO> listByRoleId(@Param("roleId")long roleId);
 
+    List<RoleAuthRelationPO> listByAuthId(@Param("authId") int authId);
 }

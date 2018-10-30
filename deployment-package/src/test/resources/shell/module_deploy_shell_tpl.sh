@@ -23,8 +23,9 @@ inner_ip=$(/sbin/ifconfig -a|grep inet|grep -v 127.0.0.1|grep -v inet6|awk 'NR==
 ${PYTHON_COLLECT_LOG}
 
 # 错误日志文件
-touch ${MODULE_ERR_LOG}
-cat /dev/null >${MODULE_ERR_LOG}
+ERR_LOG=${MODULE_ERR_LOG}
+touch ${ERR_LOG}
+cat "" >${ERR_LOG}
 
 echo $inner_ip" "$(date +%H:%M:%S)" 开始发布" >> ${LOG_FILE}
 backupModule() {
@@ -115,32 +116,32 @@ prepareModuleFile() {
 
 startupModule() {
     echo $inner_ip" "$(date +%H:%M:%S)" 开始重启" >> ${LOG_FILE}
-    execPreShell 1> /dev/null 2>${MODULE_ERR_LOG}
+    execPreShell 1> /dev/null 2>${ERR_LOG}
     logErrorInfo
 
-    execRestartShell 1> /dev/null 2>${MODULE_ERR_LOG}
+    execRestartShell 1> /dev/null 2>${ERR_LOG}
     logErrorInfo
 
-    execPostShell 1> /dev/null 2>${MODULE_ERR_LOG}
+    execPostShell 1> /dev/null 2>${ERR_LOG}
     logErrorInfo
 }
 
 
 deployModule() {
-      prepareModuleFile 1> /dev/null 2>${MODULE_ERR_LOG}
+      prepareModuleFile 1> /dev/null 2>${ERR_LOG}
       logErrorInfo
 
-      backupModule 1> /dev/null 2>${MODULE_ERR_LOG}
+      backupModule 1> /dev/null 2>${ERR_LOG}
       logErrorInfo
 
-      decompressModule 1> /dev/null 2>${MODULE_ERR_LOG}
+      decompressModule 1> /dev/null 2>${ERR_LOG}
       logErrorInfo
 
       startupModule
 }
 
 logErrorInfo() {
-  errorInfo=`cat ${MODULE_ERR_LOG}`
+  errorInfo=`cat ${ERR_LOG}`
   if [ -n "$errorInfo" ]; then
      echo $inner_ip" "$(date +%H:%M:%S)" 启动失败错误信息 : "$errorInfo >> ${LOG_FILE}
      sleep 1
@@ -153,11 +154,11 @@ deploy)
       deployModule
 ;;
 restart)
-      startupModule 1> /dev/null 2>${MODULE_ERR_LOG}
+      startupModule 1> /dev/null 2>${ERR_LOG}
       logErrorInfo
 ;;
 stop)
-      startupModule 1> /dev/null 2>${MODULE_ERR_LOG}
+      startupModule 1> /dev/null 2>${ERR_LOG}
       logErrorInfo
 ;;
 *)

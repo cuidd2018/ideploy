@@ -28,8 +28,6 @@ public class LocalCommand implements Command {
 
     private static final String CHARSET = "UTF-8";
 
-    private static String []envs = new String[]{"LANG="+CHARSET};
-
     protected static final Logger logger = LoggerFactory.getLogger(LocalCommand.class);
 
     private Process process;
@@ -41,7 +39,7 @@ public class LocalCommand implements Command {
         try {
             //logger.info("LocalCommand.exec 命令：" + StringUtils.join(cmdArray, " "));
 
-            process = Runtime.getRuntime().exec(cmdArray, envs);
+            process = Runtime.getRuntime().exec(cmdArray);
 
 
             readSuccessMessage(result);
