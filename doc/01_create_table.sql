@@ -455,7 +455,7 @@ CREATE TABLE `t_repo_auth` (
 
 
 DROP TABLE IF EXISTS `t_role_auth_relation`;
-CREATE TABLE `t_repo_auth_relation` (
+CREATE TABLE `t_role_auth_relation` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT 'ID',
   `auth_id` int(11) NOT NULL DEFAULT '0' COMMENT '创建者ID',
   `role_id` varchar(30) NOT NULL COMMENT '角色ID',

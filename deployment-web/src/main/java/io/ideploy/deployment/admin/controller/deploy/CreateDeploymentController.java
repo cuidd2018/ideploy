@@ -181,8 +181,16 @@ public class CreateDeploymentController {
         order.setRealName(AdminContext.getName());
         ensureRevision(order);
 
-        deployHistoryService.createDeploymentOrder(order);
-        return new RestResult<>(null);
+        int retCode = ApiCode.FAILURE;
+        String message = null;
+        try {
+            deployHistoryService.createDeploymentOrder(order);
+            retCode = ApiCode.SUCCESS;
+        }catch (Exception e){
+            logger.error("", e);
+            message = e.getMessage();
+        }
+        return new RestResult<>(retCode,message);
     }
 
     @RequestMapping("listRepository")

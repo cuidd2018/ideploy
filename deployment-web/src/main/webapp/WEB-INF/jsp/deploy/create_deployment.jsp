@@ -157,11 +157,21 @@
                                 <div class="form-group">
                                     <label class="col-md-2 control-label">强制编译</label>
                                     <div class="col-md-2">
-                                        <label><input type="radio" name="forceCompile" value="1"/>是</label> &nbsp;
-                                        <label><input type="radio" name="forceCompile" value="0" checked/>否</label>
+                                        <label><input type="radio" name="forceCompile" value="1" checked/>是</label> &nbsp;
+                                        <label><input type="radio" name="forceCompile" value="0"/>否</label>
                                     </div>
                                     <div class="col-md-8 text-danger">
                                         trunk、branch每次都会重新编译，tag默认不会强制编译
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-md-2 control-label">tags限制</label>
+                                    <div class="col-md-2">
+                                        <label><input type="radio" name="onlineTags" value="1" checked/>是</label> &nbsp;
+                                        <label><input type="radio" name="onlineTags" value="0" />否</label>
+                                    </div>
+                                    <div class="col-md-8 text-danger">
+                                        生产环境只允许发布tags分支，如需发布其他分支，请联系管理员处理。
                                     </div>
                                 </div>
                                 <div class="form-group">
@@ -340,6 +350,7 @@
         } else if (!(serverId && serverId.length > 0)) {
             message = '请选择要发布的服务器';
         }
+
         // 检测发布的服务器组，每次只能发一组
         var tbs = $("#serverGroupTabContent").children(".tab-pane");
         var selectGroupNum = 0;
@@ -351,6 +362,13 @@
         });
         if (selectGroupNum > 1) {
             message = '每次只能发布一组服务器';
+        }
+
+        //检测分支发布是否tags
+        var onlineTags = $('input[name=onlineTags]:checked').val();
+        var envId = $('input[name=envId]:checked').val();
+        if(onlineTags == 1 && envId == 4){
+            message = '生产环境只允许部署tags分支';
         }
 
         if (message != '') {

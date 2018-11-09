@@ -5,6 +5,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import io.ideploy.deployment.admin.context.AdminContext;
 import io.ideploy.deployment.admin.dao.deploy.DeployHistoryDao;
 import io.ideploy.deployment.admin.dao.deploy.ServerDeployHistoryDao;
 import io.ideploy.deployment.admin.enums.ServerStrategy;
@@ -519,7 +520,10 @@ public class DeployHistoryServiceImpl implements DeployHistoryService {
         ProjectEnv env = projectEnvService.getById(order.getEnvId());
         Assert.notNull(env, "环境不存在, envId: " + order.getEnvId());
         if (env.getOnlineFlag() == Constants.TRUE && !order.getTagName().contains(RepositoryConstants.TAGS)) {
-            throw new IllegalArgumentException("生产环境 " + env.getEnvName() + " 只能发布 tag，请选择一个 tag 创建上线单");
+            if(!adminAccountService.isSuperAdmin(order.getAccountId())) {
+                throw new IllegalArgumentException(
+                        "生产环境 " + env.getEnvName() + " 只能发布 tag，请选择一个 tag 创建上线单");
+            }
         }
         // 检查项目是否存在 & online
         checkProjectStatus(order.getProjectId());
