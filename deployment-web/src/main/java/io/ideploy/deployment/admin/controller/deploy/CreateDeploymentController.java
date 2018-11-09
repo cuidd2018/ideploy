@@ -186,6 +186,7 @@ public class CreateDeploymentController {
         try {
             deployHistoryService.createDeploymentOrder(order);
             retCode = ApiCode.SUCCESS;
+            message = "创建成功";
         }catch (Exception e){
             logger.error("", e);
             message = e.getMessage();
