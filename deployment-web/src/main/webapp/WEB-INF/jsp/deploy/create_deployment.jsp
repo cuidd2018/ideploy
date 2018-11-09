@@ -367,7 +367,7 @@
         //检测分支发布是否tags
         var onlineTags = $('input[name=onlineTags]:checked').val();
         var envId = $('input[name=envId]:checked').val();
-        if(onlineTags == 1 && envId == 4){
+        if(onlineTags == 1 && envId == 4 && !tagName.startsWith("/tags")){
             message = '生产环境只允许部署tags分支';
         }
 
